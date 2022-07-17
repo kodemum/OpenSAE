@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:models="clr-namespace:OpenSAE.Models"
         xmlns:local="clr-namespace:OpenSAE"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=models:SymbolArtModel}"
         Title="OpenSA Symbol Art editor" Height="450" Width="1000">
     <Window.Resources>
         <DiffuseMaterial x:Key="borderMaterial">
@@ -12,6 +14,42 @@
                 <SolidColorBrush Color="Black" />
             </DiffuseMaterial.Brush>
         </DiffuseMaterial>
+
+        <DataTemplate DataType="{x:Type models:SymbolArtModel}">
+            <StackPanel>
+                <UniformGrid Columns="2" Margin="10 5">
+                    <TextBlock Text="Symbol Art name" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding Name}" Margin="5" />
+                    <TextBlock Text="Size" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding SizeOptions}" Margin="5" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Size}" />
+                    <TextBlock Text="Sound effect" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <ComboBox ItemsSource="{Binding SoundEffectOptions}" Margin="5" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding SoundEffect}" />
+                </UniformGrid>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type models:SymbolArtGroupModel}">
+            <StackPanel>
+                <UniformGrid Columns="2" Margin="10 5">
+                    <TextBlock Text="Group name" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
+                    <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <CheckBox Margin="5" Content="Enable group" IsChecked="{Binding Visible}" />
+                </UniformGrid>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
+            <StackPanel>
+                <UniformGrid Columns="2" Margin="10 5">
+                    <TextBlock Text="Layer name" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
+                    <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <CheckBox Margin="5" Content="Enable layer" IsChecked="{Binding Visible}" />
+                </UniformGrid>
+            </StackPanel>
+        </DataTemplate>
+        
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,9 +60,10 @@
             <ColumnDefinition Width="250" />
             <ColumnDefinition Width="10" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="10" />
             <ColumnDefinition Width="250" />
         </Grid.ColumnDefinitions>
-        <Menu DockPanel.Dock="Top" Grid.ColumnSpan="4" Padding="5">
+        <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
             <MenuItem Header="_File">
                 <!--<MenuItem Header="_New" />-->
                 <MenuItem Header="_Open" Click="MenuItem_Click" />
@@ -33,9 +72,23 @@
                 <!--<MenuItem Header="_Exit" />-->
             </MenuItem>
         </Menu>
-        <TreeView Grid.Row="1">
-
-        </TreeView>
+        <DockPanel Grid.Row="1">
+            <Menu DockPanel.Dock="Bottom" Padding="0 5">
+                <MenuItem Header="Add layer" />
+                <MenuItem Header="Add group" />
+            </Menu>
+            <TreeView BorderThickness="0" ItemsSource="{Binding RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
+                <TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
+                        <StackPanel Orientation="Horizontal">
+                            <CheckBox IsChecked="{Binding Visible}" />
+                            <TextBlock Margin="5 0" Text="{Binding Name}" />
+                        </StackPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.ItemTemplate>
+            </TreeView>
+        </DockPanel>
+        
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
         <Rectangle Grid.Row="1" Grid.Column="2">
@@ -48,6 +101,10 @@
             </Rectangle.Fill>
         </Rectangle>
 
+        <GridSplitter Grid.Row="1" Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
+
+        <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}">
+        </ContentPresenter>
 
         <Viewport3D x:Name="viewport3d" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ModelVisual3D x:Name="model3d">

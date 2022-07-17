@@ -1,0 +1,262 @@
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using OpenSAE.Core;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+
+namespace OpenSAE.Models
+{
+    public class SymbolArtModel : SymbolArtItemModel
+    {
+        private readonly SymbolArt _sa;
+        private SymbolArtItemModel _selectedItem;
+
+        public SymbolArtModel(SymbolArt sa)
+        {
+            _sa = sa;
+
+            foreach (var item in sa.Children)
+            {
+                if (item is ISymbolArtGroup subGroup)
+                {
+                    Children.Add(new SymbolArtGroupModel(subGroup, this));
+                }
+                else if (item is SymbolArtLayer layer)
+                {
+                    Children.Add(new SymbolArtLayerModel(layer, this));
+                }
+                else
+                {
+                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art");
+                }
+            }
+        }
+
+        public SymbolArtItemModel SelectedItem
+        {
+            get => _selectedItem;
+            set => SetProperty(ref _selectedItem, value);
+        }
+
+        public override string? Name
+        {
+            get => _sa.Name;
+            set
+            {
+                _sa.Name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool Visible
+        {
+            get => _sa.Visible;
+            set
+            {
+                _sa.Visible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool IsVisible => Visible;
+
+        public SymbolArtSize Size
+        {
+            get
+            {
+                if (_sa.Height == 96 && _sa.Width == 192)
+                    return SymbolArtSize.Standard;
+
+                if (_sa.Width == 32 && _sa.Height == 32)
+                    return SymbolArtSize.AllianceLogo;
+
+                return SymbolArtSize.NonStandard;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case SymbolArtSize.AllianceLogo:
+                        _sa.Height = 32;
+                        _sa.Width = 32;
+                        break;
+
+                    case SymbolArtSize.Standard:
+                        _sa.Width = 192;
+                        _sa.Height = 96;
+                        break;
+                }
+            }
+        }
+
+        public SymbolArtSoundEffect SoundEffect
+        {
+            get => _sa.Sound;
+            set
+            {
+                _sa.Sound = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<SymbolArtSizeOptionModel> SizeOptions => new()
+        {
+            new SymbolArtSizeOptionModel(SymbolArtSize.Standard, "Standard"),
+            new SymbolArtSizeOptionModel(SymbolArtSize.AllianceLogo, "Alliance logo")
+        };
+
+        public List<SymbolArtSoundEffectOptionModel> SoundEffectOptions => new()
+        {
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.None, "None"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Default, "Default"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Joy, "Joy"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Anger, "Anger"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Sorrow, "Sorrow"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Unease, "Unease"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Surprise, "Surprise"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Doubt, "Doubt"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Help, "Help"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Whistle, "Whistle"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Embarrassed, "Embarrassed"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.NailedIt, "Nailed it!")
+        };
+
+        public List<SymbolArtModel> RootItems => new() { this };
+    }
+
+    public abstract class SymbolArtItemModel : ObservableObject
+    {
+        public abstract string? Name { get; set; }
+
+        public abstract bool Visible { get; set; }
+
+        public abstract bool IsVisible { get; }
+
+        public ObservableCollection<SymbolArtItemModel> Children { get; }
+            = new();
+    }
+
+    public class SymbolArtGroupModel : SymbolArtItemModel
+    {
+        private readonly ISymbolArtGroup _group;
+        private readonly SymbolArtItemModel _parent;
+
+        public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel parent)
+        {
+            _group = group;
+            _parent = parent;
+
+            foreach (var item in _group.Children)
+            {
+                if (item is ISymbolArtGroup subGroup)
+                {
+                    Children.Add(new SymbolArtGroupModel(subGroup, this));
+                }
+                else if (item is SymbolArtLayer layer)
+                {
+                    Children.Add(new SymbolArtLayerModel(layer, this));
+                }
+                else
+                {
+                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art group");
+                }
+            }
+        }
+
+        public override string? Name
+        {
+            get => _group.Name;
+            set
+            {
+                _group.Name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool Visible
+        {
+            get => _group.Visible;
+            set
+            {
+                _group.Visible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool IsVisible => _parent.IsVisible && Visible;
+    }
+
+    public class SymbolArtLayerModel : SymbolArtItemModel
+    {
+        private readonly SymbolArtLayer _layer;
+        private readonly SymbolArtItemModel _parent;
+
+        public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel parent)
+        {
+            _layer = layer;
+            _parent = parent;
+        }
+
+        public override string? Name
+        {
+            get => _layer.Name;
+            set
+            {
+                _layer.Name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool Visible
+        {
+            get => _layer.Visible;
+            set
+            {
+                _layer.Visible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool IsVisible => _parent.IsVisible && Visible;
+
+        public string? SymbolPackUri => SymbolUtil.GetSymbolPackUri(_layer.Type);
+
+        public double Alpha
+        {
+            get => _layer.Alpha;
+            set
+            {
+                _layer.Alpha = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Color Color
+        {
+            get => (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+            set
+            {
+                _layer.Color = string.Format("#{0:X2}{1:X2}{2:X2}", value.R, value.G, value.B);
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<Point3D> Points
+        {
+            get
+            {
+                yield return new Point3D(_layer.Lbx, -_layer.Lby, 0);
+                yield return new Point3D(_layer.Ltx, -_layer.Lty, 0);
+                yield return new Point3D(_layer.Rbx, -_layer.Rby, 0);
+                yield return new Point3D(_layer.Rtx, -_layer.Rty, 0);
+            }
+        }
+    }
+
+
+}

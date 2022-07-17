@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using OpenSAE.Core;
 using OpenSAE.Core.SAML;
+using OpenSAE.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +26,9 @@ namespace OpenSAE
     /// </summary>
     public partial class MainWindow : Window
     {
-        private SymbolArt _symbol;
+        private SymbolArtModel? _symbol;
+        private Dictionary<SymbolArtLayerModel, GeometryModel3D> _layerDictionary
+            = new();
 
         public MainWindow()
         {
@@ -38,7 +41,10 @@ namespace OpenSAE
             {
                 using var fs = File.OpenRead(filename);
 
-                _symbol = SamlLoader.LoadFromStream(fs);
+                _symbol = new SymbolArtModel(SamlLoader.LoadFromStream(fs));
+                
+
+                DataContext = _symbol;
             }
             catch (Exception ex)
             {
@@ -53,48 +59,61 @@ namespace OpenSAE
         {
             model3dGroup.Children.Clear();
             model3dGroup.Children.Add(new AmbientLight(Colors.White));
+            _layerDictionary.Clear();
 
-            Task.Run(() =>
-            {
-                DrawSymbolArtGroup(_symbol);
-            });
+            DrawSymbolArtGroup(_symbol);
         }
 
-        private void DrawSymbolArtGroup(ISymbolArtGroup group)
+        private void DrawSymbolArtGroup(SymbolArtItemModel group)
         {
             for (int i = group.Children.Count - 1; i >= 0; i--)
             {
-                if (group.Children[i] is SymbolArtLayer layer)
+                if (group.Children[i] is SymbolArtLayerModel layer)
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Draw3d(layer);
-                    });
+                    Draw3d(layer);
                 }
-                else if (group.Children[i] is ISymbolArtGroup subGroup)
+                else
                 {
-                    DrawSymbolArtGroup(subGroup);
+                    DrawSymbolArtGroup(group.Children[i]);
+                }
+            }
+
+            group.PropertyChanged += (_, args) =>
+            {
+                if (args.PropertyName == nameof(SymbolArtItemModel.Visible))
+                {
+                    RecursiveRefreshVisibility(group);
+                }
+            };
+        }
+
+        private void RecursiveRefreshVisibility(SymbolArtItemModel group)
+        {
+            foreach (var item in group.Children)
+            {
+                if (item is SymbolArtLayerModel layer)
+                {
+                    RefreshLayerVisibility(layer);
+                }
+                else
+                {
+                    RecursiveRefreshVisibility(item);
                 }
             }
         }
 
-        private void Draw3d(SymbolArtLayer layer)
+        private void Draw3d(SymbolArtLayerModel layer)
         {
+            // GeometryModel3D does not support data binding :(
+
             // order:
             // left bottom
             // left top
             // right bottom
             // right top
-            var points = new Point3DCollection()
-            {
-                new Point3D(layer.Lbx, -layer.Lby, 0),
-                new Point3D(layer.Ltx, -layer.Lty, 0),
-                new Point3D(layer.Rbx, -layer.Rby, 0),
-                new Point3D(layer.Rtx, -layer.Rty, 0)
-            };
+            var points = new Point3DCollection(layer.Points);
 
-            var uri = SymbolUtil.GetSymbolPackUri(layer.Type);
-
+            var uri = layer.SymbolPackUri;
             if (uri == null)
             {
                 return;
@@ -106,10 +125,10 @@ namespace OpenSAE
                 {
                     Opacity = layer.Alpha
                 },
-                AmbientColor = (Color)ColorConverter.ConvertFromString(layer.Color ?? "#ffffff")
+                AmbientColor = layer.Color
             };
 
-            model3dGroup.Children.Add(new GeometryModel3D()
+            var model = new GeometryModel3D()
             {
                 Geometry = new MeshGeometry3D()
                 {
@@ -123,13 +142,29 @@ namespace OpenSAE
                     },
                     TriangleIndices = new Int32Collection()
                     {
-                        0, 2, 1, 
+                        0, 2, 1,
                         2, 3, 1,
                     }
                 },
                 Material = material,
                 BackMaterial = material,
-            });
+            };
+
+            model3dGroup.Children.Add(model);
+
+            _layerDictionary.Add(layer, model);
+
+            layer.PropertyChanged += (_, __) =>
+            {
+                RefreshLayerVisibility(layer);
+            };
+        }
+
+        private void RefreshLayerVisibility(SymbolArtLayerModel layer)
+        {
+            var model3d = _layerDictionary[layer];
+
+            ((DiffuseMaterial)model3d.Material).Brush.Opacity = layer.IsVisible ? layer.Alpha : 0;
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e)
@@ -143,6 +178,14 @@ namespace OpenSAE
             if (od.ShowDialog() == true)
             {
                 OpenFile(od.FileName);
+            }
+        }
+
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (_symbol != null)
+            {
+                _symbol.SelectedItem = (SymbolArtItemModel)e.NewValue;
             }
         }
     }

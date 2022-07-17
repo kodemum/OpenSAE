@@ -23,7 +23,7 @@ namespace OpenSAE.Core
         public int Height { get; set; }
 
         [XmlAttribute("sound")]
-        public int Sound { get; set; }
+        public SymbolArtSoundEffect Sound { get; set; }
 
         [XmlElement(ElementName = "g", Type = typeof(SymbolArtGroup))]
         [XmlElement(ElementName = "layer", Type = typeof(SymbolArtLayer))]
