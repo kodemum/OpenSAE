@@ -1,4 +1,5 @@
 ﻿using OpenSAE.Core;
+using System;
 using System.Collections.Generic;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -52,11 +53,20 @@ namespace OpenSAE.Models
 
         public Color Color
         {
-            get => (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+            get
+            {
+                var color = (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+
+                color.A = (byte)Math.Round(_layer.Alpha * 255);
+
+                return color;
+            }
             set
             {
-                _layer.Color = string.Format("#{0:X2}{1:X2}{2:X2}", value.R, value.G, value.B);
+                _layer.Color = string.Format("#{0:x2}{1:x2}{2:x2}", value.R, value.G, value.B);
                 OnPropertyChanged();
+
+                Alpha = Math.Round((double)value.A / 255 * 7) / 7;
             }
         }
 
@@ -71,6 +81,4 @@ namespace OpenSAE.Models
             }
         }
     }
-
-
 }
