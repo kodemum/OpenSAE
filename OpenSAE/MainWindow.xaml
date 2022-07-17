@@ -54,7 +54,7 @@
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable layer" IsChecked="{Binding Visible}" />
                 </UniformGrid>
-                <colorpicker:StandardColorPicker SelectedColor="{Binding Color, Mode=TwoWay}" Width="96" />
+                <colorpicker:StandardColorPicker SelectedColor="{Binding ColorWithAlpha, Mode=TwoWay}" Width="96" />
             </StackPanel>
         </DataTemplate>
 

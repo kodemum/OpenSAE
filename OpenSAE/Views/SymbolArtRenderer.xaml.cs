@@ -22,7 +22,7 @@ namespace OpenSAE.Views
     /// </summary>
     public partial class SymbolArtRenderer : UserControl
     {
-        private Dictionary<SymbolArtLayerModel, GeometryModel3D> _layerDictionary
+        private Dictionary<SymbolArtLayerModel, LayerModelReference> _layerDictionary
             = new();
 
         public SymbolArtRenderer()
@@ -106,12 +106,14 @@ namespace OpenSAE.Views
                 return;
             }
 
+            var brush = new ImageBrush((ImageSource)new ImageSourceConverter().ConvertFromString(uri)!)
+            {
+                Opacity = layer.Alpha
+            };
+
             var material = new DiffuseMaterial()
             {
-                Brush = new ImageBrush((ImageSource)new ImageSourceConverter().ConvertFromString(uri)!)
-                {
-                    Opacity = layer.Alpha
-                },
+                Brush = brush,
                 AmbientColor = layer.Color
             };
 
@@ -139,7 +141,7 @@ namespace OpenSAE.Views
 
             symbolArtContentGroup.Children.Add(model);
 
-            _layerDictionary.Add(layer, model);
+            _layerDictionary.Add(layer, new LayerModelReference(model, material, brush));
 
             layer.PropertyChanged += Layer_PropertyChanged;
         }
@@ -149,7 +151,7 @@ namespace OpenSAE.Views
             if (sender is not SymbolArtLayerModel layer)
                 return;
 
-            var model3d = _layerDictionary[layer];
+            var refs = _layerDictionary[layer];
 
             switch (e.PropertyName)
             {
@@ -159,25 +161,44 @@ namespace OpenSAE.Views
                     break;
 
                 case nameof(layer.Symbol):
-                    ((ImageBrush)((DiffuseMaterial)model3d.Material).Brush).ImageSource = (ImageSource)new ImageSourceConverter().ConvertFromString(layer.SymbolPackUri)!;
+                    refs.Brush.ImageSource = (ImageSource)new ImageSourceConverter().ConvertFromString(layer.SymbolPackUri)!;
                     break;
 
                 case nameof(layer.Color):
-                    ((DiffuseMaterial)model3d.Material).AmbientColor = layer.Color;
+                    refs.Material.AmbientColor = layer.Color;
                     break;
             }
         }
 
         private void RefreshLayerVisibility(SymbolArtLayerModel layer)
         {
-            if (!_layerDictionary.TryGetValue(layer, out var model3d))
+            if (!_layerDictionary.TryGetValue(layer, out var refs))
             {
                 // we may encounter layers not in the dictionary if they were
                 // skipped because of an unknown symbol
                 return;
             }
 
-            ((DiffuseMaterial)model3d.Material).Brush.Opacity = layer.IsVisible ? layer.Alpha : 0;
+            refs.Brush.Opacity = layer.IsVisible ? layer.Alpha : 0;
+        }
+
+        /// <summary>
+        /// Contains view references for a layer model
+        /// </summary>
+        private class LayerModelReference
+        {
+            public LayerModelReference(GeometryModel3D model, DiffuseMaterial material, ImageBrush brush)
+            {
+                Model = model;
+                Material = material;
+                Brush = brush;
+            }
+
+            public GeometryModel3D Model { get; }
+
+            public DiffuseMaterial Material { get; }
+
+            public ImageBrush Brush { get; }
         }
     }
 }

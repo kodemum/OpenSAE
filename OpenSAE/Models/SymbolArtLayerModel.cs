@@ -27,6 +27,16 @@ namespace OpenSAE.Models
             }
         }
 
+        public int Symbol
+        {
+            get => _layer.Type;
+            set
+            {
+                _layer.Type = value;
+                OnPropertyChanged();
+            }
+        }
+
         public override bool Visible
         {
             get => _layer.Visible;
@@ -51,11 +61,11 @@ namespace OpenSAE.Models
             }
         }
 
-        public Color Color
+        public Color ColorWithAlpha
         {
             get
             {
-                var color = (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+                var color = Color;
 
                 color.A = (byte)Math.Round(_layer.Alpha * 255);
 
@@ -63,10 +73,19 @@ namespace OpenSAE.Models
             }
             set
             {
+                Color = value;
+                Alpha = Math.Round((double)value.A / 255 * 7) / 7;
+                OnPropertyChanged();
+            }
+        }
+
+        public Color Color
+        {
+            get => (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+            set
+            {
                 _layer.Color = string.Format("#{0:x2}{1:x2}{2:x2}", value.R, value.G, value.B);
                 OnPropertyChanged();
-
-                Alpha = Math.Round((double)value.A / 255 * 7) / 7;
             }
         }
 
