@@ -1,0 +1,76 @@
+﻿using OpenSAE.Core;
+using System.Collections.Generic;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
+
+namespace OpenSAE.Models
+{
+    public class SymbolArtLayerModel : SymbolArtItemModel
+    {
+        private readonly SymbolArtLayer _layer;
+        private readonly SymbolArtItemModel _parent;
+
+        public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel parent)
+        {
+            _layer = layer;
+            _parent = parent;
+        }
+
+        public override string? Name
+        {
+            get => _layer.Name;
+            set
+            {
+                _layer.Name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool Visible
+        {
+            get => _layer.Visible;
+            set
+            {
+                _layer.Visible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override bool IsVisible => _parent.IsVisible && Visible;
+
+        public string? SymbolPackUri => SymbolUtil.GetSymbolPackUri(_layer.Type);
+
+        public double Alpha
+        {
+            get => _layer.Alpha;
+            set
+            {
+                _layer.Alpha = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Color Color
+        {
+            get => (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+            set
+            {
+                _layer.Color = string.Format("#{0:X2}{1:X2}{2:X2}", value.R, value.G, value.B);
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<Point3D> Points
+        {
+            get
+            {
+                yield return new Point3D(_layer.Lbx, -_layer.Lby, 0);
+                yield return new Point3D(_layer.Ltx, -_layer.Lty, 0);
+                yield return new Point3D(_layer.Rbx, -_layer.Rby, 0);
+                yield return new Point3D(_layer.Rtx, -_layer.Rty, 0);
+            }
+        }
+    }
+
+
+}
