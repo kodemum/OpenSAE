@@ -51,14 +51,14 @@ namespace OpenSAE.Models
         {
             get
             {
-                var title = "OpenSAE Symbol Art Editor";
-
                 if (CurrentSymbolArt != null)
                 {
-                    title += $" - {CurrentSymbolArt.Name}";
+                    return $"{CurrentSymbolArt.Name} - OpenSAE Symbol Art Editor";
                 }
-
-                return title;
+                else
+                {
+                    return "OpenSAE Symbol Art Editor";
+                }
             }
         }
 
