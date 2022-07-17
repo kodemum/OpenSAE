@@ -23,25 +23,25 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <TextBlock Text="Vertex 1 (left-top)" />
+        <TextBlock Text="Vertex 1 (left-top)" Foreground="#FF0C00" />
         <TextBlock Grid.Column="1" Text="X" Margin="5 0" />
         <TextBox Grid.Column="2" Width="40" Text="{Binding Vertex1X, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Column="3" Text="Y" Margin="5 0" />
         <TextBox Grid.Column="4" Width="40" Text="{Binding Vertex1Y, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock Grid.Row="1" Text="Vertex 2 (left-bottom)" />
+        <TextBlock Grid.Row="1" Text="Vertex 2 (left-bottom)" Foreground="#00C8C6" />
         <TextBlock Grid.Row="1" Grid.Column="1" Text="X" Margin="5 0" />
         <TextBox Grid.Row="1" Grid.Column="2" Width="40" Text="{Binding Vertex2X, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Row="1" Grid.Column="3" Text="Y" Margin="5 0" />
         <TextBox Grid.Row="1" Grid.Column="4" Width="40" Text="{Binding Vertex2Y, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock Grid.Row="2" Text="Vertex 3 (right-top)" />
+        <TextBlock Grid.Row="2" Text="Vertex 3 (right-top)" Foreground="#00FF05" />
         <TextBlock Grid.Row="2" Grid.Column="1" Text="X" Margin="5 0" />
         <TextBox Grid.Row="2" Grid.Column="2" Width="40" Text="{Binding Vertex3X, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Row="2" Grid.Column="3" Text="Y" Margin="5 0" />
         <TextBox Grid.Row="2" Grid.Column="4" Width="40" Text="{Binding Vertex3Y, UpdateSourceTrigger=PropertyChanged}" />
 
-        <TextBlock Grid.Row="3" Text="Vertex 4 (right-bottom)" />
+        <TextBlock Grid.Row="3" Text="Vertex 4 (right-bottom)" Foreground="#6500FF" />
         <TextBlock Grid.Row="3" Grid.Column="1" Text="X" Margin="5 0" />
         <TextBox Grid.Row="3" Grid.Column="2" Width="40" Text="{Binding Vertex4X, UpdateSourceTrigger=PropertyChanged}" />
         <TextBlock Grid.Row="3" Grid.Column="3" Text="Y" Margin="5 0" />

@@ -2,6 +2,7 @@
                     xmlns:converters="clr-namespace:OpenSAE.Converters"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <converters:LayerPointCollectionConverter x:Key="layerPointConverter" />
+    <converters:NumberOffsetConverter x:Key="numberOffsetConverter" />
     <Style TargetType="TreeViewItem">
         <Setter Property="Template">
             <Setter.Value>

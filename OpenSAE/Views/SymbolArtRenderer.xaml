@@ -46,17 +46,44 @@
             </Viewport3D.Camera>
         </Viewport3D>
         <Viewbox Stretch="Uniform" VerticalAlignment="Stretch">
-            <Canvas Width="192" Height="96" VerticalAlignment="Center" Margin="24 0" DataContext="{Binding ElementName=renderer, Path=SelectedLayer}" HorizontalAlignment="center">
-                <!-- Highlight vertices of the current layer, if there is one -->
-                <Polyline Points="{Binding Converter={StaticResource layerPointConverter}}"
-                          Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White">
-                </Polyline>
-                <Polyline Points="{Binding Converter={StaticResource layerPointConverter}}"
-                          Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
-                </Polyline>
-
+            <Canvas Width="192" Height="96" VerticalAlignment="Center" Margin="24 0" HorizontalAlignment="center">
                 <!-- Border framing active area of symbol art -->
                 <Border BorderThickness="0.5" BorderBrush="Black" Width="192" Height="96" Opacity="0.7" />
+                
+                <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
+                    <ContentPresenter.Resources>
+                        <DataTemplate DataType="{x:Type models:SymbolArtModel}" />
+                        <DataTemplate DataType="{x:Type models:SymbolArtGroupModel}" />
+                        <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
+                            <Canvas>
+                                <!-- Highlight vertices of the current layer, if there is one -->
+                                <Polyline Points="{Binding Converter={StaticResource layerPointConverter}}"
+                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White" >
+                                </Polyline>
+                                <Polyline Points="{Binding Converter={StaticResource layerPointConverter}}"
+                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
+                                </Polyline>
+
+                                <!-- Circles on each vertex (the offset is 1 off to account for the ellipse size) -->
+                                <Ellipse Width="2" Height="2" Fill="#FF0C00" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex1Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex1X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+
+                                <Ellipse Width="2" Height="2" Fill="#00FFFC" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex2Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex2X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+
+                                <Ellipse Width="2" Height="2" Fill="#00FF05" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex3Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex3X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+
+                                <Ellipse Width="2" Height="2" Fill="#6500FF" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex4Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex4X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+                            </Canvas>
+                        </DataTemplate>
+                    </ContentPresenter.Resources>
+                </ContentPresenter>
             </Canvas>
         </Viewbox>
     </Grid>
