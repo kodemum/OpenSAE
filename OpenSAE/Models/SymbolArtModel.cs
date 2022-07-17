@@ -33,6 +33,11 @@ namespace OpenSAE.Models
             }
         }
 
+        public SymbolArtModel()
+        {
+            _sa = SymbolArt.CreateBlank("NewSymbolArt");
+        }
+
         public override string? Name
         {
             get => _sa.Name;

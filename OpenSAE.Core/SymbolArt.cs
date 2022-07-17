@@ -29,5 +29,19 @@ namespace OpenSAE.Core
         [XmlElement(ElementName = "layer", Type = typeof(SymbolArtLayer))]
         public List<SymbolArtItem> Children { get; set; }
             = new();
+
+        public static SymbolArt CreateBlank(string name)
+        {
+            return new SymbolArt()
+            {
+                Name = name,
+                Version = 4,
+                Author = "0",
+                Width = 192,
+                Height = 96,
+                Sound = SymbolArtSoundEffect.None,
+                Visible = true
+            };
+        }
     }
 }

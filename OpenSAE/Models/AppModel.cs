@@ -41,6 +41,8 @@ namespace OpenSAE.Models
             set => SetProperty(ref _selectedItem, value);
         }
 
+        public ICommand NewFileCommand { get; }
+
         public ICommand OpenFileCommand { get; }
 
         public ICommand ExitCommand { get; }
@@ -50,7 +52,14 @@ namespace OpenSAE.Models
             _dialogService = dialogService;
 
             OpenFileCommand = new RelayCommand(OpenFile_Implementation);
+            NewFileCommand = new RelayCommand(NewFile_Implementation);
             ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
+        }
+
+        private void NewFile_Implementation()
+        {
+            CurrentSymbolArt = new SymbolArtModel();
+            SelectedItem = CurrentSymbolArt;
         }
 
         public bool RequestExit()
@@ -69,6 +78,7 @@ namespace OpenSAE.Models
             {
                 using var fs = File.OpenRead(filename);
                 CurrentSymbolArt = new SymbolArtModel(SamlLoader.LoadFromStream(fs));
+                SelectedItem = CurrentSymbolArt;
             }
             catch (Exception ex)
             {
