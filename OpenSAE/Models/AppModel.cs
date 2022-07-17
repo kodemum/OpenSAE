@@ -29,7 +29,13 @@ namespace OpenSAE.Models
         public SymbolArtModel? CurrentSymbolArt
         {
             get => _currentSymbolArt;
-            set => SetProperty(ref _currentSymbolArt, value);
+            set
+            {
+                if (SetProperty(ref _currentSymbolArt, value))
+                {
+                    OnPropertyChanged(nameof(AppTitle));
+                }
+            }
         }
 
         /// <summary>
@@ -39,6 +45,21 @@ namespace OpenSAE.Models
         {
             get => _selectedItem;
             set => SetProperty(ref _selectedItem, value);
+        }
+
+        public string AppTitle
+        {
+            get
+            {
+                var title = "OpenSAE Symbol Art Editor";
+
+                if (CurrentSymbolArt != null)
+                {
+                    title += $" - {CurrentSymbolArt.Name}";
+                }
+
+                return title;
+            }
         }
 
         public ICommand NewFileCommand { get; }

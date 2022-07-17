@@ -4,12 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:OpenSAE.Models"
-        xmlns:local="clr-namespace:OpenSAE"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:views="clr-namespace:OpenSAE.Views"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" 
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
         Closing="Window_Closing"
-        Title="OpenSA Symbol Art editor" Height="450" Width="1000">
+        Title="{Binding AppTitle}"
+        ResizeMode="CanResizeWithGrip"
+        MinHeight="500"
+        Height="500"
+        MinWidth="900"
+        Width="1000">
     <Window.Resources>
         <DiffuseMaterial x:Key="borderMaterial">
             <DiffuseMaterial.Brush>
@@ -52,7 +57,7 @@
                 <colorpicker:StandardColorPicker SelectedColor="{Binding Color, Mode=TwoWay}" Width="96" />
             </StackPanel>
         </DataTemplate>
-        
+
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenFileCommand}" />
@@ -84,7 +89,7 @@
                 <MenuItem Header="Add layer" />
                 <MenuItem Header="Add group" />
             </Menu>
-            <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged" >
+            <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
@@ -95,7 +100,7 @@
                 </TreeView.ItemTemplate>
             </TreeView>
         </DockPanel>
-        
+
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
         <Rectangle Grid.Row="1" Grid.Column="2">
@@ -110,65 +115,8 @@
 
         <GridSplitter Grid.Row="1" Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
 
-        <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}">
-        </ContentPresenter>
+        <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
 
-        <Viewport3D x:Name="viewport3d" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <ModelVisual3D x:Name="model3d">
-                <ModelVisual3D.Content>
-                    <Model3DGroup x:Name="model3dGroup">
-                    </Model3DGroup>
-                </ModelVisual3D.Content>
-            </ModelVisual3D>
-            <ModelVisual3D>
-                <ModelVisual3D.Content>
-                    <Model3DGroup>
-                        <GeometryModel3D Material="{DynamicResource borderMaterial}">
-                            <GeometryModel3D.Geometry>
-                                <MeshGeometry3D
-                                    Positions="-96 47 0, -96 48 0, 96 47 0, 96 48 0"
-                                    TextureCoordinates="0 1, 0 0, 1 1, 1 0" 
-                                    TriangleIndices="0 2 1, 2 3 1" />
-                            </GeometryModel3D.Geometry>
-                        </GeometryModel3D>
-                        <GeometryModel3D Material="{DynamicResource borderMaterial}">
-                            <GeometryModel3D.Geometry>
-                                <MeshGeometry3D
-                                    Positions="-96 -48 0, -96 -47 0, 96 -48 0, 96 -47 0"
-                                    TextureCoordinates="0 1, 0 0, 1 1, 1 0" 
-                                    TriangleIndices="0 2 1, 2 3 1" />
-                            </GeometryModel3D.Geometry>
-                        </GeometryModel3D>
-
-                        <GeometryModel3D Material="{DynamicResource borderMaterial}">
-                            <GeometryModel3D.Geometry>
-                                <MeshGeometry3D
-                                    Positions="-97 -48 0, -97 48 0, -96 -48 0, -96 48 0"
-                                    TextureCoordinates="0 1, 0 0, 1 1, 1 0" 
-                                    TriangleIndices="0 2 1, 2 3 1" />
-                            </GeometryModel3D.Geometry>
-                        </GeometryModel3D>
-                        <GeometryModel3D Material="{DynamicResource borderMaterial}">
-                            <GeometryModel3D.Geometry>
-                                <MeshGeometry3D
-                                    Positions="96 -48 0, 96 48 0, 97 -48 0, 97 48 0"
-                                    TextureCoordinates="0 1, 0 0, 1 1, 1 0" 
-                                    TriangleIndices="0 2 1, 2 3 1" />
-                            </GeometryModel3D.Geometry>
-                        </GeometryModel3D>
-                    </Model3DGroup>
-                </ModelVisual3D.Content>
-            </ModelVisual3D>
-
-            <Viewport3D.Camera>
-                <OrthographicCamera 
-                        Position="0.5 0.5 1"
-                        LookDirection="0 0 -1"
-                        UpDirection="0 1 0"
-                        Width="240"
-                        />
-            </Viewport3D.Camera>
-        </Viewport3D>
-
+        <views:SymbolArtRenderer DataContext="{Binding CurrentSymbolArt}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </Window>
