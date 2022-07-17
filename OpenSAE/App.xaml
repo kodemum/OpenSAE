@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:OpenSAE"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary Source="Styles.xaml" />
     </Application.Resources>
 </Application>
