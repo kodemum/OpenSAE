@@ -2,6 +2,7 @@
 using OpenSAE.Core;
 using OpenSAE.Core.SAML;
 using OpenSAE.Models;
+using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,9 @@ namespace OpenSAE
             _model.ExitRequested += (_, __) => Close();
 
             DataContext = _model;
+
+            Width = Settings.Default.WindowWidth;
+            Height = Settings.Default.WindowHeight;
         }
 
         private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -53,6 +57,10 @@ namespace OpenSAE
             {
                 e.Cancel = true;
             }
+
+            Settings.Default.WindowWidth = Width;
+            Settings.Default.WindowHeight = Height;
+            Settings.Default.Save();
         }
     }
 }

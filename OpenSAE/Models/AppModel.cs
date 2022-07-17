@@ -1,8 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,8 +77,9 @@ namespace OpenSAE.Models
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
+            RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
 
-            OpenFileCommand = new RelayCommand(OpenFile_Implementation);
+            OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
             NewFileCommand = new RelayCommand(NewFile_Implementation);
             ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
             SaveCommand = new RelayCommand(Save_Implementation, () => CurrentSymbolArt != null);
@@ -91,15 +94,22 @@ namespace OpenSAE.Models
 
         public bool RequestExit()
         {
+            Settings.Default.RecentFiles = RecentFiles.ToStringCollection();
+
             return true;
         }
 
-        private void OpenFile_Implementation()
-        {
-            string? filename = _dialogService.BrowseOpenFile("Open existing symbol art file", "SAML symbol art (*.saml)|*.saml");
+        public ObservableCollection<string> RecentFiles { get; }
 
+        private void OpenFile_Implementation(string? filename)
+        {
             if (filename == null)
-                return;
+            {
+                filename = _dialogService.BrowseOpenFile("Open existing symbol art file", "SAML symbol art (*.saml)|*.saml");
+
+                if (filename == null)
+                    return;
+            }
 
             try
             {
@@ -110,6 +120,15 @@ namespace OpenSAE.Models
             {
                 _dialogService.ShowErrorMessage("Error opening file", "Unable to open the selected symbol art file.", ex);
             }
+
+            int recentPos = RecentFiles.IndexOf(filename);
+
+            if (recentPos != -1)
+            {
+                RecentFiles.RemoveAt(recentPos);
+            }
+
+            RecentFiles.Insert(0, filename);
         }
 
         private void Save_Implementation()
