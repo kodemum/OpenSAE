@@ -88,6 +88,7 @@ namespace OpenSAE.Models
             {
                 _layer.Color = string.Format("#{0:x2}{1:x2}{2:x2}", value.R, value.G, value.B);
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ColorWithAlpha));
             }
         }
 
@@ -263,6 +264,8 @@ namespace OpenSAE.Models
                 Vertex4 = value[3];
             }
         }
+
+        public PointCollection PointCollection => new(Points.Select(x => new Point(x.X, x.Y)));
 
         public IEnumerable<Point3D> Points3D
         {

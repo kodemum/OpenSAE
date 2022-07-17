@@ -1,4 +1,6 @@
-﻿namespace OpenSAE.Core
+﻿using System.Windows;
+
+namespace OpenSAE.Core
 {
     public struct SymbolArtPoint : IEquatable<SymbolArtPoint>
     {
@@ -23,6 +25,8 @@
 
         public static SymbolArtPoint operator -(SymbolArtPoint a, SymbolArtPoint b)
             => new((short)(a.X - b.X), (short)(a.Y - b.Y));
+
+        public static implicit operator Point (SymbolArtPoint point) => new(point.X, point.Y);
 
         public override bool Equals(object? obj)
         {

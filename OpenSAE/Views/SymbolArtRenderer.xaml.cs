@@ -22,12 +22,29 @@ namespace OpenSAE.Views
     /// </summary>
     public partial class SymbolArtRenderer : UserControl
     {
+        public static readonly DependencyProperty SelectedLayerProperty =
+            DependencyProperty.Register(
+              name: "SelectedLayer",
+              propertyType: typeof(SymbolArtItemModel),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(
+                  defaultValue: null,
+                  flags: FrameworkPropertyMetadataOptions.AffectsRender
+                  )
+        );
+
         private Dictionary<SymbolArtLayerModel, LayerModelReference> _layerDictionary
             = new();
 
         public SymbolArtRenderer()
         {
             InitializeComponent();
+        }
+
+        public SymbolArtItemModel SelectedLayer
+        {
+            get => (SymbolArtItemModel)GetValue(SelectedLayerProperty);
+            set => SetValue(SelectedLayerProperty, value);
         }
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

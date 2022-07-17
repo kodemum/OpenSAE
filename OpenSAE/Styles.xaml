@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:converters="clr-namespace:OpenSAE.Converters"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <converters:LayerPointCollectionConverter x:Key="layerPointConverter" />
     <Style TargetType="TreeViewItem">
         <Setter Property="Template">
             <Setter.Value>

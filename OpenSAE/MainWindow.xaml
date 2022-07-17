@@ -14,7 +14,8 @@
         MinHeight="500"
         Height="500"
         MinWidth="900"
-        Width="1000">
+        Width="1000"
+        x:Name="mainWindow">
     <Window.Resources>
         <DiffuseMaterial x:Key="borderMaterial">
             <DiffuseMaterial.Brush>
@@ -118,6 +119,6 @@
 
         <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
 
-        <views:SymbolArtRenderer DataContext="{Binding CurrentSymbolArt}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <views:SymbolArtRenderer ClipToBounds="True" DataContext="{Binding CurrentSymbolArt}" SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
     </Grid>
 </Window>
