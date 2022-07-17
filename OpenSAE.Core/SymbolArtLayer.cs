@@ -28,11 +28,11 @@ namespace OpenSAE.Core
         [XmlAttribute("rtx")]
         public short Rtx { get; set; }
 
-        [XmlAttribute("rbx")]
-        public short Rbx { get; set; }
-
         [XmlAttribute("rty")]
         public short Rty { get; set; }
+
+        [XmlAttribute("rbx")]
+        public short Rbx { get; set; }
 
         [XmlAttribute("rby")]
         public short Rby { get; set; }

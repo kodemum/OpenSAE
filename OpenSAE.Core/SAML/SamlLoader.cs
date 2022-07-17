@@ -14,7 +14,18 @@ namespace OpenSAE.Core.SAML
         {
             XmlSerializer xs = new(typeof(SymbolArt));
 
-            return (SymbolArt?)xs.Deserialize(inputStream) ?? throw new NullReferenceException();
+            var symbolArt = (SymbolArt?)xs.Deserialize(inputStream) ?? throw new NullReferenceException();
+
+            symbolArt.FileFormat = SymbolArtFileFormat.SAML;
+
+            return symbolArt;
+        }
+
+        public static void SaveToStream(Stream outputStream, SymbolArt symbolArt)
+        {
+            XmlSerializer xs = new(typeof(SymbolArt));
+
+            xs.Serialize(outputStream, symbolArt);
         }
     }
 }

@@ -1,10 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using OpenSAE.Core.SAML;
 using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,6 +32,8 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _currentSymbolArt, value))
                 {
                     OnPropertyChanged(nameof(AppTitle));
+                    SaveCommand.NotifyCanExecuteChanged();
+                    SaveAsCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -66,6 +66,10 @@ namespace OpenSAE.Models
 
         public ICommand OpenFileCommand { get; }
 
+        public RelayCommand SaveCommand { get; }
+
+        public RelayCommand SaveAsCommand { get; }
+
         public ICommand ExitCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -75,6 +79,8 @@ namespace OpenSAE.Models
             OpenFileCommand = new RelayCommand(OpenFile_Implementation);
             NewFileCommand = new RelayCommand(NewFile_Implementation);
             ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
+            SaveCommand = new RelayCommand(Save_Implementation, () => CurrentSymbolArt != null);
+            SaveAsCommand = new RelayCommand(SaveAs_Implementation, () => CurrentSymbolArt != null);
         }
 
         private void NewFile_Implementation()
@@ -97,13 +103,54 @@ namespace OpenSAE.Models
 
             try
             {
-                using var fs = File.OpenRead(filename);
-                CurrentSymbolArt = new SymbolArtModel(SamlLoader.LoadFromStream(fs));
+                CurrentSymbolArt = new SymbolArtModel(filename);
                 SelectedItem = CurrentSymbolArt;
             }
             catch (Exception ex)
             {
                 _dialogService.ShowErrorMessage("Error opening file", "Unable to open the selected symbol art file.", ex);
+            }
+        }
+
+        private void Save_Implementation()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            if (string.IsNullOrEmpty(CurrentSymbolArt.FileName))
+            {
+                SaveAs_Implementation();
+            }
+            else
+            {
+                try
+                {
+                    CurrentSymbolArt.Save();
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
+                }
+            }
+        }
+
+        private void SaveAs_Implementation()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", "SAML symbol art (*.saml)|*.saml", CurrentSymbolArt.FileName);
+
+            if (filename == null)
+                return;
+
+            try
+            {
+                CurrentSymbolArt.SaveAs(filename, Core.SymbolArtFileFormat.SAML);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System.IO;
 using System.Windows;
 
 namespace OpenSAE.Services
@@ -20,6 +21,34 @@ namespace OpenSAE.Services
                 Filter = filter,
                 Title = title,
             };
+
+            string? result = null;
+
+            _parentWindow.Dispatcher.Invoke(() =>
+            {
+                if (od.ShowDialog(_parentWindow) == true)
+                {
+                    result = od.FileName;
+                }
+            });
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        public string? BrowseSaveFile(string title, string filter, string? currentFilename)
+        {
+            SaveFileDialog od = new ()
+            {
+                Filter = filter,
+                Title = title,
+            };
+
+            if (currentFilename != null)
+            {
+                od.InitialDirectory = Path.GetDirectoryName(currentFilename);
+                od.FileName = Path.GetFileName(currentFilename);
+            }
 
             string? result = null;
 

@@ -1,6 +1,8 @@
 ﻿using OpenSAE.Core;
+using OpenSAE.Core.SAML;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,13 +12,14 @@ namespace OpenSAE.Models
     public class SymbolArtModel : SymbolArtItemModel
     {
         private readonly SymbolArt _sa;
-        
 
-        public SymbolArtModel(SymbolArt sa)
+        public SymbolArtModel(string filename)
         {
-            _sa = sa;
+            _sa = SymbolArt.LoadFromFile(filename);
 
-            foreach (var item in sa.Children)
+            FileName = filename;
+
+            foreach (var item in _sa.Children)
             {
                 if (item is ISymbolArtGroup subGroup)
                 {
@@ -37,6 +40,11 @@ namespace OpenSAE.Models
         {
             _sa = SymbolArt.CreateBlank("NewSymbolArt");
         }
+
+        /// <summary>
+        /// If the symbol art was loaded from a file, contains the file it was loaded from
+        /// </summary>
+        public string? FileName { get; private set; }
 
         public override string? Name
         {
@@ -122,5 +130,22 @@ namespace OpenSAE.Models
         };
 
         public List<SymbolArtModel> RootItems => new() { this };
+
+        public void Save()
+        {
+            if (string.IsNullOrEmpty(FileName))
+            {
+                throw new InvalidOperationException("Cannot save in-place as Symbol Art was not created from a file");
+            }
+
+            SaveAs(FileName, _sa.FileFormat == SymbolArtFileFormat.None ? SymbolArtFileFormat.SAML : _sa.FileFormat);
+        }
+
+        public void SaveAs(string filename, SymbolArtFileFormat format)
+        {
+            using var fs = File.Create(filename);
+
+            _sa.Save(fs, format);
+        }
     }
 }

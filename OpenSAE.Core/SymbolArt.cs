@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +31,22 @@ namespace OpenSAE.Core
         public List<SymbolArtItem> Children { get; set; }
             = new();
 
+        [XmlIgnore]
+        public SymbolArtFileFormat FileFormat { get; set; }
+
+        public void Save(Stream outputStream, SymbolArtFileFormat format)
+        {
+            switch (format)
+            {
+                case SymbolArtFileFormat.SAML:
+                    SAML.SamlLoader.SaveToStream(outputStream, this);
+                    break;
+
+                default:
+                    throw new ArgumentException("Unknown file format");
+            }
+        }
+
         public static SymbolArt CreateBlank(string name)
         {
             return new SymbolArt()
@@ -42,6 +59,21 @@ namespace OpenSAE.Core
                 Sound = SymbolArtSoundEffect.None,
                 Visible = true
             };
+        }
+
+        public static SymbolArt LoadFromFile(string filename)
+        {
+            switch (Path.GetExtension(filename).ToLowerInvariant())
+            {
+                case ".saml":
+                    using (var fs = File.OpenRead(filename))
+                    {
+                        return SAML.SamlLoader.LoadFromStream(fs);
+                    }
+
+                default:
+                    throw new ArgumentException($"File extension {Path.GetExtension(filename)} not recognized as a symbol art");
+            }
         }
     }
 }

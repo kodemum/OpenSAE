@@ -20,6 +20,14 @@ namespace OpenSAE.Services
         string? BrowseOpenFile(string title, string filter);
 
         /// <summary>
+        /// Opens an save file dialog with the specified arguments.
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="filter"></param>
+        /// <returns>Full path to any file selected - null if canceled.</returns>
+        string? BrowseSaveFile(string title, string filter, string? currentFilename);
+
+        /// <summary>
         /// Shows a confirmation dialog with the specified message.
         /// </summary>
         /// <param name="title"></param>

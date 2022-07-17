@@ -64,6 +64,8 @@
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenFileCommand}" />
         <KeyBinding Modifiers="Ctrl" Key="N" Command="{Binding NewFileCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveCommand}" />
+        <KeyBinding Modifiers="Ctrl+Alt" Key="S" Command="{Binding SaveAsCommand}" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -80,8 +82,9 @@
         <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Command="{Binding NewFileCommand}" InputGestureText="Ctrl+N" />
-                <MenuItem Header="_Open existing symbol art..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" />
-                <!--<MenuItem Header="_Save" />-->
+                <MenuItem Header="_Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" />
+                <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S" />
+                <MenuItem Header="_Save as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Alt+S" />
                 <Separator />
                 <MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
             </MenuItem>
