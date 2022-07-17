@@ -98,7 +98,7 @@ namespace OpenSAE.Views
             // left top
             // right bottom
             // right top
-            var points = new Point3DCollection(layer.Points);
+            var points = new Point3DCollection(layer.Points3D);
 
             var uri = layer.SymbolPackUri;
             if (uri == null)
@@ -117,31 +117,33 @@ namespace OpenSAE.Views
                 AmbientColor = layer.Color
             };
 
+            var geometry = new MeshGeometry3D()
+            {
+                Positions = points,
+                TextureCoordinates = new PointCollection()
+                {
+                    new Point(0, 1),
+                    new Point(0, 0),
+                    new Point(1, 1),
+                    new Point(1, 0)
+                },
+                TriangleIndices = new Int32Collection()
+                {
+                    0, 2, 1,
+                    2, 3, 1,
+                }
+            };
+
             var model = new GeometryModel3D()
             {
-                Geometry = new MeshGeometry3D()
-                {
-                    Positions = points,
-                    TextureCoordinates = new PointCollection()
-                    {
-                        new Point(0, 1),
-                        new Point(0, 0),
-                        new Point(1, 1),
-                        new Point(1, 0)
-                    },
-                    TriangleIndices = new Int32Collection()
-                    {
-                        0, 2, 1,
-                        2, 3, 1,
-                    }
-                },
+                Geometry = geometry,
                 Material = material,
                 BackMaterial = material,
             };
 
             symbolArtContentGroup.Children.Add(model);
 
-            _layerDictionary.Add(layer, new LayerModelReference(model, material, brush));
+            _layerDictionary.Add(layer, new LayerModelReference(model, material, brush, geometry));
 
             layer.PropertyChanged += Layer_PropertyChanged;
         }
@@ -167,6 +169,13 @@ namespace OpenSAE.Views
                 case nameof(layer.Color):
                     refs.Material.AmbientColor = layer.Color;
                     break;
+
+                default:
+                    if (e.PropertyName?.StartsWith("Vertex") == true)
+                    {
+                        refs.Geometry.Positions = new Point3DCollection(layer.Points3D);
+                    }
+                    break;
             }
         }
 
@@ -187,11 +196,12 @@ namespace OpenSAE.Views
         /// </summary>
         private class LayerModelReference
         {
-            public LayerModelReference(GeometryModel3D model, DiffuseMaterial material, ImageBrush brush)
+            public LayerModelReference(GeometryModel3D model, DiffuseMaterial material, ImageBrush brush, MeshGeometry3D geometry)
             {
                 Model = model;
                 Material = material;
                 Brush = brush;
+                Geometry = geometry;
             }
 
             public GeometryModel3D Model { get; }
@@ -199,6 +209,8 @@ namespace OpenSAE.Views
             public DiffuseMaterial Material { get; }
 
             public ImageBrush Brush { get; }
+
+            public MeshGeometry3D Geometry { get; }
         }
     }
 }

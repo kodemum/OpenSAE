@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="OpenSAE.Views.LayerVertexEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:models="clr-namespace:OpenSAE.Models"
+             d:DataContext="{d:DesignInstance Type=models:SymbolArtLayerModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="250" d:DesignWidth="260">
+    <Grid Margin="10 5" VerticalAlignment="Top">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Vertex 1 (left-top)" />
+        <TextBlock Grid.Column="1" Text="X" Margin="5 0" />
+        <TextBox Grid.Column="2" Width="40" Text="{Binding Vertex1X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Column="3" Text="Y" Margin="5 0" />
+        <TextBox Grid.Column="4" Width="40" Text="{Binding Vertex1Y, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Grid.Row="1" Text="Vertex 2 (left-bottom)" />
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="X" Margin="5 0" />
+        <TextBox Grid.Row="1" Grid.Column="2" Width="40" Text="{Binding Vertex2X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="1" Grid.Column="3" Text="Y" Margin="5 0" />
+        <TextBox Grid.Row="1" Grid.Column="4" Width="40" Text="{Binding Vertex2Y, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Grid.Row="2" Text="Vertex 3 (right-top)" />
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="X" Margin="5 0" />
+        <TextBox Grid.Row="2" Grid.Column="2" Width="40" Text="{Binding Vertex3X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="2" Grid.Column="3" Text="Y" Margin="5 0" />
+        <TextBox Grid.Row="2" Grid.Column="4" Width="40" Text="{Binding Vertex3Y, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Grid.Row="3" Text="Vertex 4 (right-bottom)" />
+        <TextBlock Grid.Row="3" Grid.Column="1" Text="X" Margin="5 0" />
+        <TextBox Grid.Row="3" Grid.Column="2" Width="40" Text="{Binding Vertex4X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="3" Grid.Column="3" Text="Y" Margin="5 0" />
+        <TextBox Grid.Row="3" Grid.Column="4" Width="40" Text="{Binding Vertex4Y, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Grid.Row="4" Text="Position" />
+        <TextBlock Grid.Row="4" Grid.Column="1" Text="X" Margin="5 0" />
+        <TextBox Grid.Row="4" Grid.Column="2" Width="40" Text="{Binding PositionX, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBlock Grid.Row="4" Grid.Column="3" Text="Y" Margin="5 0" />
+        <TextBox Grid.Row="4" Grid.Column="4" Width="40" Text="{Binding PositionY, UpdateSourceTrigger=PropertyChanged}" />
+    </Grid>
+</UserControl>
