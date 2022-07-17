@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0-preview4" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>

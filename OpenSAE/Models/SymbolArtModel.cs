@@ -10,7 +10,7 @@ namespace OpenSAE.Models
     public class SymbolArtModel : SymbolArtItemModel
     {
         private readonly SymbolArt _sa;
-        private SymbolArtItemModel? _selectedItem;
+        
 
         public SymbolArtModel(SymbolArt sa)
         {
@@ -31,12 +31,6 @@ namespace OpenSAE.Models
                     throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art");
                 }
             }
-        }
-
-        public SymbolArtItemModel? SelectedItem
-        {
-            get => _selectedItem;
-            set => SetProperty(ref _selectedItem, value);
         }
 
         public override string? Name

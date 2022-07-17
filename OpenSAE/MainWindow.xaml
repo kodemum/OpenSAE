@@ -5,8 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:OpenSAE.Models"
         xmlns:local="clr-namespace:OpenSAE"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=models:SymbolArtModel}"
+        d:DataContext="{d:DesignInstance Type=models:AppModel}"
+        Closing="Window_Closing"
         Title="OpenSA Symbol Art editor" Height="450" Width="1000">
     <Window.Resources>
         <DiffuseMaterial x:Key="borderMaterial">
@@ -47,10 +49,14 @@
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable layer" IsChecked="{Binding Visible}" />
                 </UniformGrid>
+                <colorpicker:StandardColorPicker SelectedColor="{Binding Color, Mode=TwoWay}" Width="96" />
             </StackPanel>
         </DataTemplate>
         
     </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenFileCommand}" />
+    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -66,10 +72,10 @@
         <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
             <MenuItem Header="_File">
                 <!--<MenuItem Header="_New" />-->
-                <MenuItem Header="_Open" Click="MenuItem_Click" />
+                <MenuItem Header="_Open existing symbol art..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" />
                 <!--<MenuItem Header="_Save" />-->
                 <Separator />
-                <!--<MenuItem Header="_Exit" />-->
+                <MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
             </MenuItem>
         </Menu>
         <DockPanel Grid.Row="1">
@@ -77,11 +83,11 @@
                 <MenuItem Header="Add layer" />
                 <MenuItem Header="Add group" />
             </Menu>
-            <TreeView BorderThickness="0" ItemsSource="{Binding RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
+            <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox IsChecked="{Binding Visible}" />
+                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
                             <TextBlock Margin="5 0" Text="{Binding Name}" />
                         </StackPanel>
                     </HierarchicalDataTemplate>

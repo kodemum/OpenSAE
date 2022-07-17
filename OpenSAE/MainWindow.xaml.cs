@@ -2,6 +2,7 @@
 using OpenSAE.Core;
 using OpenSAE.Core.SAML;
 using OpenSAE.Models;
+using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,33 +27,25 @@ namespace OpenSAE
     /// </summary>
     public partial class MainWindow : Window
     {
-        private SymbolArtModel? _symbol;
+        private readonly AppModel _model;
         private Dictionary<SymbolArtLayerModel, GeometryModel3D> _layerDictionary
             = new();
 
         public MainWindow()
         {
             InitializeComponent();
-        }
 
-        private void OpenFile(string filename)
-        {
-            try
+            _model = new AppModel(new DialogService(this));
+            _model.ExitRequested += (_, __) => Close();
+            _model.PropertyChanged += (_, e) =>
             {
-                using var fs = File.OpenRead(filename);
+                if (e.PropertyName == nameof(_model.CurrentSymbolArt))
+                {
+                    Dispatcher.Invoke(RefreshCurrentSymbolArt);
+                }
+            };
 
-                _symbol = new SymbolArtModel(SamlLoader.LoadFromStream(fs));
-                
-
-                DataContext = _symbol;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, $"Unable to open selected file: {ex.Message}");
-                return;
-            }
-
-            RefreshCurrentSymbolArt();
+            DataContext = _model;
         }
 
         private void RefreshCurrentSymbolArt()
@@ -61,7 +54,10 @@ namespace OpenSAE
             model3dGroup.Children.Add(new AmbientLight(Colors.White));
             _layerDictionary.Clear();
 
-            DrawSymbolArtGroup(_symbol);
+            if (_model.CurrentSymbolArt != null)
+            {
+                DrawSymbolArtGroup(_model.CurrentSymbolArt);
+            }
         }
 
         private void DrawSymbolArtGroup(SymbolArtItemModel group)
@@ -154,38 +150,54 @@ namespace OpenSAE
 
             _layerDictionary.Add(layer, model);
 
-            layer.PropertyChanged += (_, __) =>
+            layer.PropertyChanged += Layer_PropertyChanged;
+        }
+
+        private void Layer_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (sender is not SymbolArtLayerModel layer)
+                return;
+
+            switch (e.PropertyName)
             {
-                RefreshLayerVisibility(layer);
-            };
+                case nameof(layer.Visible):
+                case nameof(layer.Alpha):
+                    RefreshLayerVisibility(layer);
+                    break;
+
+                case nameof(layer.Color):
+                    var model3d = _layerDictionary[layer];
+
+                    ((DiffuseMaterial)model3d.Material).AmbientColor = layer.Color;
+                    break;
+            }
         }
 
         private void RefreshLayerVisibility(SymbolArtLayerModel layer)
         {
-            var model3d = _layerDictionary[layer];
+            if (!_layerDictionary.TryGetValue(layer, out var model3d))
+            {
+                // we may encounter layers not in the dictionary if they were
+                // skipped because of an unknown symbol
+                return;
+            }
 
             ((DiffuseMaterial)model3d.Material).Brush.Opacity = layer.IsVisible ? layer.Alpha : 0;
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            OpenFileDialog od = new OpenFileDialog()
+            if (_model != null)
             {
-                Filter = "SAML symbol art (*.saml)|*.saml",
-                Title = "Open existing symbol art file"
-            };
-
-            if (od.ShowDialog() == true)
-            {
-                OpenFile(od.FileName);
+                _model.SelectedItem = (SymbolArtItemModel)e.NewValue;
             }
         }
 
-        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            if (_symbol != null)
+            if (!_model.RequestExit())
             {
-                _symbol.SelectedItem = (SymbolArtItemModel)e.NewValue;
+                e.Cancel = true;
             }
         }
     }
