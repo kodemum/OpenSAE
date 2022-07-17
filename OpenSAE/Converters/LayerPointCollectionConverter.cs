@@ -1,4 +1,5 @@
-﻿using OpenSAE.Models;
+﻿using OpenSAE.Core;
+using OpenSAE.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -15,15 +16,15 @@ namespace OpenSAE.Converters
     {
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is SymbolArtLayerModel layer)
+            if (value is SymbolArtPoint[] points)
             {
                 return new PointCollection(new Point[]
                 {
-                    layer.Vertex1,
-                    layer.Vertex2,
-                    layer.Vertex4,
-                    layer.Vertex3,
-                    layer.Vertex1
+                    points[0],
+                    points[1],
+                    points[3],
+                    points[2],
+                    points[0]
                 });
             }
 

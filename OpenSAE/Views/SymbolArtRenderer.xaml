@@ -17,7 +17,7 @@
         </DiffuseMaterial>
     </UserControl.Resources>
     <Grid>
-        <Viewport3D>
+        <Viewport3D x:Name="viewport3d">
             <ModelVisual3D>
                 <ModelVisual3D.Content>
                     <!-- Group to which the symbol art layers are added-->
@@ -57,10 +57,10 @@
                         <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
                             <Canvas>
                                 <!-- Highlight vertices of the current layer, if there is one -->
-                                <Polyline Points="{Binding Converter={StaticResource layerPointConverter}}"
+                                <Polyline Points="{Binding Points, Converter={StaticResource layerPointConverter}}"
                                     Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White" >
                                 </Polyline>
-                                <Polyline Points="{Binding Converter={StaticResource layerPointConverter}}"
+                                <Polyline Points="{Binding Points, Converter={StaticResource layerPointConverter}}"
                                     Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
                                 </Polyline>
 

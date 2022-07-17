@@ -105,6 +105,7 @@ namespace OpenSAE.Models
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex1X));
                 OnPropertyChanged(nameof(Vertex1Y));
+                OnPropertyChanged(nameof(Points));
             }
         }
 
@@ -121,6 +122,7 @@ namespace OpenSAE.Models
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex2X));
                 OnPropertyChanged(nameof(Vertex2Y));
+                OnPropertyChanged(nameof(Points));
             }
         }
 
@@ -137,6 +139,7 @@ namespace OpenSAE.Models
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex3X));
                 OnPropertyChanged(nameof(Vertex3Y));
+                OnPropertyChanged(nameof(Points));
             }
         }
 
@@ -153,6 +156,7 @@ namespace OpenSAE.Models
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex4X));
                 OnPropertyChanged(nameof(Vertex4Y));
+                OnPropertyChanged(nameof(Points));
             }
         }
 
