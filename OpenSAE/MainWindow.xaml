@@ -74,9 +74,9 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="250" />
-            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="10" />
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="250" />
         </Grid.ColumnDefinitions>
         <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
@@ -136,6 +136,13 @@
 
         <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
 
-        <views:SymbolArtRenderer ClipToBounds="True" DataContext="{Binding CurrentSymbolArt}" SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        <DockPanel Grid.Row="1" Grid.Column="2">
+            <StatusBar DockPanel.Dock="Bottom" Padding="3">
+                <TextBlock>
+                    Shift-click to select a symbol. Click and drag symbol vertices to edit them. Click and drag anywhere else to move symbol.
+                </TextBlock>
+            </StatusBar>
+            <views:SymbolArtRenderer ClipToBounds="True" DataContext="{Binding CurrentSymbolArt}" SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+        </DockPanel>
     </Grid>
 </Window>
