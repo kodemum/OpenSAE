@@ -8,7 +8,7 @@ using System.Windows.Media.Media3D;
 
 namespace OpenSAE.Models
 {
-    public class SymbolArtLayerModel : SymbolArtItemModel
+    public class SymbolArtLayerModel : SymbolArtItemModel, ISymbolArtItem
     {
         private readonly SymbolArtLayer _layer;
 
@@ -96,15 +96,14 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex1
         {
-            get => new(_layer.Ltx, _layer.Lty);
+            get => _layer.Vertex1;
             set
             {
-                _layer.Ltx = value.X;
-                _layer.Lty = value.Y;
+                _layer.Vertex1 = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex1X));
                 OnPropertyChanged(nameof(Vertex1Y));
-                OnPropertyChanged(nameof(Points));
+                OnPropertyChanged(nameof(Vertices));
             }
         }
 
@@ -113,15 +112,14 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex2
         {
-            get => new(_layer.Lbx, _layer.Lby);
+            get => _layer.Vertex2;
             set
             {
-                _layer.Lbx = value.X;
-                _layer.Lby = value.Y;
+                _layer.Vertex2 = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex2X));
                 OnPropertyChanged(nameof(Vertex2Y));
-                OnPropertyChanged(nameof(Points));
+                OnPropertyChanged(nameof(Vertices));
             }
         }
 
@@ -130,15 +128,14 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex3
         {
-            get => new(_layer.Rtx, _layer.Rty);
+            get => _layer.Vertex3;
             set
             {
-                _layer.Rtx = value.X;
-                _layer.Rty = value.Y;
+                _layer.Vertex3 = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex3X));
                 OnPropertyChanged(nameof(Vertex3Y));
-                OnPropertyChanged(nameof(Points));
+                OnPropertyChanged(nameof(Vertices));
             }
         }
 
@@ -147,64 +144,63 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex4
         {
-            get => new(_layer.Rbx, _layer.Rby);
+            get => _layer.Vertex4;
             set
             {
-                _layer.Rbx = value.X;
-                _layer.Rby = value.Y;
+                _layer.Vertex4 = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertex4X));
                 OnPropertyChanged(nameof(Vertex4Y));
-                OnPropertyChanged(nameof(Points));
+                OnPropertyChanged(nameof(Vertices));
             }
         }
 
         public short Vertex1X
         {
-            get => Vertex1.X;
-            set => Vertex1 = new SymbolArtPoint(value, Vertex1.Y);
+            get => Vertex1.RoundedX;
+            set => Vertex1 = new SymbolArtPoint(value, Vertex1.RoundedY);
         }
 
         public short Vertex1Y
         {
-            get => Vertex1.Y;
-            set => Vertex1 = new SymbolArtPoint(Vertex1.X, value);
+            get => Vertex1.RoundedY;
+            set => Vertex1 = new SymbolArtPoint(Vertex1.RoundedX, value);
         }
 
         public short Vertex2X
         {
-            get => Vertex2.X;
-            set => Vertex2 = new SymbolArtPoint(value, Vertex2.Y);
+            get => Vertex2.RoundedX;
+            set => Vertex2 = new SymbolArtPoint(value, Vertex2.RoundedY);
         }
 
         public short Vertex2Y
         {
-            get => Vertex2.Y;
-            set => Vertex2 = new SymbolArtPoint(Vertex2.X, value);
+            get => Vertex2.RoundedY;
+            set => Vertex2 = new SymbolArtPoint(Vertex2.RoundedX, value);
         }
 
         public short Vertex3X
         {
-            get => Vertex3.X;
-            set => Vertex3 = new SymbolArtPoint(value, Vertex3.Y);
+            get => Vertex3.RoundedX;
+            set => Vertex3 = new SymbolArtPoint(value, Vertex3.RoundedY);
         }
 
         public short Vertex3Y
         {
-            get => Vertex3.Y;
-            set => Vertex3 = new SymbolArtPoint(Vertex3.X, value);
+            get => Vertex3.RoundedY;
+            set => Vertex3 = new SymbolArtPoint(Vertex3.RoundedX, value);
         }
 
         public short Vertex4X
         {
-            get => Vertex4.X;
-            set => Vertex4 = new SymbolArtPoint(value, Vertex4.Y);
+            get => Vertex4.RoundedX;
+            set => Vertex4 = new SymbolArtPoint(value, Vertex4.RoundedY);
         }
 
         public short Vertex4Y
         {
-            get => Vertex4.Y;
-            set => Vertex4 = new SymbolArtPoint(Vertex4.X, value);
+            get => Vertex4.RoundedY;
+            set => Vertex4 = new SymbolArtPoint(Vertex4.RoundedX, value);
         }
 
         /// <summary>
@@ -213,10 +209,10 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Position
         {
-            get => Points.GetMinBy(true);
+            get => Vertices.GetMinBy(true);
             set
             {
-                var points = Points;
+                var points = Vertices;
                 
                 int minIndex = points.GetMinIndexBy(true);
 
@@ -228,7 +224,7 @@ namespace OpenSAE.Models
                     points[i] += diff;
                 }
 
-                Points = points;
+                Vertices = points;
 
                 OnPropertyChanged(nameof(PositionX));
                 OnPropertyChanged(nameof(PositionY));
@@ -237,17 +233,17 @@ namespace OpenSAE.Models
 
         public short PositionX
         {
-            get => Position.X;
-            set => Position = new SymbolArtPoint(value, Position.Y);
+            get => Position.RoundedX;
+            set => Position = new SymbolArtPoint(value, Position.RoundedY);
         }
 
         public short PositionY
         {
-            get => Position.Y;
-            set => Position = new SymbolArtPoint(Position.X, value);
+            get => Position.RoundedY;
+            set => Position = new SymbolArtPoint(Position.RoundedX, value);
         }
 
-        public SymbolArtPoint[] Points
+        public SymbolArtPoint[] Vertices
         {
             get
             {
@@ -271,16 +267,41 @@ namespace OpenSAE.Models
             }
         }
 
-        public PointCollection PointCollection => new(Points.Select(x => new Point(x.X, x.Y)));
+        public PointCollection PointCollection => new(Vertices.Select(x => (Point)x));
 
         public IEnumerable<Point3D> Points3D
         {
             get
             {
-                yield return new Point3D(_layer.Lbx, -_layer.Lby, 0);
-                yield return new Point3D(_layer.Ltx, -_layer.Lty, 0);
-                yield return new Point3D(_layer.Rbx, -_layer.Rby, 0);
-                yield return new Point3D(_layer.Rtx, -_layer.Rty, 0);
+                yield return new Point3D(Vertex2.RoundedX, -Vertex2.RoundedY, 0);
+                yield return new Point3D(Vertex1.RoundedX, -Vertex1.RoundedY, 0);
+                yield return new Point3D(Vertex4.RoundedX, -Vertex4.RoundedY, 0);
+                yield return new Point3D(Vertex3.RoundedX, -Vertex3.RoundedY, 0);
+            }
+        }
+
+        public void SetVertex(int vertexIndex, SymbolArtPoint point)
+        {
+            switch (vertexIndex)
+            {
+                case 0:
+                    Vertex1 = point;
+                    break;
+
+                case 1:
+                    Vertex2 = point;
+                    break;
+
+                case 2:
+                    Vertex3 = point;
+                    break;
+
+                case 3:
+                    Vertex4 = point;
+                    break;
+
+                default:
+                    throw new ArgumentException("Vertex index must be 0-3", nameof(point));
             }
         }
     }

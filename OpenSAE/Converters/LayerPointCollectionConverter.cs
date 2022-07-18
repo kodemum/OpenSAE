@@ -18,13 +18,14 @@ namespace OpenSAE.Converters
         {
             if (value is SymbolArtPoint[] points)
             {
+                // as this converter is used for calculating display, we need to round the vertices
                 return new PointCollection(new Point[]
                 {
-                    points[0],
-                    points[1],
-                    points[3],
-                    points[2],
-                    points[0]
+                    points[0].Round(),
+                    points[1].Round(),
+                    points[3].Round(),
+                    points[2].Round(),
+                    points[0].Round()
                 });
             }
 

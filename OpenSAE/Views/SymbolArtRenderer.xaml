@@ -56,14 +56,41 @@
                 <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
                     <ContentPresenter.Resources>
                         <DataTemplate DataType="{x:Type models:SymbolArtModel}" />
-                        <DataTemplate DataType="{x:Type models:SymbolArtGroupModel}" />
+                        <DataTemplate DataType="{x:Type models:SymbolArtGroupModel}">
+                            <Canvas>
+                                <!-- Highlight vertices of the current layer, if there is one -->
+                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
+                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White" >
+                                </Polyline>
+                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
+                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
+                                </Polyline>
+                                
+                                <!-- Circles on each vertex (the offset is 1 off to account for the ellipse size) -->
+                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex1.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex1.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+
+                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex2.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex2.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+
+                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex3.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex3.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+
+                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
+                                    Canvas.Top="{Binding Vertex4.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
+                                    Canvas.Left="{Binding Vertex4.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+                            </Canvas>
+                        </DataTemplate>
                         <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
                             <Canvas>
                                 <!-- Highlight vertices of the current layer, if there is one -->
-                                <Polyline Points="{Binding Points, Converter={StaticResource layerPointConverter}}"
+                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
                                     Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White" >
                                 </Polyline>
-                                <Polyline Points="{Binding Points, Converter={StaticResource layerPointConverter}}"
+                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
                                     Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
                                 </Polyline>
 

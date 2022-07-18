@@ -11,7 +11,7 @@ namespace OpenSAE.Core
         public static int GetMinIndexBy(this SymbolArtPoint[] array, bool byX)
         {
             int minIndex = 0;
-            int minValue = byX ? array[0].X : array[0].Y;
+            double minValue = byX ? array[0].X : array[0].Y;
 
             for (int i = 1; i < array.Length; i++)
             {

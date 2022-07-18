@@ -99,14 +99,14 @@ namespace OpenSAE.Views
             }
 
             // if no layer is selected, there's nothing to manipulate
-            if (SelectedLayer is not SymbolArtLayerModel layer)
+            if (SelectedLayer is not ISymbolArtItem layer)
                 return;
 
             // get the mouse location convert the coordinates
             draggingClickOrigin = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
 
             // get the distance from the mouse location to each vertex of the target layer
-            var distanceToVertices = layer.Points
+            var distanceToVertices = layer.Vertices
                 .Select(point => (point - draggingClickOrigin).Length)
                 .ToArray();
 
@@ -134,34 +134,18 @@ namespace OpenSAE.Views
             {
                 Point ptMouse = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
 
-                if (SelectedLayer is not SymbolArtLayerModel layer)
+                if (SelectedLayer is not ISymbolArtItem layer)
                     return;
 
-                var newPoint = new SymbolArtPoint(ptMouse);
-
-                switch (draggingVertexIndex)
+                if (draggingVertexIndex == -1)
                 {
-                    case -1:
-                        // moving entire layer
-                        var diff = ptMouse - draggingClickOrigin;
+                    var diff = ptMouse - draggingClickOrigin;
 
-                        layer.Position = draggingLayerOriginalPos + new SymbolArtPoint((Point)diff);
-                        break;
-                    case 0:
-                        layer.Vertex1 = newPoint;
-                        break;
-
-                    case 1:
-                        layer.Vertex2 = newPoint;
-                        break;
-
-                    case 2:
-                        layer.Vertex3 = newPoint;
-                        break;
-
-                    case 3:
-                        layer.Vertex4 = newPoint;
-                        break;
+                    layer.Position = draggingLayerOriginalPos + new SymbolArtPoint((Point)diff).Round();
+                }
+                else
+                {
+                    layer.SetVertex(draggingVertexIndex, new SymbolArtPoint(ptMouse));
                 }
 
                 args.Handled = true;
