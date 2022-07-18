@@ -230,6 +230,9 @@ namespace OpenSAE.Models
                 }
 
                 Points = points;
+
+                OnPropertyChanged(nameof(PositionX));
+                OnPropertyChanged(nameof(PositionY));
             }
         }
 

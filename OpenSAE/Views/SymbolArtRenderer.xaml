@@ -17,6 +17,9 @@
         </DiffuseMaterial>
     </UserControl.Resources>
     <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="Black" Opacity="0" />
+        </Grid.Background>
         <Viewport3D x:Name="viewport3d">
             <ModelVisual3D>
                 <ModelVisual3D.Content>

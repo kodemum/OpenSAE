@@ -10,6 +10,12 @@ namespace OpenSAE.Core
             Y = y;
         }
 
+        public SymbolArtPoint(Point point)
+        {
+            X = (short)Math.Round(point.X);
+            Y = (short)Math.Round(point.Y);
+        }
+
         public short X { get; }
 
         public short Y { get; }

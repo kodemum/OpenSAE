@@ -1,4 +1,5 @@
-﻿using OpenSAE.Models;
+﻿using OpenSAE.Core;
+using OpenSAE.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,12 @@ namespace OpenSAE.Views
                   )
         );
 
+        /// <summary>
+        /// The radius of a layer vertex (in symbol art units) where a click will be considered
+        /// to have hit that vertex.
+        /// </summary>
+        private const int LayerVertexClickRadius = 4;
+
         private Dictionary<SymbolArtLayerModel, LayerModelReference> _layerDictionary
             = new();
 
@@ -41,10 +48,136 @@ namespace OpenSAE.Views
             InitializeComponent();
         }
 
+        private bool isDragging;
+        private int draggingVertexIndex;
+        private Point draggingClickOrigin;
+        private SymbolArtPoint draggingLayerOriginalPos;
+
         public SymbolArtItemModel SelectedLayer
         {
             get => (SymbolArtItemModel)GetValue(SelectedLayerProperty);
             set => SetValue(SelectedLayerProperty, value);
+        }
+
+        /// <summary>
+        /// Converts the coordinate system from relative to the view to the one used in the symbol art
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private Point CoordinatesToSymbolArt(Point target)
+        {
+            // we have (arbitrarily) assigned the width of the renderer to be 240 symbol art units
+            // (due to wanting to display some space around the symbol art)
+            var factor = viewport3d.ActualWidth / 240;
+
+            // additionally the coordinate system for the symbol arts starts with 0,0 at the center
+            // so we need to subtract half of the width/height of the view
+            return new Point(
+                (target.X - viewport3d.ActualWidth / 2) / factor,
+                (target.Y - viewport3d.ActualHeight / 2) / factor
+                );
+        }
+
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs args)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                // selection mode
+                HitTestResult result = VisualTreeHelper.HitTest(viewport3d, args.GetPosition(viewport3d));
+
+                if (result is RayMeshGeometry3DHitTestResult meshHit)
+                {
+                    var hitLayer = _layerDictionary.FirstOrDefault(x => x.Value.Geometry == meshHit.MeshHit);
+
+                    if (hitLayer.Key != null)
+                    {
+                        SelectedLayer = hitLayer.Key;
+                    }
+                }
+
+                return;
+            }
+
+            // if no layer is selected, there's nothing to manipulate
+            if (SelectedLayer is not SymbolArtLayerModel layer)
+                return;
+
+            // get the mouse location convert the coordinates
+            draggingClickOrigin = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
+
+            // get the distance from the mouse location to each vertex of the target layer
+            var distanceToVertices = layer.Points
+                .Select(point => (point - draggingClickOrigin).Length)
+                .ToArray();
+
+            // find the closest vertex
+            draggingVertexIndex = distanceToVertices.GetMinIndexBy(x => x);
+
+            // check if the closest vertex is close enough that we'll consider that it was clicked
+            if (distanceToVertices[draggingVertexIndex] > LayerVertexClickRadius)
+            {
+                // drag entire symbol if we're not close enough to any vertex
+                draggingVertexIndex = -1;
+                draggingLayerOriginalPos = layer.Position;
+            }
+
+            isDragging = true;
+            CaptureMouse();
+            args.Handled = true;
+        }
+
+        protected override void OnMouseMove(MouseEventArgs args)
+        {
+            base.OnMouseMove(args);
+
+            if (isDragging)
+            {
+                Point ptMouse = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
+
+                if (SelectedLayer is not SymbolArtLayerModel layer)
+                    return;
+
+                var newPoint = new SymbolArtPoint(ptMouse);
+
+                switch (draggingVertexIndex)
+                {
+                    case -1:
+                        // moving entire layer
+                        var diff = ptMouse - draggingClickOrigin;
+
+                        layer.Position = draggingLayerOriginalPos + new SymbolArtPoint((Point)diff);
+                        break;
+                    case 0:
+                        layer.Vertex1 = newPoint;
+                        break;
+
+                    case 1:
+                        layer.Vertex2 = newPoint;
+                        break;
+
+                    case 2:
+                        layer.Vertex3 = newPoint;
+                        break;
+
+                    case 3:
+                        layer.Vertex4 = newPoint;
+                        break;
+                }
+
+                args.Handled = true;
+            }
+        }
+
+        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs args)
+        {
+            base.OnMouseUp(args);
+
+            if (isDragging)
+            {
+                isDragging = false;
+                ReleaseMouseCapture();
+                args.Handled = true;
+            }
         }
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
