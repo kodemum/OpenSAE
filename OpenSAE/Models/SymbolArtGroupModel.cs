@@ -6,12 +6,11 @@ namespace OpenSAE.Models
     public class SymbolArtGroupModel : SymbolArtItemModel
     {
         private readonly ISymbolArtGroup _group;
-        private readonly SymbolArtItemModel _parent;
 
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel parent)
         {
             _group = group;
-            _parent = parent;
+            Parent = parent;
 
             foreach (var item in _group.Children)
             {
@@ -50,7 +49,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public override bool IsVisible => _parent.IsVisible && Visible;
+        public override bool IsVisible => Parent!.IsVisible && Visible;
     }
 
 

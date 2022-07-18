@@ -66,6 +66,10 @@
         <KeyBinding Modifiers="Ctrl" Key="N" Command="{Binding NewFileCommand}" />
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveCommand}" />
         <KeyBinding Modifiers="Ctrl+Alt" Key="S" Command="{Binding SaveAsCommand}" />
+
+        <KeyBinding Modifiers="Ctrl" Key="OemComma" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
+        <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" />
+        <KeyBinding Modifiers="Shift" Key="Delete" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -81,9 +85,9 @@
         </Grid.ColumnDefinitions>
         <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
             <MenuItem Header="_File">
-                <MenuItem Header="_New" Command="{Binding NewFileCommand}" InputGestureText="Ctrl+N" />
-                <MenuItem Header="_Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" />
-                <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S" />
+                <MenuItem Header="_New" Command="{Binding NewFileCommand}" InputGestureText="Ctrl+N" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFileIcon}" />
+                <MenuItem Header="_Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" Template="{StaticResource iconMenuItem}" Icon="{StaticResource openFileIcon}" />
+                <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S" Template="{StaticResource iconMenuItem}" Icon="{StaticResource saveIcon}" />
                 <MenuItem Header="_Save as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Alt+S" />
                 <Separator />
                 <MenuItem Header="Recent files" ItemsSource="{Binding RecentFiles}">
@@ -102,11 +106,18 @@
                 <Separator />
                 <MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
             </MenuItem>
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D"  />
+                <Separator />
+                <MenuItem Header="Toggle selected item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
+                <MenuItem Header="_Delete selected item" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
+            </MenuItem>
         </Menu>
         <DockPanel Grid.Row="1">
             <Menu DockPanel.Dock="Bottom" Padding="0 5">
                 <MenuItem Header="Add layer" />
                 <MenuItem Header="Add group" />
+                <MenuItem Header="Delete" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
             </Menu>
             <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemTemplate>
@@ -137,6 +148,14 @@
         <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
 
         <DockPanel Grid.Row="1" Grid.Column="2">
+            <ToolBarTray DockPanel.Dock="Top" Background="Transparent">
+                <ToolBar Padding="2" FontSize="24">
+                    <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource viewIcon}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
+                    <!--<Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource orientationIcon}" ToolTip="Rotate the current symbol or group" />-->
+                    <Separator />
+                    <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                </ToolBar>
+            </ToolBarTray>
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock>
                     Shift-click to select a symbol. Click and drag symbol vertices to edit them. Click and drag anywhere else to move symbol.

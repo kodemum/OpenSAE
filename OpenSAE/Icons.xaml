@@ -1,0 +1,14 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:clr="clr-namespace:System;assembly=mscorlib"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <clr:String x:Key="saveIcon">&#xE105;</clr:String>
+    <clr:String x:Key="openFileIcon">&#xE8E5;</clr:String>
+    <clr:String x:Key="newFileIcon">&#xE7C3;</clr:String>
+    <clr:String x:Key="deleteIcon">&#xE74D;</clr:String>
+    <clr:String x:Key="addIcon">&#xE710;</clr:String>
+    <clr:String x:Key="cancelIcon">&#xE711;</clr:String>
+    <clr:String x:Key="previewIcon">&#xE8FF;</clr:String>
+    <clr:String x:Key="orientationIcon">&#xE8B4;</clr:String>
+    <clr:String x:Key="copyIcon">&#xE8C8;</clr:String>
+    <clr:String x:Key="viewIcon">&#xE890;</clr:String>
+</ResourceDictionary>

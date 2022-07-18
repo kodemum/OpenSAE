@@ -11,12 +11,11 @@ namespace OpenSAE.Models
     public class SymbolArtLayerModel : SymbolArtItemModel
     {
         private readonly SymbolArtLayer _layer;
-        private readonly SymbolArtItemModel _parent;
 
         public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel parent)
         {
             _layer = layer;
-            _parent = parent;
+            Parent = parent;
         }
 
         public override string? Name
@@ -49,7 +48,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public override bool IsVisible => _parent.IsVisible && Visible;
+        public override bool IsVisible => Parent!.IsVisible && Visible;
 
         public string? SymbolPackUri => SymbolUtil.GetSymbolPackUri(_layer.Type);
 

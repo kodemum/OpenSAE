@@ -3,6 +3,15 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <converters:LayerPointCollectionConverter x:Key="layerPointConverter" />
     <converters:NumberOffsetConverter x:Key="numberOffsetConverter" />
+
+    <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="iconMenuItem">
+        <MenuItem Header="{TemplateBinding Header}" InputGestureText="{TemplateBinding InputGestureText}" Command="{TemplateBinding Command}" CommandParameter="{TemplateBinding CommandParameter}">
+            <MenuItem.Icon>
+                <TextBlock FontSize="16" FontFamily="Segoe MDL2 Assets" Text="{TemplateBinding Icon}" />
+            </MenuItem.Icon>
+        </MenuItem>
+    </ControlTemplate>
+
     <Style TargetType="TreeViewItem">
         <Setter Property="Template">
             <Setter.Value>

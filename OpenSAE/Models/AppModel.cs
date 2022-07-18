@@ -46,7 +46,13 @@ namespace OpenSAE.Models
         public SymbolArtItemModel? SelectedItem
         {
             get => _selectedItem;
-            set => SetProperty(ref _selectedItem, value);
+            set
+            {
+                if (SetProperty(ref _selectedItem, value))
+                {
+                    CurrentItemCommand.NotifyCanExecuteChanged();
+                }
+            }
         }
 
         public string AppTitle
@@ -72,6 +78,8 @@ namespace OpenSAE.Models
 
         public RelayCommand SaveAsCommand { get; }
 
+        public RelayCommand<string> CurrentItemCommand { get; }
+
         public ICommand ExitCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -84,6 +92,30 @@ namespace OpenSAE.Models
             ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
             SaveCommand = new RelayCommand(Save_Implementation, () => CurrentSymbolArt != null);
             SaveAsCommand = new RelayCommand(SaveAs_Implementation, () => CurrentSymbolArt != null);
+
+            CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
+        }
+
+        private void CurrentItemActionCommand_Implementation(string? operation)
+        {
+            if (SelectedItem == null)
+                return;
+
+            switch (operation)
+            {
+                case "toggleVisibility":
+                    SelectedItem.Visible = !SelectedItem.Visible;
+                    break;
+
+                case "deselect":
+                    SelectedItem = null;
+                    break;
+
+                case "delete":
+                    SelectedItem.Delete();
+                    SelectedItem = null;
+                    break;
+            }
         }
 
         private void NewFile_Implementation()

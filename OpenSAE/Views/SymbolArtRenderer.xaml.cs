@@ -222,6 +222,28 @@ namespace OpenSAE.Views
                     RecursiveRefreshVisibility(group);
                 }
             };
+
+            group.Children.CollectionChanged += Children_CollectionChanged;
+        }
+
+        private void Children_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                    foreach (SymbolArtItemModel deletedItem in e.OldItems!)
+                    {
+                        foreach (var deletedLayer in deletedItem.GetAllLayers())
+                        {
+                            if (_layerDictionary.TryGetValue(deletedLayer, out LayerModelReference? refs))
+                            {
+                                symbolArtContentGroup.Children.Remove(refs.Model);
+                                _layerDictionary.Remove(deletedLayer);
+                            }
+                        }
+                    }
+                    break;
+            }
         }
 
         private void RecursiveRefreshVisibility(SymbolArtItemModel group)
