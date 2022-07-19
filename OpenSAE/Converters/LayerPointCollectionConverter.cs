@@ -12,27 +12,31 @@ using System.Windows.Media;
 
 namespace OpenSAE.Converters
 {
-    internal class LayerPointCollectionConverter : IValueConverter
+    internal class LayerPointCollectionConverter : IMultiValueConverter
     {
-        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public double ReferenceExtent { get; set; }
+
+        public object? Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is SymbolArtPoint[] points)
+            if (values.Length == 2 && values[0] is double extent && values[1] is SymbolArtPoint[] points)
             {
+                double scale = scale = extent / ReferenceExtent;
+
                 // as this converter is used for calculating display, we need to round the vertices
                 return new PointCollection(new Point[]
                 {
-                    points[0].Round(),
-                    points[1].Round(),
-                    points[3].Round(),
-                    points[2].Round(),
-                    points[0].Round()
+                    (points[0] * scale).Round(),
+                    (points[1] * scale).Round(),
+                    (points[3] * scale).Round(),
+                    (points[2] * scale).Round(),
+                    (points[0] * scale).Round()
                 });
             }
 
-            return null;
+            throw new ArgumentException();
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }

@@ -69,6 +69,9 @@ namespace OpenSAE.Core
         public static SymbolArtPoint operator +(SymbolArtPoint a, SymbolArtPoint b)
             => new(a.X + b.X, a.Y + b.Y);
 
+        public static SymbolArtPoint operator *(SymbolArtPoint a, double b)
+            => new(a.X * b, a.Y * b);
+
         public static SymbolArtPoint operator +(SymbolArtPoint a, Vector b)
             => new(a.X + b.X, a.Y + b.Y);
 

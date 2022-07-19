@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:models="clr-namespace:OpenSAE.Models"
+             xmlns:converters="clr-namespace:OpenSAE.Converters"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=models:SymbolArtModel}"
              DataContextChanged="UserControl_DataContextChanged"
@@ -15,6 +16,36 @@
                 <SolidColorBrush Color="Black" />
             </DiffuseMaterial.Brush>
         </DiffuseMaterial>
+        <converters:RelativeNumberConverter x:Key="relativeNumberConverter" ReferenceExtent="240" />
+        <converters:RelativeNumberConverter x:Key="relativeNumberHalfConverter" ReferenceExtent="240" DivideBy="2" />
+        <converters:RelativeNumberConverter x:Key="relativeNumberHalfAddConverter" ReferenceExtent="240" DivideAdditionalValuesBy="2" />
+        <converters:LayerPointCollectionConverter x:Key="layerPointConverter" ReferenceExtent="240" />
+        <Style TargetType="Ellipse" x:Key="vertexCornerCircle">
+            <Setter Property="Height" Value="10" />
+            <Setter Property="Width" Value="10" />
+            <Setter Property="Fill" Value="Black" />
+            <Setter Property="Opacity" Value="1" />
+            <Setter Property="Canvas.Top">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource relativeNumberHalfAddConverter}">
+                        <Binding Path="ActualWidth" ElementName="renderer" />
+                        <Binding Path="Y" />
+                        <Binding Path="DataContext.Height" ElementName="renderer" />
+                        <Binding Source="-2" />
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Canvas.Left">
+                <Setter.Value>
+                    <MultiBinding Converter="{StaticResource relativeNumberHalfAddConverter}">
+                        <Binding Path="ActualWidth" ElementName="renderer" />
+                        <Binding Path="X" />
+                        <Binding Path="DataContext.Width" ElementName="renderer" />
+                        <Binding Source="-2" />
+                    </MultiBinding>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid>
         <Grid.Background>
@@ -48,73 +79,100 @@
                 />
             </Viewport3D.Camera>
         </Viewport3D>
-        <Viewbox Stretch="Uniform" VerticalAlignment="Stretch">
-            <Canvas Width="192" Height="96" VerticalAlignment="Center" Margin="24 0" HorizontalAlignment="center">
-                <!-- Border framing active area of symbol art -->
-                <Border BorderThickness="0.5" BorderBrush="Black" Width="192" Height="96" Opacity="0.7" />
-                
+
+        <Grid>
+            <!-- Border framing active area of symbol art -->
+            <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7">
+                <Border.Width>
+                    <MultiBinding Converter="{StaticResource relativeNumberConverter}">
+                        <Binding Path="ActualWidth" ElementName="renderer" />
+                        <Binding Path="Width" />
+                    </MultiBinding>
+                </Border.Width>
+                <Border.Height>
+                    <MultiBinding Converter="{StaticResource relativeNumberConverter}">
+                        <Binding Path="ActualWidth" ElementName="renderer" />
+                        <Binding Path="Height" />
+                    </MultiBinding>
+                </Border.Height>
+
                 <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
                     <ContentPresenter.Resources>
                         <DataTemplate DataType="{x:Type models:SymbolArtModel}" />
                         <DataTemplate DataType="{x:Type models:SymbolArtGroupModel}">
-                            <Canvas>
+                            <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 <!-- Highlight vertices of the current layer, if there is one -->
-                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
-                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White" >
+                                <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices">
+                                    <Polyline.Points>
+                                        <MultiBinding Converter="{StaticResource layerPointConverter}">
+                                            <Binding Path="ActualWidth" ElementName="renderer" />
+                                            <Binding Path="Vertices" />
+                                        </MultiBinding>
+                                    </Polyline.Points>
+                                    <Canvas.Left>
+                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
+                                            <Binding Path="ActualWidth" ElementName="renderer" />
+                                            <Binding Path="DataContext.Width" ElementName="renderer" />
+                                        </MultiBinding>
+                                    </Canvas.Left>
+                                    <Canvas.Top>
+                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
+                                            <Binding Path="ActualWidth" ElementName="renderer" />
+                                            <Binding Path="DataContext.Height" ElementName="renderer" />
+                                        </MultiBinding>
+                                    </Canvas.Top>
                                 </Polyline>
-                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
-                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
-                                </Polyline>
-                                
+                                <Polyline Points="{Binding Points, ElementName=layerVertices}" Canvas.Top="{Binding Path=(Canvas.Top), ElementName=layerVertices}"
+                                          Canvas.Left="{Binding Path=(Canvas.Left), ElementName=layerVertices}"
+                                    StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
+
                                 <!-- Circles on each vertex (the offset is 1 off to account for the ellipse size) -->
-                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex1.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex1.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
-
-                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex2.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex2.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
-
-                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex3.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex3.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
-
-                                <Ellipse Width="2" Height="2" Fill="Black" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex4.RoundedY, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex4.RoundedX, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex1}" />
+                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex2}" />
+                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex3}" />
+                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
                             </Canvas>
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
                             <Canvas>
                                 <!-- Highlight vertices of the current layer, if there is one -->
-                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
-                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="White" >
+                                <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices">
+                                    <Polyline.Points>
+                                        <MultiBinding Converter="{StaticResource layerPointConverter}">
+                                            <Binding Path="ActualWidth" ElementName="renderer" />
+                                            <Binding Path="Vertices" />
+                                        </MultiBinding>
+                                    </Polyline.Points>
+                                    <Canvas.Left>
+                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
+                                            <Binding Path="ActualWidth" ElementName="renderer" />
+                                            <Binding Path="DataContext.Width" ElementName="renderer" />
+                                        </MultiBinding>
+                                    </Canvas.Left>
+                                    <Canvas.Top>
+                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
+                                            <Binding Path="ActualWidth" ElementName="renderer" />
+                                            <Binding Path="DataContext.Height" ElementName="renderer" />
+                                        </MultiBinding>
+                                    </Canvas.Top>
                                 </Polyline>
-                                <Polyline Points="{Binding Vertices, Converter={StaticResource layerPointConverter}}"
-                                    Canvas.Left="96" Canvas.Top="48"  StrokeThickness="0.5" Stroke="Black" StrokeDashArray="0.25 0 0.25">
-                                </Polyline>
+                                <Polyline Points="{Binding Points, ElementName=layerVertices}" Canvas.Top="{Binding Path=(Canvas.Top), ElementName=layerVertices}"
+                                          Canvas.Left="{Binding Path=(Canvas.Left), ElementName=layerVertices}"
+                                    StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
 
-                                <!-- Circles on each vertex (the offset is 1 off to account for the ellipse size) -->
-                                <Ellipse Width="2" Height="2" Fill="#FF0C00" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex1Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex1X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
-
-                                <Ellipse Width="2" Height="2" Fill="#00FFFC" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex2Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex2X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
-
-                                <Ellipse Width="2" Height="2" Fill="#00FF05" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex3Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex3X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
-
-                                <Ellipse Width="2" Height="2" Fill="#6500FF" Opacity="0.6"
-                                    Canvas.Top="{Binding Vertex4Y, Converter={StaticResource numberOffsetConverter}, ConverterParameter=47}"
-                                    Canvas.Left="{Binding Vertex4X, Converter={StaticResource numberOffsetConverter}, ConverterParameter=95}" />
+                                <!-- Circles on each vertex -->
+                                <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex1}" />
+                                <Ellipse Fill="#00FFFC" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex2}" />
+                                <Ellipse Fill="#00FF05" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex3}" />
+                                <Ellipse Fill="#6500FF" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
                             </Canvas>
                         </DataTemplate>
                     </ContentPresenter.Resources>
                 </ContentPresenter>
-            </Canvas>
-        </Viewbox>
+            </Border>
+
+
+        </Grid>
+
     </Grid>
 </UserControl>

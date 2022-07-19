@@ -112,6 +112,10 @@ namespace OpenSAE.Models
             }
         }
 
+        public int Width => _width;
+
+        public int Height => _height;
+
         public SymbolArtSoundEffect SoundEffect
         {
             get => _soundEffect;
