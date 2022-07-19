@@ -122,6 +122,51 @@ namespace OpenSAE.Models
                     SelectedItem = null;
                     break;
 
+                case "addLayer":
+                    // find group to add layer to - may be current item, it's parent
+                    // or possibly the root symbol art
+                    SymbolArtGroupModel targetGroup =
+                        SelectedItem as SymbolArtGroupModel
+                        ?? SelectedItem.Parent as SymbolArtGroupModel
+                        ?? CurrentSymbolArt!;
+
+                    var newLayer = new SymbolArtLayerModel("Symbol", targetGroup);
+
+                    if (SelectedItem is SymbolArtLayerModel)
+                    {
+                        // if selected item is a layer, add the new layer before it
+                        targetGroup.Children.Insert(targetGroup.Children.IndexOf(SelectedItem), newLayer);
+                    }
+                    else
+                    {
+                        // and if it is a group, add the layer as the first
+                        targetGroup.Children.Insert(0, newLayer);
+                    }
+
+                    SelectedItem = newLayer;
+                    break;
+
+                case "addGroup":
+                    SymbolArtGroupModel parentGroup =
+                        SelectedItem as SymbolArtGroupModel
+                        ?? SelectedItem.Parent as SymbolArtGroupModel
+                        ?? CurrentSymbolArt!;
+
+                    var newGroup = new SymbolArtGroupModel("Group", parentGroup);
+
+                    var parentIndex = parentGroup.Children.IndexOf(SelectedItem);
+                    if (parentIndex != -1)
+                    {
+                        parentGroup.Children.Insert(parentIndex, newGroup);
+                    }
+                    else
+                    {
+                        parentGroup.Children.Add(newGroup);
+                    }
+
+                    SelectedItem = newGroup;
+                    break;
+
                 case "duplicate":
                     if (SelectedItem.Parent == null)
                         return;

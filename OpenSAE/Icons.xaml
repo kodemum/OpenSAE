@@ -4,6 +4,7 @@
     <clr:String x:Key="saveIcon">&#xE105;</clr:String>
     <clr:String x:Key="openFileIcon">&#xE8E5;</clr:String>
     <clr:String x:Key="newFileIcon">&#xE7C3;</clr:String>
+    <clr:String x:Key="newFolderIcon">&#xE8F4;</clr:String>
     <clr:String x:Key="deleteIcon">&#xE74D;</clr:String>
     <clr:String x:Key="addIcon">&#xE710;</clr:String>
     <clr:String x:Key="cancelIcon">&#xE711;</clr:String>

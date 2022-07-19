@@ -1,4 +1,5 @@
 ﻿using OpenSAE.Core;
+using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
@@ -24,6 +25,10 @@ namespace OpenSAE.Models
         SymbolArtPoint Vertex4 { get; }
 
         bool Visible { get; set; }
+
+        double Alpha { get; set; }
+
+        Color Color { get; set; }
 
         void SetVertex(int vertexIndex, SymbolArtPoint point);
     }

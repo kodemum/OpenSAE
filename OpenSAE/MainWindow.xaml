@@ -70,6 +70,8 @@
         <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" />
         <KeyBinding Modifiers="Shift" Key="Delete" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="D" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+        <KeyBinding Modifiers="Ctrl+Shift" Key="E" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
+        <KeyBinding Modifiers="Ctrl" Key="E" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -107,6 +109,8 @@
                 <MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
             </MenuItem>
             <MenuItem Header="_Edit">
+                <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
+                <MenuItem Header="_Add new group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
                 <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D"  />
                 <Separator />
                 <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
@@ -149,11 +153,15 @@
         <DockPanel Grid.Row="1" Grid.Column="4">
             <ContentControl DockPanel.Dock="Top" Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
             <colorpicker:StandardColorPicker 
-                SelectedColor="{Binding SelectedItem.ColorWithAlpha, Mode=TwoWay}" 
-                DockPanel.Dock="Bottom" 
-                Width="96"
-                Visibility="{Binding SelectedItemIsLayer, Converter={StaticResource booleanToVisibilityConverter}}">
-            </colorpicker:StandardColorPicker>
+                SelectedColor="{Binding SelectedItem.Color, Mode=TwoWay}" 
+                DockPanel.Dock="Top" 
+                ShowAlpha="False"
+                Width="96" />
+            <DockPanel DockPanel.Dock="Top" Margin="5 0">
+                <TextBlock DockPanel.Dock="Left" Text="Opacity" />
+                <Slider Minimum="0" Maximum="1" Value="{Binding SelectedItem.Alpha}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="0.1429" TickPlacement="BottomRight" />
+            </DockPanel>
+            
             <views:SymbolSelector
                 DataContext="{Binding SymbolsList}"
                 SelectedSymbol="{Binding DataContext.SelectedItem.Symbol, ElementName=mainWindow, Mode=TwoWay}"
@@ -171,6 +179,8 @@
             <Grid>
                 <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <ToolBar Padding="2" FontSize="24">
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource addIcon}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource newFolderIcon}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource viewIcon}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Creates a copy of the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
                         <!--<Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource orientationIcon}" ToolTip="Rotate the current symbol or group" />-->

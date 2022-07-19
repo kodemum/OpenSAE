@@ -34,6 +34,20 @@ namespace OpenSAE.Models
             Parent = parent;
         }
 
+        public SymbolArtLayerModel(string name, SymbolArtItemModel parent)
+        {
+            _name = name;
+            _alpha = 1;
+            _color = "#f4d700";
+            _symbol = 240;
+            _visible = true;
+            _vertex1 = new SymbolArtPoint(-16, -16);
+            _vertex2 = new SymbolArtPoint(-16, 16);
+            _vertex3 = new SymbolArtPoint(16, -16);
+            _vertex4 = new SymbolArtPoint(16, 16);
+            Parent = parent;
+        }
+
         public override string? Name
         {
             get => _name;
@@ -59,7 +73,7 @@ namespace OpenSAE.Models
         public double Alpha
         {
             get => _alpha;
-            set => SetProperty(ref _alpha, value);
+            set => SetProperty(ref _alpha, Math.Round(value * 7) / 7);
         }
 
         public Color ColorWithAlpha
@@ -75,7 +89,7 @@ namespace OpenSAE.Models
             set
             {
                 Color = value;
-                Alpha = Math.Round((double)value.A / 255 * 7) / 7;
+                Alpha = value.A / 255;
                 OnPropertyChanged();
             }
         }

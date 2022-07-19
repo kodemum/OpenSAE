@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
@@ -31,6 +32,13 @@ namespace OpenSAE.Models
                     throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art group");
                 }
             }
+        }
+
+        public SymbolArtGroupModel(string name, SymbolArtItemModel parent)
+        {
+            _name = name;
+            _visible = true;
+            Parent = parent;
         }
 
         protected SymbolArtGroupModel()
@@ -64,6 +72,16 @@ namespace OpenSAE.Models
 
                 // we'll just assume the 4 points are the 4 extreme points of any in the group/subgroups
                 var allPoints = layers.SelectMany(x => x.Vertices).ToArray();
+
+                if (allPoints.Length == 0)
+                {
+                    var none = new SymbolArtPoint(0, 0);
+                    
+                    return new SymbolArtPoint[]
+                    {
+                        none, none, none, none
+                    };
+                }
 
                 double minX = allPoints.MinBy(x => x.X).X, maxX = allPoints.MaxBy(x => x.X).X;
                 double minY = allPoints.MinBy(x => x.Y).Y, maxY = allPoints.MaxBy(x => x.Y).Y;
@@ -108,6 +126,33 @@ namespace OpenSAE.Models
                 OnPropertyChanged(nameof(Vertex2));
                 OnPropertyChanged(nameof(Vertex3));
                 OnPropertyChanged(nameof(Vertex4));
+            }
+        }
+        public double Alpha
+        {
+            get => GetAllLayers().Average(x => x.Alpha);
+            set
+            {
+                foreach (var layer in GetAllLayers())
+                {
+                    layer.Alpha = value;
+                }
+
+                OnPropertyChanged();
+            }
+        }
+
+        public Color Color
+        {
+            get => GetAllLayers().FirstOrDefault()?.Color ?? new Color();
+            set
+            {
+                foreach (var layer in GetAllLayers())
+                {
+                    layer.Color = value;
+                }
+
+                OnPropertyChanged();
             }
         }
 

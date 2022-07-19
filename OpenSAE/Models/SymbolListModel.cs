@@ -12,7 +12,7 @@ namespace OpenSAE.Models
     public class SymbolListModel : ObservableObject
     {
         private double _itemSize
-            = 48;
+            = 64;
 
         public ObservableCollection<Symbol> Symbols { get; }
 
