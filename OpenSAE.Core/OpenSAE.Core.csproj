@@ -390,6 +390,12 @@
 		<None Remove="assets\85.png" />
 		<None Remove="assets\86.png" />
 		<None Remove="assets\9.png" />
+		<None Remove="assets\161.png" />
+		<None Remove="assets\162.png" />
+		<None Remove="assets\163.png" />
+		<None Remove="assets\164.png" />
+		<None Remove="assets\165.png" />
+		<None Remove="assets\166.png" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -775,6 +781,12 @@
 		<Resource Include="assets\85.png" />
 		<Resource Include="assets\86.png" />
 		<Resource Include="assets\9.png" />
+		<Resource Include="assets\161.png" />
+		<Resource Include="assets\162.png" />
+		<Resource Include="assets\163.png" />
+		<Resource Include="assets\164.png" />
+		<Resource Include="assets\165.png" />
+		<Resource Include="assets\166.png" />
 	</ItemGroup>
 
 </Project>
