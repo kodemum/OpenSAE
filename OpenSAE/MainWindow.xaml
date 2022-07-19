@@ -56,7 +56,6 @@
                     <CheckBox Margin="5" Content="Enable layer" IsChecked="{Binding Visible}" />
                 </UniformGrid>
                 <views:LayerVertexEditor />
-                <colorpicker:StandardColorPicker SelectedColor="{Binding ColorWithAlpha, Mode=TwoWay}" Width="96" />
             </StackPanel>
         </DataTemplate>
 
@@ -147,26 +146,39 @@
 
         <GridSplitter Grid.Row="1" Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
 
-        <ContentPresenter Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
+        <DockPanel Grid.Row="1" Grid.Column="4">
+            <ContentControl DockPanel.Dock="Top" Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
+            <colorpicker:StandardColorPicker 
+                SelectedColor="{Binding SelectedItem.ColorWithAlpha, Mode=TwoWay}" 
+                DockPanel.Dock="Bottom" 
+                Width="96"
+                Visibility="{Binding SelectedItemIsLayer, Converter={StaticResource booleanToVisibilityConverter}}">
+            </colorpicker:StandardColorPicker>
+            <views:SymbolSelector
+                DataContext="{Binding SymbolsList}"
+                SelectedSymbol="{Binding DataContext.SelectedItem.Symbol, ElementName=mainWindow, Mode=TwoWay}"
+                Visibility="{Binding DataContext.SelectedItemIsLayer, ElementName=mainWindow, Converter={StaticResource booleanToVisibilityConverter}}">
+            </views:SymbolSelector>
+        </DockPanel>
 
         <DockPanel Grid.Row="1" Grid.Column="2">
-            
+
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock>
                     Shift-click to select a symbol. Click and drag symbol vertices to edit them. Click and drag anywhere else to move symbol.
                 </TextBlock>
             </StatusBar>
             <Grid>
-            <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <ToolBar Padding="2" FontSize="24">
-                    <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource viewIcon}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
-                    <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Creates a copy of the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
-                    <!--<Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource orientationIcon}" ToolTip="Rotate the current symbol or group" />-->
-                    <Separator />
-                    <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
-                </ToolBar>
-            </ToolBarTray>
-            <views:SymbolArtRenderer ClipToBounds="True" DataContext="{Binding CurrentSymbolArt}" SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <ToolBar Padding="2" FontSize="24">
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource viewIcon}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Creates a copy of the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <!--<Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource orientationIcon}" ToolTip="Rotate the current symbol or group" />-->
+                        <Separator />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                    </ToolBar>
+                </ToolBarTray>
+                <views:SymbolArtRenderer ClipToBounds="True" DataContext="{Binding CurrentSymbolArt}" SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             </Grid>
         </DockPanel>
     </Grid>
