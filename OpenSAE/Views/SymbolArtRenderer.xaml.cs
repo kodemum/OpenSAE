@@ -264,7 +264,7 @@ namespace OpenSAE.Views
                 return;
             }
 
-            var brush = new ImageBrush((ImageSource)new ImageSourceConverter().ConvertFromString(uri)!)
+            var brush = new ImageBrush(layer.Symbol?.Image)
             {
                 Opacity = layer.Alpha
             };
@@ -321,7 +321,7 @@ namespace OpenSAE.Views
                     break;
 
                 case nameof(layer.Symbol):
-                    refs.Brush.ImageSource = (ImageSource)new ImageSourceConverter().ConvertFromString(layer.SymbolPackUri)!;
+                    refs.Brush.ImageSource = layer.Symbol?.Image;
                     break;
 
                 case nameof(layer.Color):

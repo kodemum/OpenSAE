@@ -1,7 +1,9 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:converters="clr-namespace:OpenSAE.Converters"
+                    xmlns:msconv="clr-namespace:System.Windows.Converters;assembly=WindowsBase"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <converters:NumberOffsetConverter x:Key="numberOffsetConverter" />
+    <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
 
     <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="iconMenuItem">
         <MenuItem Header="{TemplateBinding Header}" InputGestureText="{TemplateBinding InputGestureText}" Command="{TemplateBinding Command}" CommandParameter="{TemplateBinding CommandParameter}">

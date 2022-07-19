@@ -40,10 +40,10 @@ namespace OpenSAE.Models
             set => SetProperty(ref _name, value);
         }
 
-        public int Symbol
+        public Symbol? Symbol
         {
-            get => _symbol;
-            set => SetProperty(ref _symbol, value);
+            get => SymbolUtil.GetById(_symbol + 1)!;
+            set => SetProperty(ref _symbol, value?.Id - 1 ?? 0);
         }
 
         public override bool Visible
@@ -54,7 +54,7 @@ namespace OpenSAE.Models
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
 
-        public string? SymbolPackUri => SymbolUtil.GetSymbolPackUri(Symbol);
+        public string? SymbolPackUri => Symbol?.Uri;
 
         public double Alpha
         {

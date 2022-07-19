@@ -51,9 +51,12 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _selectedItem, value))
                 {
                     CurrentItemCommand.NotifyCanExecuteChanged();
+                    OnPropertyChanged(nameof(SelectedItemIsLayer));
                 }
             }
         }
+
+        public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
 
         public string AppTitle
         {
@@ -70,6 +73,8 @@ namespace OpenSAE.Models
             }
         }
 
+        public SymbolListModel SymbolsList { get; }
+
         public ICommand NewFileCommand { get; }
 
         public ICommand OpenFileCommand { get; }
@@ -85,6 +90,7 @@ namespace OpenSAE.Models
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
+            SymbolsList = new SymbolListModel();
             RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
 
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
