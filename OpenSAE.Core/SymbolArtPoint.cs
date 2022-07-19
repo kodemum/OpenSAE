@@ -9,7 +9,7 @@ namespace OpenSAE.Core
     /// straight <see cref="short"/>s. This is done to prevent accumulation of rounding errors
     /// when resizing symbols or symbol groups.
     /// </summary>
-    [DebuggerDisplay("x={PreciseX}, y={PreciseY}")]
+    [DebuggerDisplay("x={X}, y={Y}")]
     public struct SymbolArtPoint : IEquatable<SymbolArtPoint>
     {
         public SymbolArtPoint(short x, short y)
