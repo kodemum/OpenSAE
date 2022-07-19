@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 
 namespace OpenSAE.Models
 {
-    public class SymbolArtModel : SymbolArtItemModel
+    /// <summary>
+    /// Model representing a symbol art. Inherits from group, since we want to be able to manipulate
+    /// all the content in it as if it was a group
+    /// </summary>
+    public class SymbolArtModel : SymbolArtGroupModel
     {
-        private string? _name;
-        private bool _visible;
         private string? _author;
         private int _height;
         private int _width;
@@ -63,22 +65,10 @@ namespace OpenSAE.Models
         /// </summary>
         public string? FileName { get; private set; }
 
-        public override string? Name
-        {
-            get => _name;
-            set => SetProperty(ref _name, value);
-        }
-
         public string? Author
         {
             get => _author;
             set => SetProperty(ref _author, value);
-        }
-
-        public override bool Visible
-        {
-            get => _visible;
-            set => SetProperty(ref _visible, value);
         }
 
         public override bool IsVisible => Visible;

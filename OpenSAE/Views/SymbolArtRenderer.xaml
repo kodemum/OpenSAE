@@ -97,43 +97,8 @@
                 </Border.Height>
 
                 <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
-                    <ContentPresenter.Resources>
-                        <DataTemplate DataType="{x:Type models:SymbolArtModel}" />
-                        <DataTemplate DataType="{x:Type models:SymbolArtGroupModel}">
-                            <Canvas HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <!-- Highlight vertices of the current layer, if there is one -->
-                                <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices">
-                                    <Polyline.Points>
-                                        <MultiBinding Converter="{StaticResource layerPointConverter}">
-                                            <Binding Path="ActualWidth" ElementName="renderer" />
-                                            <Binding Path="Vertices" />
-                                        </MultiBinding>
-                                    </Polyline.Points>
-                                    <Canvas.Left>
-                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
-                                            <Binding Path="ActualWidth" ElementName="renderer" />
-                                            <Binding Path="DataContext.Width" ElementName="renderer" />
-                                        </MultiBinding>
-                                    </Canvas.Left>
-                                    <Canvas.Top>
-                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
-                                            <Binding Path="ActualWidth" ElementName="renderer" />
-                                            <Binding Path="DataContext.Height" ElementName="renderer" />
-                                        </MultiBinding>
-                                    </Canvas.Top>
-                                </Polyline>
-                                <Polyline Points="{Binding Points, ElementName=layerVertices}" Canvas.Top="{Binding Path=(Canvas.Top), ElementName=layerVertices}"
-                                          Canvas.Left="{Binding Path=(Canvas.Left), ElementName=layerVertices}"
-                                    StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
-
-                                <!-- Circles on each vertex (the offset is 1 off to account for the ellipse size) -->
-                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex1}" />
-                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex2}" />
-                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex3}" />
-                                <Ellipse Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
-                            </Canvas>
-                        </DataTemplate>
-                        <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
+                    <ContentPresenter.ContentTemplate>
+                        <DataTemplate>
                             <Canvas>
                                 <!-- Highlight vertices of the current layer, if there is one -->
                                 <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices">
@@ -167,7 +132,16 @@
                                 <Ellipse Fill="#6500FF" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
                             </Canvas>
                         </DataTemplate>
-                    </ContentPresenter.Resources>
+                    </ContentPresenter.ContentTemplate>
+                    <ContentPresenter.Style>
+                        <Style TargetType="ContentPresenter">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ElementName=renderer, Path=SelectedLayer}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentPresenter.Style>
                 </ContentPresenter>
             </Border>
 

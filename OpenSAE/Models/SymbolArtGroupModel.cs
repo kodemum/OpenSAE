@@ -7,8 +7,8 @@ namespace OpenSAE.Models
 {
     public class SymbolArtGroupModel : SymbolArtItemModel, ISymbolArtItem
     {
-        private string? _name;
-        private bool _visible;
+        protected string? _name;
+        protected bool _visible;
 
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
         {

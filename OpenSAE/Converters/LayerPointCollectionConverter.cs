@@ -18,6 +18,14 @@ namespace OpenSAE.Converters
 
         public object? Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            if (values.Length != 2)
+                throw new ArgumentException();
+
+            if (values[0] == DependencyProperty.UnsetValue || values[1] == DependencyProperty.UnsetValue)
+            {
+                return DependencyProperty.UnsetValue;
+            }
+
             if (values.Length == 2 && values[0] is double extent && values[1] is SymbolArtPoint[] points)
             {
                 double scale = scale = extent / ReferenceExtent;
