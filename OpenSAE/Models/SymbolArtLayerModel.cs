@@ -10,56 +10,56 @@ namespace OpenSAE.Models
 {
     public class SymbolArtLayerModel : SymbolArtItemModel, ISymbolArtItem
     {
-        private readonly SymbolArtLayer _layer;
+        private string? _name;
+        private double _alpha;
+        private string _color;
+        private int _symbol;
+        private bool _visible;
+        private SymbolArtPoint _vertex1;
+        private SymbolArtPoint _vertex2;
+        private SymbolArtPoint _vertex3;
+        private SymbolArtPoint _vertex4;
 
-        public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel parent)
+        public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel? parent)
         {
-            _layer = layer;
+            _name = layer.Name ?? string.Empty;
+            _alpha = layer.Alpha;
+            _color = layer.Color ?? "#ffffff";
+            _symbol = layer.Type;
+            _visible = layer.Visible;
+            _vertex1 = layer.Vertex1;
+            _vertex2 = layer.Vertex2;
+            _vertex3 = layer.Vertex3;
+            _vertex4 = layer.Vertex4;
             Parent = parent;
         }
 
         public override string? Name
         {
-            get => _layer.Name;
-            set
-            {
-                _layer.Name = value;
-                OnPropertyChanged();
-            }
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         public int Symbol
         {
-            get => _layer.Type;
-            set
-            {
-                _layer.Type = value;
-                OnPropertyChanged();
-            }
+            get => _symbol;
+            set => SetProperty(ref _symbol, value);
         }
 
         public override bool Visible
         {
-            get => _layer.Visible;
-            set
-            {
-                _layer.Visible = value;
-                OnPropertyChanged();
-            }
+            get => _visible;
+            set => SetProperty(ref _visible, value);
         }
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
 
-        public string? SymbolPackUri => SymbolUtil.GetSymbolPackUri(_layer.Type);
+        public string? SymbolPackUri => SymbolUtil.GetSymbolPackUri(Symbol);
 
         public double Alpha
         {
-            get => _layer.Alpha;
-            set
-            {
-                _layer.Alpha = value;
-                OnPropertyChanged();
-            }
+            get => _alpha;
+            set => SetProperty(ref _alpha, value);
         }
 
         public Color ColorWithAlpha
@@ -68,7 +68,7 @@ namespace OpenSAE.Models
             {
                 var color = Color;
 
-                color.A = (byte)Math.Round(_layer.Alpha * 255);
+                color.A = (byte)Math.Round(_alpha * 255);
 
                 return color;
             }
@@ -82,12 +82,13 @@ namespace OpenSAE.Models
 
         public Color Color
         {
-            get => (Color)ColorConverter.ConvertFromString(_layer.Color ?? "#ffffff");
+            get => (Color)ColorConverter.ConvertFromString(_color);
             set
             {
-                _layer.Color = string.Format("#{0:x2}{1:x2}{2:x2}", value.R, value.G, value.B);
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(ColorWithAlpha));
+                if (SetProperty(ref _color, string.Format("#{0:x2}{1:x2}{2:x2}", value.R, value.G, value.B)))
+                {
+                    OnPropertyChanged(nameof(ColorWithAlpha));
+                }
             }
         }
 
@@ -96,14 +97,15 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex1
         {
-            get => _layer.Vertex1;
+            get => _vertex1;
             set
             {
-                _layer.Vertex1 = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Vertex1X));
-                OnPropertyChanged(nameof(Vertex1Y));
-                OnPropertyChanged(nameof(Vertices));
+                if (SetProperty(ref _vertex1, value))
+                {
+                    OnPropertyChanged(nameof(Vertex1X));
+                    OnPropertyChanged(nameof(Vertex1Y));
+                    OnPropertyChanged(nameof(Vertices));
+                }
             }
         }
 
@@ -112,14 +114,15 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex2
         {
-            get => _layer.Vertex2;
+            get => _vertex2;
             set
             {
-                _layer.Vertex2 = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Vertex2X));
-                OnPropertyChanged(nameof(Vertex2Y));
-                OnPropertyChanged(nameof(Vertices));
+                if (SetProperty(ref _vertex2, value))
+                {
+                    OnPropertyChanged(nameof(Vertex2X));
+                    OnPropertyChanged(nameof(Vertex2Y));
+                    OnPropertyChanged(nameof(Vertices));
+                }
             }
         }
 
@@ -128,14 +131,15 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex3
         {
-            get => _layer.Vertex3;
+            get => _vertex3;
             set
             {
-                _layer.Vertex3 = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Vertex3X));
-                OnPropertyChanged(nameof(Vertex3Y));
-                OnPropertyChanged(nameof(Vertices));
+                if (SetProperty(ref _vertex3, value))
+                {
+                    OnPropertyChanged(nameof(Vertex3X));
+                    OnPropertyChanged(nameof(Vertex3Y));
+                    OnPropertyChanged(nameof(Vertices));
+                }
             }
         }
 
@@ -144,14 +148,15 @@ namespace OpenSAE.Models
         /// </summary>
         public SymbolArtPoint Vertex4
         {
-            get => _layer.Vertex4;
+            get => _vertex4;
             set
             {
-                _layer.Vertex4 = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Vertex4X));
-                OnPropertyChanged(nameof(Vertex4Y));
-                OnPropertyChanged(nameof(Vertices));
+                if (SetProperty(ref _vertex4, value))
+                {
+                    OnPropertyChanged(nameof(Vertex4X));
+                    OnPropertyChanged(nameof(Vertex4Y));
+                    OnPropertyChanged(nameof(Vertices));
+                }
             }
         }
 
@@ -278,6 +283,27 @@ namespace OpenSAE.Models
                 yield return new Point3D(Vertex4.RoundedX, -Vertex4.RoundedY, 0);
                 yield return new Point3D(Vertex3.RoundedX, -Vertex3.RoundedY, 0);
             }
+        }
+
+        public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
+        {
+            return new SymbolArtLayerModel((SymbolArtLayer)ToSymbolArtItem(), parent);
+        }
+
+        public override SymbolArtItem ToSymbolArtItem()
+        {
+            return new SymbolArtLayer()
+            {
+                Name = _name,
+                Alpha = _alpha,
+                Color = _color,
+                Type = _symbol,
+                Visible = _visible,
+                Vertex1 = _vertex1,
+                Vertex2 = _vertex2,
+                Vertex3 = _vertex3,
+                Vertex4 = _vertex4,
+            };
         }
 
         public void SetVertex(int vertexIndex, SymbolArtPoint point)

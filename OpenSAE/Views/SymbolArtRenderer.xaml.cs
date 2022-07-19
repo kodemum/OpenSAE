@@ -166,22 +166,18 @@ namespace OpenSAE.Views
 
         private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            Redraw();
+        }
+
+        private void Redraw()
+        {
             symbolArtContentGroup.Children.Clear();
             symbolArtContentGroup.Children.Add(new AmbientLight(Colors.White));
             _layerDictionary.Clear();
 
-            if (e.NewValue is null)
-            {
-                // we've cleared the data, nothing more to do
-                return;
-            }
-            else if (e.NewValue is SymbolArtModel sa)
+            if (DataContext is SymbolArtModel sa)
             {
                 DrawSymbolArtGroup(sa);
-            }
-            else
-            {
-                throw new InvalidOperationException("DataContext for SymbolArtRenderer must be of type SymbolArtModel");
             }
         }
 
@@ -226,6 +222,12 @@ namespace OpenSAE.Views
                             }
                         }
                     }
+                    break;
+
+                default:
+                    // lets just redraw everything - traversing the entire tree to 
+                    // figure out the order the elements should be in can wait
+                    Redraw();
                     break;
             }
         }

@@ -7,14 +7,16 @@ namespace OpenSAE.Models
 {
     public class SymbolArtGroupModel : SymbolArtItemModel, ISymbolArtItem
     {
-        private readonly ISymbolArtGroup _group;
+        private string? _name;
+        private bool _visible;
 
-        public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel parent)
+        public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
         {
-            _group = group;
             Parent = parent;
+            _name = group.Name;
+            _visible = group.Visible;
 
-            foreach (var item in _group.Children)
+            foreach (var item in group.Children)
             {
                 if (item is ISymbolArtGroup subGroup)
                 {
@@ -31,24 +33,20 @@ namespace OpenSAE.Models
             }
         }
 
+        protected SymbolArtGroupModel()
+        {
+        }
+
         public override string? Name
         {
-            get => _group.Name;
-            set
-            {
-                _group.Name = value;
-                OnPropertyChanged();
-            }
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         public override bool Visible
         {
-            get => _group.Visible;
-            set
-            {
-                _group.Visible = value;
-                OnPropertyChanged();
-            }
+            get => _visible;
+            set => SetProperty(ref _visible, value);
         }
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
@@ -111,6 +109,34 @@ namespace OpenSAE.Models
                 OnPropertyChanged(nameof(Vertex3));
                 OnPropertyChanged(nameof(Vertex4));
             }
+        }
+
+        public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
+        {
+            var duplicateGroup = new SymbolArtGroupModel()
+            {
+                Name = Name,
+                Visible = Visible,
+                Parent = parent
+            };
+
+            // this will be recursive since child groups will also be duplicated
+            foreach (var child in Children)
+            {
+                duplicateGroup.Children.Add(child.Duplicate(duplicateGroup));
+            }
+
+            return duplicateGroup;
+        }
+
+        public override SymbolArtItem ToSymbolArtItem()
+        {
+            return new SymbolArtGroup()
+            {
+                Name = _name,
+                Visible = _visible,
+                Children = Children.Select(x => x.ToSymbolArtItem()).ToList()
+            };
         }
 
         /// <summary>

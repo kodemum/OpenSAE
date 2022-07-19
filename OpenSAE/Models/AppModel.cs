@@ -115,6 +115,17 @@ namespace OpenSAE.Models
                     SelectedItem.Delete();
                     SelectedItem = null;
                     break;
+
+                case "duplicate":
+                    if (SelectedItem.Parent == null)
+                        return;
+
+                    var duplicate = SelectedItem.Duplicate(SelectedItem.Parent);
+
+                    var currentIndex = SelectedItem.Parent.Children.IndexOf(SelectedItem);
+
+                    SelectedItem.Parent.Children.Insert(currentIndex, duplicate);
+                    break;
             }
         }
 

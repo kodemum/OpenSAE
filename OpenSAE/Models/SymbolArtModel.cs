@@ -11,15 +11,27 @@ namespace OpenSAE.Models
 {
     public class SymbolArtModel : SymbolArtItemModel
     {
-        private readonly SymbolArt _sa;
+        private string? _name;
+        private bool _visible;
+        private string? _author;
+        private int _height;
+        private int _width;
+        private SymbolArtSoundEffect _soundEffect;
+        private SymbolArtFileFormat _fileFormat;
 
         public SymbolArtModel(string filename)
         {
-            _sa = SymbolArt.LoadFromFile(filename);
+            var sa = SymbolArt.LoadFromFile(filename);
+            _name = sa.Name;
+            _visible = sa.Visible;
+            _height = sa.Height;
+            _width = sa.Width;
+            _soundEffect = sa.Sound;
+            _fileFormat = sa.FileFormat;
 
             FileName = filename;
 
-            foreach (var item in _sa.Children)
+            foreach (var item in sa.Children)
             {
                 if (item is ISymbolArtGroup subGroup)
                 {
@@ -38,7 +50,12 @@ namespace OpenSAE.Models
 
         public SymbolArtModel()
         {
-            _sa = SymbolArt.CreateBlank("NewSymbolArt");
+            _name = "NewSymbolArt";
+            _author = "0";
+            _width = 192;
+            _height = 96;
+            _soundEffect = SymbolArtSoundEffect.None;
+            _visible = true;
         }
 
         /// <summary>
@@ -48,22 +65,20 @@ namespace OpenSAE.Models
 
         public override string? Name
         {
-            get => _sa.Name;
-            set
-            {
-                _sa.Name = value;
-                OnPropertyChanged();
-            }
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
+        public string? Author
+        {
+            get => _author;
+            set => SetProperty(ref _author, value);
         }
 
         public override bool Visible
         {
-            get => _sa.Visible;
-            set
-            {
-                _sa.Visible = value;
-                OnPropertyChanged();
-            }
+            get => _visible;
+            set => SetProperty(ref _visible, value);
         }
 
         public override bool IsVisible => Visible;
@@ -72,10 +87,10 @@ namespace OpenSAE.Models
         {
             get
             {
-                if (_sa.Height == 96 && _sa.Width == 192)
+                if (_height == 96 && _width == 192)
                     return SymbolArtSize.Standard;
 
-                if (_sa.Width == 32 && _sa.Height == 32)
+                if (_width == 32 && _height == 32)
                     return SymbolArtSize.AllianceLogo;
 
                 return SymbolArtSize.NonStandard;
@@ -85,13 +100,13 @@ namespace OpenSAE.Models
                 switch (value)
                 {
                     case SymbolArtSize.AllianceLogo:
-                        _sa.Height = 32;
-                        _sa.Width = 32;
+                        _height = 32;
+                        _width = 32;
                         break;
 
                     case SymbolArtSize.Standard:
-                        _sa.Width = 192;
-                        _sa.Height = 96;
+                        _width = 192;
+                        _height = 96;
                         break;
                 }
             }
@@ -99,12 +114,8 @@ namespace OpenSAE.Models
 
         public SymbolArtSoundEffect SoundEffect
         {
-            get => _sa.Sound;
-            set
-            {
-                _sa.Sound = value;
-                OnPropertyChanged();
-            }
+            get => _soundEffect;
+            set => SetProperty(ref _soundEffect, value);
         }
 
         public List<SymbolArtSizeOptionModel> SizeOptions => new()
@@ -138,14 +149,37 @@ namespace OpenSAE.Models
                 throw new InvalidOperationException("Cannot save in-place as Symbol Art was not created from a file");
             }
 
-            SaveAs(FileName, _sa.FileFormat == SymbolArtFileFormat.None ? SymbolArtFileFormat.SAML : _sa.FileFormat);
+            SaveAs(FileName, _fileFormat == SymbolArtFileFormat.None ? SymbolArtFileFormat.SAML : _fileFormat);
         }
 
         public void SaveAs(string filename, SymbolArtFileFormat format)
         {
             using var fs = File.Create(filename);
 
-            _sa.Save(fs, format);
+            var symbolArt = (SymbolArt)ToSymbolArtItem();
+
+            symbolArt.Save(fs, format);
+        }
+
+        public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
+        {
+            throw new InvalidOperationException("Cannot duplicate symbol art root");
+        }
+
+        public override SymbolArtItem ToSymbolArtItem()
+        {
+            return new SymbolArt()
+            {
+                Author = _author,
+                FileFormat = _fileFormat,
+                Children = Children.Select(x => x.ToSymbolArtItem()).ToList(),
+                Name = _name,
+                Height = _height,
+                Sound = _soundEffect,
+                Version = 4,
+                Visible = _visible,
+                Width = _width
+            };
         }
     }
 }

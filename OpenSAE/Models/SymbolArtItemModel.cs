@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using OpenSAE.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -12,7 +14,7 @@ namespace OpenSAE.Models
 
         public abstract bool IsVisible { get; }
 
-        public SymbolArtItemModel? Parent { get; protected set; }
+        public SymbolArtItemModel? Parent { get; set; }
 
         public virtual void Delete()
         {
@@ -49,5 +51,9 @@ namespace OpenSAE.Models
 
         public ObservableCollection<SymbolArtItemModel> Children { get; }
             = new();
+
+        public abstract SymbolArtItemModel Duplicate(SymbolArtItemModel parent);
+
+        public abstract SymbolArtItem ToSymbolArtItem();
     }
 }
