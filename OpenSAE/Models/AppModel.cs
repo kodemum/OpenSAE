@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using static OpenSAE.Behaviors.TreeViewSelectionBehavior;
 
 namespace OpenSAE.Models
 {
@@ -56,6 +57,8 @@ namespace OpenSAE.Models
                 }
             }
         }
+
+        public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
 

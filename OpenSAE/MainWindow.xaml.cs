@@ -43,14 +43,6 @@ namespace OpenSAE
             Height = Settings.Default.WindowHeight;
         }
 
-        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (_model != null)
-            {
-                _model.SelectedItem = (SymbolArtItemModel)e.NewValue;
-            }
-        }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (!_model.RequestExit())

@@ -61,5 +61,18 @@ namespace OpenSAE.Models
         public abstract void FlipY();
 
         public abstract void Rotate(double angle);
+
+        public static bool IsChildOf(object childItem, object parentItem)
+        {
+            if (childItem is not SymbolArtItemModel childModel)
+            {
+                throw new Exception();
+            }
+
+            if (parentItem == null)
+                return false;
+
+            return childModel.Parent == parentItem;
+        }
     }
 }

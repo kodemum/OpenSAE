@@ -5,7 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:OpenSAE.Models"
         xmlns:views="clr-namespace:OpenSAE.Views"
-        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker" 
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
         Closing="Window_Closing"
@@ -136,7 +138,10 @@
                 <MenuItem Header="Add group" />
                 <MenuItem Header="Delete" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
             </Menu>
-            <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}" SelectedItemChanged="TreeView_SelectedItemChanged">
+            <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}">
+                <i:Interaction.Behaviors>
+                    <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
+                </i:Interaction.Behaviors>
                 <TreeView.ItemTemplate>
                     <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                         <StackPanel Orientation="Horizontal">
