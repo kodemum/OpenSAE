@@ -19,6 +19,8 @@ namespace OpenSAE.Models
         private SymbolArtPoint _vertex2;
         private SymbolArtPoint _vertex3;
         private SymbolArtPoint _vertex4;
+        private SymbolArtPoint[]? _temporaryVertices;
+        private bool _isRotating;
 
         public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel? parent)
         {
@@ -328,6 +330,36 @@ namespace OpenSAE.Models
         public override void FlipY()
         {
             Vertices = SymbolManipulationHelper.FlipY(Vertices);
+        }
+
+        public override void Rotate(double angle)
+        {
+            Vertices = SymbolManipulationHelper.Rotate(Vertices, angle);
+        }
+
+        public void TemporaryRotate(double angle)
+        {
+            TemporaryRotate(angle, Vertices.GetCenter());
+        }
+
+        public void TemporaryRotate(double angle, SymbolArtPoint origin)
+        {
+            if (!_isRotating)
+            {
+                _temporaryVertices = Vertices;
+                _isRotating = true;
+            }
+
+            Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices!, origin, angle);
+        }
+
+        public void CommitRotate()
+        {
+            if (_isRotating)
+            {
+                _isRotating = false;
+                _temporaryVertices = null;
+            }
         }
 
         public void SetVertex(int vertexIndex, SymbolArtPoint point)

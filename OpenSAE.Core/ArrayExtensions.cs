@@ -3,11 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace OpenSAE.Core
 {
     public static class ArrayExtensions
     {
+        public static double GetCenterX(this SymbolArtPoint[] points)
+        {
+            return (points.Max(x => x.X) + points.Min(x => x.X)) / 2;
+        }
+
+        public static double GetCenterY(this SymbolArtPoint[] points)
+        {
+            return (points.Max(x => x.Y) + points.Min(x => x.Y)) / 2;
+        }
+
+        public static SymbolArtPoint GetCenter(this SymbolArtPoint[] points)
+        {
+            return new SymbolArtPoint(points.GetCenterX(), points.GetCenterY());
+        }
+
         public static int GetMinIndexBy(this SymbolArtPoint[] array, bool byX)
         {
             int minIndex = 0;

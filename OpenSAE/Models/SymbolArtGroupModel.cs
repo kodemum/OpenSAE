@@ -10,6 +10,8 @@ namespace OpenSAE.Models
     {
         protected string? _name;
         protected bool _visible;
+        private bool _isRotating;
+        private SymbolArtPoint _rotationOrigin;
 
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
         {
@@ -186,10 +188,8 @@ namespace OpenSAE.Models
 
         public override void FlipX()
         {
-            var vertices = Vertices;
-
             // find center origin
-            var originX = (vertices.Max(x => x.X) + vertices.Min(x => x.X)) / 2;
+            var originX = Vertices.GetCenterX();
 
             foreach (var layer in GetAllLayers())
             {
@@ -199,15 +199,62 @@ namespace OpenSAE.Models
 
         public override void FlipY()
         {
-            var vertices = Vertices;
-
             // find center origin
-            var originY = (vertices.Max(x => x.Y) + vertices.Min(x => x.Y)) / 2;
+            var originY = Vertices.GetCenterY();
 
             foreach (var layer in GetAllLayers())
             {
                 layer.Vertices = SymbolManipulationHelper.FlipY(layer.Vertices, originY);
             }
+        }
+
+        public override void Rotate(double angle)
+        {
+            // find center origin
+            var origin = Vertices.GetCenter();
+
+            foreach (var layer in GetAllLayers())
+            {
+                layer.Vertices = SymbolManipulationHelper.Rotate(layer.Vertices, origin, angle);
+            }
+
+            OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(Position));
+            OnPropertyChanged(nameof(Vertex1));
+            OnPropertyChanged(nameof(Vertex2));
+            OnPropertyChanged(nameof(Vertex3));
+            OnPropertyChanged(nameof(Vertex4));
+        }
+
+        public void TemporaryRotate(double angle)
+        {
+            if (!_isRotating)
+            {
+                _isRotating = true;
+                _rotationOrigin = Vertices.GetCenter();
+            }
+
+            foreach (var layer in GetAllLayers())
+            {
+                layer.TemporaryRotate(angle, _rotationOrigin);
+            }
+
+            OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(Position));
+            OnPropertyChanged(nameof(Vertex1));
+            OnPropertyChanged(nameof(Vertex2));
+            OnPropertyChanged(nameof(Vertex3));
+            OnPropertyChanged(nameof(Vertex4));
+        }
+
+        public void CommitRotate()
+        {
+            foreach (var layer in GetAllLayers())
+            {
+                layer.CommitRotate();
+            }
+
+            _isRotating = false;
         }
 
         /// <summary>

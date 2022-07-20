@@ -31,5 +31,11 @@ namespace OpenSAE.Models
         Color Color { get; set; }
 
         void SetVertex(int vertexIndex, SymbolArtPoint point);
+
+        void Rotate(double angle);
+
+        void TemporaryRotate(double angle);
+
+        void CommitRotate();
     }
 }

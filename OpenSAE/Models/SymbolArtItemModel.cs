@@ -59,5 +59,7 @@ namespace OpenSAE.Models
         public abstract void FlipX();
 
         public abstract void FlipY();
+
+        public abstract void Rotate(double angle);
     }
 }

@@ -13,6 +13,18 @@
         </MenuItem>
     </ControlTemplate>
 
+    <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="mirroredIconMenuItem">
+        <MenuItem Header="{TemplateBinding Header}" InputGestureText="{TemplateBinding InputGestureText}" Command="{TemplateBinding Command}" CommandParameter="{TemplateBinding CommandParameter}">
+            <MenuItem.Icon>
+                <TextBlock FontSize="16" FontFamily="Segoe MDL2 Assets" Text="{TemplateBinding Icon}" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <ScaleTransform ScaleX="-1" />
+                    </TextBlock.RenderTransform>
+                </TextBlock>
+            </MenuItem.Icon>
+        </MenuItem>
+    </ControlTemplate>
+
     <Style TargetType="TextBlock" x:Key="iconText">
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
         <Setter Property="FontSize" Value="16" />

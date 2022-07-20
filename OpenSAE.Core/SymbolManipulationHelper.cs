@@ -13,12 +13,12 @@ namespace OpenSAE.Core
     {
         public static SymbolArtPoint[] FlipX(SymbolArtPoint[] points)
         {
-            return FlipX(points, (points.Max(x => x.X) + points.Min(x => x.X)) / 2);
+            return FlipX(points, points.GetCenterX());
         }
 
         public static SymbolArtPoint[] FlipY(SymbolArtPoint[] points)
         {
-            return FlipY(points, (points.Max(x => x.Y) + points.Min(x => x.Y)) / 2);
+            return FlipY(points, points.GetCenterY());
         }
 
         public static SymbolArtPoint[] FlipX(SymbolArtPoint[] points, double flipOrigin)
@@ -39,6 +39,28 @@ namespace OpenSAE.Core
                 flipped[i] = new SymbolArtPoint(points[i].X, flipOrigin - (points[i].Y - flipOrigin));
             }
             return flipped;
+        }
+
+        public static SymbolArtPoint[] Rotate(SymbolArtPoint[] points, double angle)
+        {
+            return Rotate(points, points.GetCenter(), angle);
+        }
+
+        public static SymbolArtPoint[] Rotate(SymbolArtPoint[] points, SymbolArtPoint origin, double angle)
+        {
+            var s = Math.Sin(Math.PI * angle / 180);
+            var c = Math.Cos(Math.PI * angle / 180);
+
+            SymbolArtPoint[] result = new SymbolArtPoint[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                var translated = new SymbolArtPoint(points[i].X - origin.X, points[i].Y - origin.Y);
+
+                var n = new SymbolArtPoint(translated.X * c - translated.Y * s, translated.X * s + translated.Y * c);
+
+                result[i] = n + origin;
+            }
+            return result;
         }
     }
 }

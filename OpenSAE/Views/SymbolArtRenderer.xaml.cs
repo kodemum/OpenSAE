@@ -2,6 +2,7 @@
 using OpenSAE.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,6 +58,8 @@ namespace OpenSAE.Views
         }
 
         private bool isDragging;
+        private SymbolArtPoint rotatingOrigin;
+        private bool isRotating;
         private int draggingVertexIndex;
         private Point draggingClickOrigin;
         private SymbolArtPoint draggingLayerOriginalPos;
@@ -67,9 +70,9 @@ namespace OpenSAE.Views
             set => SetValue(MouseSymbolPositionProperty, value);
         }
 
-        public SymbolArtItemModel SelectedLayer
+        public ISymbolArtItem SelectedLayer
         {
-            get => (SymbolArtItemModel)GetValue(SelectedLayerProperty);
+            get => (ISymbolArtItem)GetValue(SelectedLayerProperty);
             set => SetValue(SelectedLayerProperty, value);
         }
 
@@ -92,8 +95,54 @@ namespace OpenSAE.Views
                 );
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            {
+                Cursor = Cursors.Hand;
+            }
+
+            if (SelectedLayer != null)
+            {
+                switch (e.Key)
+                {
+                    case Key.Down:
+                        SelectedLayer.Position += new SymbolArtPoint(0, 1);
+                        e.Handled = true;
+                        break;
+
+                    case Key.Up:
+                        SelectedLayer.Position += new SymbolArtPoint(0, -1);
+                        e.Handled = true;
+                        break;
+
+                    case Key.Left:
+                        SelectedLayer.Position += new SymbolArtPoint(-1, 0);
+                        e.Handled = true;
+                        break;
+
+                    case Key.Right:
+                        SelectedLayer.Position += new SymbolArtPoint(1, 0);
+                        e.Handled = true;
+                        break;
+                }
+            }
+
+            base.OnPreviewKeyDown(e);
+        }
+
+        protected override void OnPreviewKeyUp(KeyEventArgs e)
+        {
+            Cursor = null;
+
+            base.OnPreviewKeyUp(e);
+        }
+
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs args)
         {
+            Focus();
+            Keyboard.Focus(this);
+
             if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
             {
                 // selection mode
@@ -119,23 +168,32 @@ namespace OpenSAE.Views
             // get the mouse location convert the coordinates
             draggingClickOrigin = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
 
-            // get the distance from the mouse location to each vertex of the target layer
-            var distanceToVertices = layer.Vertices
-                .Select(point => (point - draggingClickOrigin).Length)
-                .ToArray();
-
-            // find the closest vertex
-            draggingVertexIndex = distanceToVertices.GetMinIndexBy(x => x);
-
-            // check if the closest vertex is close enough that we'll consider that it was clicked
-            if (distanceToVertices[draggingVertexIndex] > LayerVertexClickRadius)
+            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                // drag entire symbol if we're not close enough to any vertex
-                draggingVertexIndex = -1;
-                draggingLayerOriginalPos = layer.Position;
+                isRotating = true;
+                rotatingOrigin = layer.Vertices.GetCenter();
+            }
+            else
+            {
+                // get the distance from the mouse location to each vertex of the target layer
+                var distanceToVertices = layer.Vertices
+                    .Select(point => (point - draggingClickOrigin).Length)
+                    .ToArray();
+
+                // find the closest vertex
+                draggingVertexIndex = distanceToVertices.GetMinIndexBy(x => x);
+
+                // check if the closest vertex is close enough that we'll consider that it was clicked
+                if (distanceToVertices[draggingVertexIndex] > LayerVertexClickRadius)
+                {
+                    // drag entire symbol if we're not close enough to any vertex
+                    draggingVertexIndex = -1;
+                    draggingLayerOriginalPos = layer.Position;
+                }
+
+                isDragging = true;
             }
 
-            isDragging = true;
             CaptureMouse();
             args.Handled = true;
         }
@@ -148,20 +206,47 @@ namespace OpenSAE.Views
 
             MouseSymbolPosition = new Point(Math.Round(ptMouse.X), Math.Round(ptMouse.Y));
 
-            if (isDragging)
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
             {
-                if (SelectedLayer is not ISymbolArtItem layer)
-                    return;
+                // highlight layers under cursor
+                HitTestResult result = VisualTreeHelper.HitTest(viewport3d, args.GetPosition(viewport3d));
 
+                if (result is RayMeshGeometry3DHitTestResult meshHit)
+                {
+                    var hitLayer = _layerDictionary.FirstOrDefault(x => x.Value.Geometry == meshHit.MeshHit);
+
+                    if (hitLayer.Key != null)
+                    {
+                        SelectedLayer = hitLayer.Key;
+                        return;
+                    }
+                }
+            }
+
+            if (SelectedLayer == null)
+                return;
+
+            if (isRotating)
+            {
+                var now = ptMouse;
+
+                var angleBefore = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X) * 180 / Math.PI;
+                var angleNow = Math.Atan2(now.Y - rotatingOrigin.Y, now.X - rotatingOrigin.X) * 180 / Math.PI;
+                var angle = angleNow - angleBefore;
+
+                SelectedLayer.TemporaryRotate(angle);
+            }
+            else if (isDragging)
+            {
                 if (draggingVertexIndex == -1)
                 {
                     var diff = ptMouse - draggingClickOrigin;
 
-                    layer.Position = draggingLayerOriginalPos + new SymbolArtPoint((Point)diff).Round();
+                    SelectedLayer.Position = draggingLayerOriginalPos + new SymbolArtPoint((Point)diff).Round();
                 }
                 else
                 {
-                    layer.SetVertex(draggingVertexIndex, new SymbolArtPoint(ptMouse));
+                    SelectedLayer.SetVertex(draggingVertexIndex, new SymbolArtPoint(ptMouse));
                 }
 
                 args.Handled = true;
@@ -172,9 +257,15 @@ namespace OpenSAE.Views
         {
             base.OnMouseUp(args);
 
-            if (isDragging)
+            if (isRotating)
+            {
+                SelectedLayer.CommitRotate();
+            }
+
+            if (isDragging || isRotating)
             {
                 isDragging = false;
+                isRotating = false;
                 ReleaseMouseCapture();
                 args.Handled = true;
             }
@@ -363,6 +454,12 @@ namespace OpenSAE.Views
             }
 
             refs.Brush.Opacity = layer.IsVisible ? layer.Alpha : 0;
+        }
+
+        private void renderer_Loaded(object sender, RoutedEventArgs e)
+        {
+            Focus();
+            Keyboard.Focus(this);
         }
 
         /// <summary>

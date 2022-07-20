@@ -51,6 +51,7 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _selectedItem, value))
                 {
                     CurrentItemCommand.NotifyCanExecuteChanged();
+                    RotateCurrentItemCommand.NotifyCanExecuteChanged();
                     OnPropertyChanged(nameof(SelectedItemIsLayer));
                 }
             }
@@ -85,6 +86,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> CurrentItemCommand { get; }
 
+        public RelayCommand<string> RotateCurrentItemCommand { get; }
+
         public ICommand ExitCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -100,6 +103,15 @@ namespace OpenSAE.Models
             SaveAsCommand = new RelayCommand(SaveAs_Implementation, () => CurrentSymbolArt != null);
 
             CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
+            RotateCurrentItemCommand = new RelayCommand<string>(RotateCurrentItemCommand_Implementation, (_) => SelectedItem != null);
+        }
+
+        private void RotateCurrentItemCommand_Implementation(string? angle)
+        {
+            if (SelectedItem == null || angle == null)
+                return;
+
+            SelectedItem.Rotate(double.Parse(angle));
         }
 
         private void CurrentItemActionCommand_Implementation(string? operation)
