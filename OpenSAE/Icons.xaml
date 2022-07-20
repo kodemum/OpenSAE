@@ -12,4 +12,11 @@
     <clr:String x:Key="orientationIcon">&#xE8B4;</clr:String>
     <clr:String x:Key="copyIcon">&#xE8C8;</clr:String>
     <clr:String x:Key="viewIcon">&#xE890;</clr:String>
+    <clr:String x:Key="duplicateIcon">&#xE89A;</clr:String>
+    <clr:String x:Key="upIcon">&#xE74A;</clr:String>
+    <clr:String x:Key="downIcon">&#xE74B;</clr:String>
+    <clr:String x:Key="flipXIcon">&#xE746;</clr:String>
+    <clr:String x:Key="flipYIcon">&#xE745;</clr:String>
+    <clr:String x:Key="gridIcon">&#xE80A;</clr:String>
+    <clr:String x:Key="layersIcon">&#xE81E;</clr:String>
 </ResourceDictionary>

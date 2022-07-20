@@ -320,6 +320,16 @@ namespace OpenSAE.Models
             };
         }
 
+        public override void FlipX()
+        {
+            Vertices = SymbolManipulationHelper.FlipX(Vertices);
+        }
+
+        public override void FlipY()
+        {
+            Vertices = SymbolManipulationHelper.FlipY(Vertices);
+        }
+
         public void SetVertex(int vertexIndex, SymbolArtPoint point)
         {
             switch (vertexIndex)

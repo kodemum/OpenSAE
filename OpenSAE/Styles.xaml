@@ -13,6 +13,11 @@
         </MenuItem>
     </ControlTemplate>
 
+    <Style TargetType="TextBlock" x:Key="iconText">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
     <Style TargetType="TreeViewItem">
         <Setter Property="Template">
             <Setter.Value>

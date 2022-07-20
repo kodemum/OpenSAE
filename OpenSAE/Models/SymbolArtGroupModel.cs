@@ -184,6 +184,32 @@ namespace OpenSAE.Models
             };
         }
 
+        public override void FlipX()
+        {
+            var vertices = Vertices;
+
+            // find center origin
+            var originX = (vertices.Max(x => x.X) + vertices.Min(x => x.X)) / 2;
+
+            foreach (var layer in GetAllLayers())
+            {
+                layer.Vertices = SymbolManipulationHelper.FlipX(layer.Vertices, originX);
+            }
+        }
+
+        public override void FlipY()
+        {
+            var vertices = Vertices;
+
+            // find center origin
+            var originY = (vertices.Max(x => x.Y) + vertices.Min(x => x.Y)) / 2;
+
+            foreach (var layer in GetAllLayers())
+            {
+                layer.Vertices = SymbolManipulationHelper.FlipY(layer.Vertices, originY);
+            }
+        }
+
         /// <summary>
         /// Sets the specified vertex to a new position, shifting all vertices in all layers in the group
         /// accordingly, effectively resizing the group as a whole.

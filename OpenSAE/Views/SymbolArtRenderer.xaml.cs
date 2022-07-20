@@ -34,6 +34,14 @@ namespace OpenSAE.Views
                   )
         );
 
+        public static readonly DependencyProperty MouseSymbolPositionProperty =
+            DependencyProperty.Register(
+              name: "MouseSymbolPosition",
+              propertyType: typeof(Point),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata()
+        );
+
         /// <summary>
         /// The radius of a layer vertex (in symbol art units) where a click will be considered
         /// to have hit that vertex.
@@ -52,6 +60,12 @@ namespace OpenSAE.Views
         private int draggingVertexIndex;
         private Point draggingClickOrigin;
         private SymbolArtPoint draggingLayerOriginalPos;
+
+        public Point MouseSymbolPosition
+        {
+            get => (Point)GetValue(MouseSymbolPositionProperty);
+            set => SetValue(MouseSymbolPositionProperty, value);
+        }
 
         public SymbolArtItemModel SelectedLayer
         {
@@ -130,10 +144,12 @@ namespace OpenSAE.Views
         {
             base.OnMouseMove(args);
 
+            Point ptMouse = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
+
+            MouseSymbolPosition = new Point(Math.Round(ptMouse.X), Math.Round(ptMouse.Y));
+
             if (isDragging)
             {
-                Point ptMouse = CoordinatesToSymbolArt(args.GetPosition(viewport3d));
-
                 if (SelectedLayer is not ISymbolArtItem layer)
                     return;
 

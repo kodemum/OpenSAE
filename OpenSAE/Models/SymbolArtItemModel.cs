@@ -55,5 +55,9 @@ namespace OpenSAE.Models
         public abstract SymbolArtItemModel Duplicate(SymbolArtItemModel parent);
 
         public abstract SymbolArtItem ToSymbolArtItem();
+
+        public abstract void FlipX();
+
+        public abstract void FlipY();
     }
 }
