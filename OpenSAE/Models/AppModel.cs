@@ -111,7 +111,7 @@ namespace OpenSAE.Models
             if (SelectedItem == null || angle == null)
                 return;
 
-            SelectedItem.Rotate(double.Parse(angle));
+            SelectedItem.Rotate(double.Parse(angle) / 180 * Math.PI);
         }
 
         private void CurrentItemActionCommand_Implementation(string? operation)

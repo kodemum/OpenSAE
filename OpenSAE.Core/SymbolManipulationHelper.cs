@@ -49,8 +49,8 @@ namespace OpenSAE.Core
 
         public static Point[] Rotate(Point[] points, Point origin, double angle)
         {
-            var s = Math.Sin(Math.PI * angle / 180);
-            var c = Math.Cos(Math.PI * angle / 180);
+            var s = Math.Sin(angle);
+            var c = Math.Cos(angle);
             var originVector = new Vector(origin.X, origin.Y);
 
             Point[] result = new Point[points.Length];

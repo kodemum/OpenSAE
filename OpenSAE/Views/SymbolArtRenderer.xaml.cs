@@ -59,6 +59,8 @@ namespace OpenSAE.Views
 
         private bool isDragging;
         private Point rotatingOrigin;
+        private double rotatingOriginAngle;
+
         private bool isRotating;
         private int draggingVertexIndex;
         private Point draggingClickOrigin;
@@ -172,6 +174,7 @@ namespace OpenSAE.Views
             {
                 isRotating = true;
                 rotatingOrigin = layer.Vertices.GetCenter();
+                rotatingOriginAngle = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X);
             }
             else
             {
@@ -228,13 +231,9 @@ namespace OpenSAE.Views
 
             if (isRotating)
             {
-                var now = ptMouse;
+                var angleNow = Math.Atan2(ptMouse.Y - rotatingOrigin.Y, ptMouse.X - rotatingOrigin.X);
 
-                var angleBefore = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X) * 180 / Math.PI;
-                var angleNow = Math.Atan2(now.Y - rotatingOrigin.Y, now.X - rotatingOrigin.X) * 180 / Math.PI;
-                var angle = angleNow - angleBefore;
-
-                SelectedLayer.TemporaryRotate(angle);
+                SelectedLayer.TemporaryRotate(angleNow - rotatingOriginAngle);
             }
             else if (isDragging)
             {
