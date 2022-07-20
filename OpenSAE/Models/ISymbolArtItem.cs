@@ -1,4 +1,5 @@
 ﻿using OpenSAE.Core;
+using System.Windows;
 using System.Windows.Media;
 
 namespace OpenSAE.Models
@@ -12,17 +13,17 @@ namespace OpenSAE.Models
 
         string? Name { get; set; }
 
-        SymbolArtPoint[] Vertices { get; }
+        Point[] Vertices { get; }
 
-        SymbolArtPoint Position { get; set; }
+        Point Position { get; set; }
 
-        SymbolArtPoint Vertex1 { get; }
+        Point Vertex1 { get; }
 
-        SymbolArtPoint Vertex2 { get; }
+        Point Vertex2 { get; }
 
-        SymbolArtPoint Vertex3 { get; }
+        Point Vertex3 { get; }
 
-        SymbolArtPoint Vertex4 { get; }
+        Point Vertex4 { get; }
 
         bool Visible { get; set; }
 
@@ -30,7 +31,7 @@ namespace OpenSAE.Models
 
         Color Color { get; set; }
 
-        void SetVertex(int vertexIndex, SymbolArtPoint point);
+        void SetVertex(int vertexIndex, Point point);
 
         void Rotate(double angle);
 

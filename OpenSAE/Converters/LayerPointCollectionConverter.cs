@@ -26,18 +26,18 @@ namespace OpenSAE.Converters
                 return DependencyProperty.UnsetValue;
             }
 
-            if (values.Length == 2 && values[0] is double extent && values[1] is SymbolArtPoint[] points)
+            if (values.Length == 2 && values[0] is double extent && values[1] is Point[] points)
             {
-                double scale = scale = extent / ReferenceExtent;
+                double scale = extent / ReferenceExtent;
 
                 // as this converter is used for calculating display, we need to round the vertices
                 return new PointCollection(new Point[]
                 {
-                    (points[0] * scale).Round(),
-                    (points[1] * scale).Round(),
-                    (points[3] * scale).Round(),
-                    (points[2] * scale).Round(),
-                    (points[0] * scale).Round()
+                    points[0].Multiply(scale).Round(),
+                    points[1].Multiply(scale).Round(),
+                    points[3].Multiply(scale).Round(),
+                    points[2].Multiply(scale).Round(),
+                    points[0].Multiply(scale).Round()
                 });
             }
 

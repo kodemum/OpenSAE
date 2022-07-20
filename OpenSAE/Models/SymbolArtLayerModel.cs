@@ -15,11 +15,11 @@ namespace OpenSAE.Models
         private string _color;
         private int _symbol;
         private bool _visible;
-        private SymbolArtPoint _vertex1;
-        private SymbolArtPoint _vertex2;
-        private SymbolArtPoint _vertex3;
-        private SymbolArtPoint _vertex4;
-        private SymbolArtPoint[]? _temporaryVertices;
+        private Point _vertex1;
+        private Point _vertex2;
+        private Point _vertex3;
+        private Point _vertex4;
+        private Point[]? _temporaryVertices;
         private bool _isRotating;
 
         public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel? parent)
@@ -43,10 +43,10 @@ namespace OpenSAE.Models
             _color = "#f4d700";
             _symbol = 240;
             _visible = true;
-            _vertex1 = new SymbolArtPoint(-16, -16);
-            _vertex2 = new SymbolArtPoint(-16, 16);
-            _vertex3 = new SymbolArtPoint(16, -16);
-            _vertex4 = new SymbolArtPoint(16, 16);
+            _vertex1 = new Point(-16, -16);
+            _vertex2 = new Point(-16, 16);
+            _vertex3 = new Point(16, -16);
+            _vertex4 = new Point(16, 16);
             Parent = parent;
         }
 
@@ -111,7 +111,7 @@ namespace OpenSAE.Models
         /// <summary>
         /// Represents the left top vertex of the symbol
         /// </summary>
-        public SymbolArtPoint Vertex1
+        public Point Vertex1
         {
             get => _vertex1;
             set
@@ -128,7 +128,7 @@ namespace OpenSAE.Models
         /// <summary>
         /// Represents the left bottom vertex of the symbol
         /// </summary>
-        public SymbolArtPoint Vertex2
+        public Point Vertex2
         {
             get => _vertex2;
             set
@@ -145,7 +145,7 @@ namespace OpenSAE.Models
         /// <summary>
         /// Represents the right top vertex of the symbol
         /// </summary>
-        public SymbolArtPoint Vertex3
+        public Point Vertex3
         {
             get => _vertex3;
             set
@@ -162,7 +162,7 @@ namespace OpenSAE.Models
         /// <summary>
         /// Represents the right bottom vertex of the symbol
         /// </summary>
-        public SymbolArtPoint Vertex4
+        public Point Vertex4
         {
             get => _vertex4;
             set
@@ -178,57 +178,57 @@ namespace OpenSAE.Models
 
         public short Vertex1X
         {
-            get => Vertex1.RoundedX;
-            set => Vertex1 = new SymbolArtPoint(value, Vertex1.RoundedY);
+            get => (short)Math.Round(Vertex1.X);
+            set => Vertex1 = new Point(value, Vertex1.Y);
         }
 
         public short Vertex1Y
         {
-            get => Vertex1.RoundedY;
-            set => Vertex1 = new SymbolArtPoint(Vertex1.RoundedX, value);
+            get => (short)Math.Round(Vertex1.Y);
+            set => Vertex1 = new Point(Vertex1.X, value);
         }
 
         public short Vertex2X
         {
-            get => Vertex2.RoundedX;
-            set => Vertex2 = new SymbolArtPoint(value, Vertex2.RoundedY);
+            get => (short)Math.Round(Vertex2.X);
+            set => Vertex2 = new Point(value, Vertex2.Y);
         }
 
         public short Vertex2Y
         {
-            get => Vertex2.RoundedY;
-            set => Vertex2 = new SymbolArtPoint(Vertex2.RoundedX, value);
+            get => (short)Math.Round(Vertex2.Y);
+            set => Vertex2 = new Point(Vertex2.X, value);
         }
 
         public short Vertex3X
         {
-            get => Vertex3.RoundedX;
-            set => Vertex3 = new SymbolArtPoint(value, Vertex3.RoundedY);
+            get => (short)Math.Round(Vertex3.X);
+            set => Vertex3 = new Point(value, Vertex3.Y);
         }
 
         public short Vertex3Y
         {
-            get => Vertex3.RoundedY;
-            set => Vertex3 = new SymbolArtPoint(Vertex3.RoundedX, value);
+            get => (short)Math.Round(Vertex3.Y);
+            set => Vertex3 = new Point(Vertex3.X, value);
         }
 
         public short Vertex4X
         {
-            get => Vertex4.RoundedX;
-            set => Vertex4 = new SymbolArtPoint(value, Vertex4.RoundedY);
+            get => (short)Math.Round(Vertex4.X);
+            set => Vertex4 = new Point(value, Vertex4.Y);
         }
 
         public short Vertex4Y
         {
-            get => Vertex4.RoundedY;
-            set => Vertex4 = new SymbolArtPoint(Vertex4.RoundedX, value);
+            get => (short)Math.Round(Vertex4.Y);
+            set => Vertex4 = new Point(Vertex4.X, value);
         }
 
         /// <summary>
         /// Gets or sets the position of the entire symbol. The origin of the position
         /// is the leftmost vertex
         /// </summary>
-        public SymbolArtPoint Position
+        public Point Position
         {
             get => Vertices.GetMinBy(true);
             set
@@ -254,17 +254,17 @@ namespace OpenSAE.Models
 
         public short PositionX
         {
-            get => Position.RoundedX;
-            set => Position = new SymbolArtPoint(value, Position.RoundedY);
+            get => (short)Math.Round(Position.X);
+            set => Position = new Point(value, Position.Y);
         }
 
         public short PositionY
         {
-            get => Position.RoundedY;
-            set => Position = new SymbolArtPoint(Position.RoundedX, value);
+            get => (short)Math.Round(Position.Y);
+            set => Position = new Point(Position.X, value);
         }
 
-        public SymbolArtPoint[] Vertices
+        public Point[] Vertices
         {
             get
             {
@@ -294,10 +294,10 @@ namespace OpenSAE.Models
         {
             get
             {
-                yield return new Point3D(Vertex2.RoundedX, -Vertex2.RoundedY, 0);
-                yield return new Point3D(Vertex1.RoundedX, -Vertex1.RoundedY, 0);
-                yield return new Point3D(Vertex4.RoundedX, -Vertex4.RoundedY, 0);
-                yield return new Point3D(Vertex3.RoundedX, -Vertex3.RoundedY, 0);
+                yield return new Point3D(Math.Round(Vertex2.X), -Math.Round(Vertex2.Y), 0);
+                yield return new Point3D(Math.Round(Vertex1.X), -Math.Round(Vertex1.Y), 0);
+                yield return new Point3D(Math.Round(Vertex4.X), -Math.Round(Vertex4.Y), 0);
+                yield return new Point3D(Math.Round(Vertex3.X), -Math.Round(Vertex3.Y), 0);
             }
         }
 
@@ -342,7 +342,7 @@ namespace OpenSAE.Models
             TemporaryRotate(angle, Vertices.GetCenter());
         }
 
-        public void TemporaryRotate(double angle, SymbolArtPoint origin)
+        public void TemporaryRotate(double angle, Point origin)
         {
             if (!_isRotating)
             {
@@ -362,7 +362,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public void SetVertex(int vertexIndex, SymbolArtPoint point)
+        public void SetVertex(int vertexIndex, Point point)
         {
             switch (vertexIndex)
             {

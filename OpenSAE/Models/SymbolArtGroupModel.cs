@@ -11,7 +11,7 @@ namespace OpenSAE.Models
         protected string? _name;
         protected bool _visible;
         private bool _isRotating;
-        private SymbolArtPoint _rotationOrigin;
+        private Point _rotationOrigin;
 
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
         {
@@ -61,12 +61,12 @@ namespace OpenSAE.Models
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
 
-        public SymbolArtPoint Vertex1 => Vertices[0];
-        public SymbolArtPoint Vertex2 => Vertices[1];
-        public SymbolArtPoint Vertex3 => Vertices[2];
-        public SymbolArtPoint Vertex4 => Vertices[3];
+        public Point Vertex1 => Vertices[0];
+        public Point Vertex2 => Vertices[1];
+        public Point Vertex3 => Vertices[2];
+        public Point Vertex4 => Vertices[3];
 
-        public SymbolArtPoint[] Vertices
+        public Point[] Vertices
         {
             get
             {
@@ -77,9 +77,9 @@ namespace OpenSAE.Models
 
                 if (allPoints.Length == 0)
                 {
-                    var none = new SymbolArtPoint(0, 0);
+                    var none = new Point(0, 0);
                     
-                    return new SymbolArtPoint[]
+                    return new Point[]
                     {
                         none, none, none, none
                     };
@@ -90,10 +90,10 @@ namespace OpenSAE.Models
 
                 return new[]
                 {
-                    new SymbolArtPoint(minX, minY),
-                    new SymbolArtPoint(minX, maxY),
-                    new SymbolArtPoint(maxX, minY),
-                    new SymbolArtPoint(maxX, maxY)
+                    new Point(minX, minY),
+                    new Point(minX, maxY),
+                    new Point(maxX, minY),
+                    new Point(maxX, maxY)
                 };
             }
         }
@@ -102,7 +102,7 @@ namespace OpenSAE.Models
         /// Gets or sets the position of the entire symbol. The origin of the position
         /// is the leftmost vertex
         /// </summary>
-        public SymbolArtPoint Position
+        public Point Position
         {
             get => Vertices.GetMinBy(true);
             set
@@ -264,7 +264,7 @@ namespace OpenSAE.Models
         /// <param name="vertexIndex">Index of vertex to change position for. (0-3)</param>
         /// <param name="point">New location for the vertex</param>
         /// <exception cref="ArgumentException"></exception>
-        public void SetVertex(int vertexIndex, SymbolArtPoint point)
+        public void SetVertex(int vertexIndex, Point point)
         {
             // find the origin and opposite vertex - this is necessary
             // in order to calculate the vector for each vertex of each layer

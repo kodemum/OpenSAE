@@ -9,22 +9,22 @@ namespace OpenSAE.Core
 {
     public static class ArrayExtensions
     {
-        public static double GetCenterX(this SymbolArtPoint[] points)
+        public static double GetCenterX(this Point[] points)
         {
             return (points.Max(x => x.X) + points.Min(x => x.X)) / 2;
         }
 
-        public static double GetCenterY(this SymbolArtPoint[] points)
+        public static double GetCenterY(this Point[] points)
         {
             return (points.Max(x => x.Y) + points.Min(x => x.Y)) / 2;
         }
 
-        public static SymbolArtPoint GetCenter(this SymbolArtPoint[] points)
+        public static Point GetCenter(this Point[] points)
         {
-            return new SymbolArtPoint(points.GetCenterX(), points.GetCenterY());
+            return new Point(points.GetCenterX(), points.GetCenterY());
         }
 
-        public static int GetMinIndexBy(this SymbolArtPoint[] array, bool byX)
+        public static int GetMinIndexBy(this Point[] array, bool byX)
         {
             int minIndex = 0;
             double minValue = byX ? array[0].X : array[0].Y;
@@ -63,7 +63,7 @@ namespace OpenSAE.Core
             return minIndex;
         }
 
-        public static SymbolArtPoint GetMinBy(this SymbolArtPoint[] array, bool byX)
+        public static Point GetMinBy(this Point[] array, bool byX)
         {
             return array[array.GetMinIndexBy(byX)];
         }

@@ -58,11 +58,11 @@ namespace OpenSAE.Views
         }
 
         private bool isDragging;
-        private SymbolArtPoint rotatingOrigin;
+        private Point rotatingOrigin;
         private bool isRotating;
         private int draggingVertexIndex;
         private Point draggingClickOrigin;
-        private SymbolArtPoint draggingLayerOriginalPos;
+        private Point draggingLayerOriginalPos;
 
         public Point MouseSymbolPosition
         {
@@ -107,22 +107,22 @@ namespace OpenSAE.Views
                 switch (e.Key)
                 {
                     case Key.Down:
-                        SelectedLayer.Position += new SymbolArtPoint(0, 1);
+                        SelectedLayer.Position += new Vector(0, 1);
                         e.Handled = true;
                         break;
 
                     case Key.Up:
-                        SelectedLayer.Position += new SymbolArtPoint(0, -1);
+                        SelectedLayer.Position += new Vector(0, -1);
                         e.Handled = true;
                         break;
 
                     case Key.Left:
-                        SelectedLayer.Position += new SymbolArtPoint(-1, 0);
+                        SelectedLayer.Position += new Vector(-1, 0);
                         e.Handled = true;
                         break;
 
                     case Key.Right:
-                        SelectedLayer.Position += new SymbolArtPoint(1, 0);
+                        SelectedLayer.Position += new Vector(1, 0);
                         e.Handled = true;
                         break;
                 }
@@ -242,11 +242,11 @@ namespace OpenSAE.Views
                 {
                     var diff = ptMouse - draggingClickOrigin;
 
-                    SelectedLayer.Position = draggingLayerOriginalPos + new SymbolArtPoint((Point)diff).Round();
+                    SelectedLayer.Position = draggingLayerOriginalPos + new Vector(Math.Round(diff.X), Math.Round(diff.Y));
                 }
                 else
                 {
-                    SelectedLayer.SetVertex(draggingVertexIndex, new SymbolArtPoint(ptMouse));
+                    SelectedLayer.SetVertex(draggingVertexIndex, ptMouse);
                 }
 
                 args.Handled = true;
