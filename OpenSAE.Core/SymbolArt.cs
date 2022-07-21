@@ -24,15 +24,14 @@ namespace OpenSAE.Core
 
         public void Save(Stream outputStream, SymbolArtFileFormat format)
         {
-            switch (format)
+            ISymbolArtFileFormat fileFormat = format switch
             {
-                case SymbolArtFileFormat.SAML:
-                    new SAML.SamlFileFormat().SaveToStream(this, outputStream);
-                    break;
+                SymbolArtFileFormat.SAML => new SAML.SamlFileFormat(),
+                SymbolArtFileFormat.SAR => new SAR.SarFileFormat(),
+                _ => throw new ArgumentException("Unknown file format")
+            };
 
-                default:
-                    throw new ArgumentException("Unknown file format");
-            }
+            fileFormat.SaveToStream(this, outputStream);
         }
 
         public static SymbolArt CreateBlank(string name)
@@ -50,17 +49,16 @@ namespace OpenSAE.Core
 
         public static SymbolArt LoadFromFile(string filename)
         {
-            switch (Path.GetExtension(filename).ToLowerInvariant())
+            ISymbolArtFileFormat format = Path.GetExtension(filename).ToLowerInvariant() switch
             {
-                case ".saml":
-                    using (var fs = File.OpenRead(filename))
-                    {
-                        return new SAML.SamlFileFormat().LoadFromStream(fs);
-                    }
+                ".saml" => new SAML.SamlFileFormat(),
+                ".sar" => new SAR.SarFileFormat(),
+                _ => throw new ArgumentException($"File extension {Path.GetExtension(filename)} not recognized as a symbol art"),
+            };
 
-                default:
-                    throw new ArgumentException($"File extension {Path.GetExtension(filename)} not recognized as a symbol art");
-            }
+            using var fs = File.OpenRead(filename);
+
+            return format.LoadFromStream(fs);
         }
     }
 }

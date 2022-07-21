@@ -54,10 +54,16 @@ namespace OpenSAE.Core
         TImplementation FromSymbolArt(SymbolArt input);
 
         /// <summary>
-        /// Loads a implementation-specific object representing a symbol art from the specified stream.
+        /// Loads an implementation-specific object representing a symbol art from the specified stream.
         /// </summary>
         /// <param name="inputStream">Stream to load symbol art from</param>
         /// <returns></returns>
         TImplementation LoadImplementationFromStream(Stream inputStream);
+
+        /// <summary>
+        /// Writes implementation-specific object representing a symbol art to the specified stream.
+        /// </summary>
+        /// <param name="outputStream">Stream to write implementation to</param>
+        void WriteImplementationToStream(TImplementation item, Stream outputStream);
     }
 }

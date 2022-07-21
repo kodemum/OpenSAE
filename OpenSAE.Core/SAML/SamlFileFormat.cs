@@ -133,9 +133,14 @@ namespace OpenSAE.Core.SAML
         {
             SamlSymbolFile samlFile = FromSymbolArt(item);
 
+            WriteImplementationToStream(samlFile, output);
+        }
+
+        public void WriteImplementationToStream(SamlSymbolFile item, Stream outputStream)
+        {
             XmlSerializer xs = new(typeof(SamlSymbolFile));
 
-            xs.Serialize(output, samlFile);
+            xs.Serialize(outputStream, item);
         }
     }
 }

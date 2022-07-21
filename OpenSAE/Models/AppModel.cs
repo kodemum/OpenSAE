@@ -18,6 +18,8 @@ namespace OpenSAE.Models
     /// </summary>
     public class AppModel : ObservableObject
     {
+        private const string FileFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
+
         private readonly IDialogService _dialogService;
         private SymbolArtModel? _currentSymbolArt;
         private SymbolArtItemModel? _selectedItem;
@@ -262,7 +264,7 @@ namespace OpenSAE.Models
         {
             if (filename == null)
             {
-                filename = _dialogService.BrowseOpenFile("Open existing symbol art file", "SAML symbol art (*.saml)|*.saml");
+                filename = _dialogService.BrowseOpenFile("Open existing symbol art file", FileFormatFilter);
 
                 if (filename == null)
                     return;
@@ -315,14 +317,19 @@ namespace OpenSAE.Models
             if (CurrentSymbolArt == null)
                 return;
 
-            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", "SAML symbol art (*.saml)|*.saml", CurrentSymbolArt.FileName);
+            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", FileFormatFilter, CurrentSymbolArt.FileName);
 
             if (filename == null)
                 return;
 
             try
             {
-                CurrentSymbolArt.SaveAs(filename, Core.SymbolArtFileFormat.SAML);
+                CurrentSymbolArt.SaveAs(filename, System.IO.Path.GetExtension(filename).ToLower() switch
+                {
+                    ".saml" => Core.SymbolArtFileFormat.SAML,
+                    ".sar" => Core.SymbolArtFileFormat.SAR,
+                    _ => throw new Exception("Unsupported file extension")
+                });
             }
             catch (Exception ex)
             {
