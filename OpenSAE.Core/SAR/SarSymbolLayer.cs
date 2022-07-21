@@ -52,7 +52,7 @@
             }
         }
 
-        public byte Alpha // => (byte)((Flag1 >> 18) & 7);
+        public byte Alpha
         {
             get => (byte) ((Flag1 & SarFileConstants.Mask_Alpha) >> 18);
             set
@@ -62,7 +62,7 @@
             }
         }
 
-        public byte ColorR //=> (byte)((Flag1 >> 0) & 63);
+        public byte ColorR
         {
             get => (byte)(Flag1 & SarFileConstants.Mask_ColorR);
             set
@@ -72,7 +72,7 @@
             }
         }
 
-        public byte ColorG //=> (byte)((Flag1 >> 6) & 63);
+        public byte ColorG
         {
             get => (byte)((Flag1 & SarFileConstants.Mask_ColorG) >> 6);
             set
@@ -82,7 +82,7 @@
             }
         }
 
-        public byte ColorB //=> (byte)((Flag1 >> 12) & 63);
+        public byte ColorB
         {
             get => (byte)((Flag1 & SarFileConstants.Mask_ColorB) >> 12);
             set
