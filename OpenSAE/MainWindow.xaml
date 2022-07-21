@@ -17,6 +17,9 @@
         Height="500"
         MinWidth="900"
         Width="1000"
+        DragOver="mainWindow_DragOver"
+        AllowDrop="True"
+        Drop="mainWindow_Drop"
         x:Name="mainWindow">
     <Window.Resources>
         <DiffuseMaterial x:Key="borderMaterial">

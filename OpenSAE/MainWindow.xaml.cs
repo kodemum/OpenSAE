@@ -54,5 +54,36 @@ namespace OpenSAE
             Settings.Default.WindowHeight = Height;
             Settings.Default.Save();
         }
+
+        private void mainWindow_DragOver(object sender, DragEventArgs e)
+        {
+            e.Effects = DragDropEffects.None;
+
+            if (e.Data is IDataObject dataObject)
+            {
+                var files = (string[]?)dataObject.GetData(DataFormats.FileDrop);
+
+                if (files?.Length == 1)
+                {
+                    e.Effects |= DragDropEffects.Copy;
+                }
+            }
+
+            e.Handled = true;
+        }
+
+        private void mainWindow_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data is IDataObject dataObject)
+            {
+                var files = (string[]?)dataObject.GetData(DataFormats.FileDrop);
+
+                if (files?.Length == 1)
+                {
+                    _model.OpenFileCommand.Execute(files[0]);
+                    e.Handled = true;
+                }
+            }
+        }
     }
 }
