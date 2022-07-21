@@ -9,6 +9,7 @@ namespace OpenSAE.Core
     public enum SymbolArtFileFormat
     {
         None,
-        SAML
+        SAML,
+        SAR
     }
 }

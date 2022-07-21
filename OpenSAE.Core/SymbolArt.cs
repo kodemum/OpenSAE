@@ -4,34 +4,22 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace OpenSAE.Core
 {
-    [XmlRoot(ElementName = "sa")]
     public class SymbolArt : SymbolArtItem, ISymbolArtGroup
     {
-        [XmlAttribute("version")]
-        public int Version { get; set; }
+        public uint AuthorId { get; set; }
 
-        [XmlAttribute("author")]
-        public string? Author { get; set; }
-
-        [XmlAttribute("width")]
         public int Width { get; set; }
 
-        [XmlAttribute("height")]
         public int Height { get; set; }
 
-        [XmlAttribute("sound")]
         public SymbolArtSoundEffect Sound { get; set; }
 
-        [XmlElement(ElementName = "g", Type = typeof(SymbolArtGroup))]
-        [XmlElement(ElementName = "layer", Type = typeof(SymbolArtLayer))]
         public List<SymbolArtItem> Children { get; set; }
             = new();
 
-        [XmlIgnore]
         public SymbolArtFileFormat FileFormat { get; set; }
 
         public void Save(Stream outputStream, SymbolArtFileFormat format)
@@ -39,7 +27,7 @@ namespace OpenSAE.Core
             switch (format)
             {
                 case SymbolArtFileFormat.SAML:
-                    SAML.SamlLoader.SaveToStream(outputStream, this);
+                    new SAML.SamlFileFormat().SaveToStream(this, outputStream);
                     break;
 
                 default:
@@ -52,8 +40,7 @@ namespace OpenSAE.Core
             return new SymbolArt()
             {
                 Name = name,
-                Version = 4,
-                Author = "0",
+                AuthorId = 0,
                 Width = 192,
                 Height = 96,
                 Sound = SymbolArtSoundEffect.None,
@@ -68,7 +55,7 @@ namespace OpenSAE.Core
                 case ".saml":
                     using (var fs = File.OpenRead(filename))
                     {
-                        return SAML.SamlLoader.LoadFromStream(fs);
+                        return new SAML.SamlFileFormat().LoadFromStream(fs);
                     }
 
                 default:

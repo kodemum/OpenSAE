@@ -15,7 +15,7 @@ namespace OpenSAE.Models
     /// </summary>
     public class SymbolArtModel : SymbolArtGroupModel
     {
-        private string? _author;
+        private uint _authorId;
         private int _height;
         private int _width;
         private SymbolArtSoundEffect _soundEffect;
@@ -53,11 +53,10 @@ namespace OpenSAE.Models
         public SymbolArtModel()
         {
             _name = "NewSymbolArt";
-            _author = "0";
-            _width = 192;
-            _height = 96;
+            _authorId = 0;
             _soundEffect = SymbolArtSoundEffect.None;
             _visible = true;
+            Size = SymbolArtSize.Standard;
         }
 
         /// <summary>
@@ -65,10 +64,10 @@ namespace OpenSAE.Models
         /// </summary>
         public string? FileName { get; private set; }
 
-        public string? Author
+        public uint AuthorId
         {
-            get => _author;
-            set => SetProperty(ref _author, value);
+            get => _authorId;
+            set => SetProperty(ref _authorId, value);
         }
 
         public override bool IsVisible => Visible;
@@ -77,7 +76,7 @@ namespace OpenSAE.Models
         {
             get
             {
-                if (_height == 96 && _width == 192)
+                if (_height == 96 && (_width == 192 || _width == 193))
                     return SymbolArtSize.Standard;
 
                 if (_width == 32 && _height == 32)
@@ -95,7 +94,7 @@ namespace OpenSAE.Models
                         break;
 
                     case SymbolArtSize.Standard:
-                        _width = 192;
+                        _width = 193;
                         _height = 96;
                         break;
                 }
@@ -164,13 +163,12 @@ namespace OpenSAE.Models
         {
             return new SymbolArt()
             {
-                Author = _author,
+                AuthorId = _authorId,
                 FileFormat = _fileFormat,
                 Children = Children.Select(x => x.ToSymbolArtItem()).ToList(),
                 Name = _name,
                 Height = _height,
                 Sound = _soundEffect,
-                Version = 4,
                 Visible = _visible,
                 Width = _width
             };

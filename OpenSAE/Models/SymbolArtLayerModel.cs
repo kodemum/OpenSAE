@@ -12,7 +12,7 @@ namespace OpenSAE.Models
     {
         private string? _name;
         private double _alpha;
-        private string _color;
+        private Color _color;
         private int _symbol;
         private bool _visible;
         private Point _vertex1;
@@ -26,8 +26,8 @@ namespace OpenSAE.Models
         {
             _name = layer.Name ?? string.Empty;
             _alpha = layer.Alpha;
-            _color = layer.Color ?? "#ffffff";
-            _symbol = layer.Type;
+            _color = layer.Color;
+            _symbol = layer.SymbolId;
             _visible = layer.Visible;
             _vertex1 = layer.Vertex1;
             _vertex2 = layer.Vertex2;
@@ -40,7 +40,7 @@ namespace OpenSAE.Models
         {
             _name = name;
             _alpha = 1;
-            _color = "#f4d700";
+            _color = Color.FromRgb(0xf4, 0xd7, 0x00);
             _symbol = 240;
             _visible = true;
             _vertex1 = new Point(-16, -16);
@@ -98,14 +98,8 @@ namespace OpenSAE.Models
 
         public Color Color
         {
-            get => (Color)ColorConverter.ConvertFromString(_color);
-            set
-            {
-                if (SetProperty(ref _color, string.Format("#{0:x2}{1:x2}{2:x2}", value.R, value.G, value.B)))
-                {
-                    OnPropertyChanged(nameof(ColorWithAlpha));
-                }
-            }
+            get => _color;
+            set => SetProperty(ref _color, value);
         }
 
         /// <summary>
@@ -313,7 +307,7 @@ namespace OpenSAE.Models
                 Name = _name,
                 Alpha = _alpha,
                 Color = _color,
-                Type = _symbol,
+                SymbolId = _symbol,
                 Visible = _visible,
                 Vertex1 = _vertex1,
                 Vertex2 = _vertex2,
