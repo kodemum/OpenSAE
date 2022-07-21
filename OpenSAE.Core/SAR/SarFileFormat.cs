@@ -110,12 +110,10 @@ namespace OpenSAE.Core.SAR
 
         public SarSymbolFile LoadImplementationFromStream(Stream input)
         {
-            using var br = new BinaryReader(input, Encoding.ASCII, true);
-
-            if (!IsIdenticalTo(_headerMagic, br.ReadBytes(3)))
+            if (!IsIdenticalTo(_headerMagic, input.ReadBytes(3)))
                 throw new Exception("Magic characters not found - file does not appear to be SAR");
 
-            var flag = (SarHeaderFlags)br.ReadByte();
+            var flag = (SarHeaderFlags)input.ReadByteSafe();
 
             if (flag != SarHeaderFlags.Uncompressed && flag != SarHeaderFlags.Compressed)
                 throw new Exception($"Unknown SAR header flag {flag}");
@@ -124,8 +122,13 @@ namespace OpenSAE.Core.SAR
 
             if (flag == SarHeaderFlags.Compressed)
             {
-                // todo
-                throw new NotImplementedException();
+                // Why the XOR, SEGA?
+                for (int i = 0; i < decryptedContent.Length; i++)
+                {
+                    decryptedContent[i] ^= 0x95;
+                }
+
+                decryptedContent = PrsDecompressor.Decompress(decryptedContent);
             }
 
             return ParseContent(decryptedContent);
