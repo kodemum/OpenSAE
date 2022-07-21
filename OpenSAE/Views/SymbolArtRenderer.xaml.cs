@@ -43,6 +43,31 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata()
         );
 
+        public static readonly DependencyProperty ApplyToneCurveProperty =
+            DependencyProperty.Register(
+              name: "ApplyToneCurve",
+              propertyType: typeof(bool),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, ApplyToneCurvePropertyChanged)
+        );
+
+        public static readonly DependencyProperty ShowGuidesProperty =
+            DependencyProperty.Register(
+              name: "ShowGuides",
+              propertyType: typeof(bool),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: false)
+        );
+
+        private static void ApplyToneCurvePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is SymbolArtRenderer renderer)
+            {
+                // changing if tone curve is enabled necessitates redrawing everything
+                renderer.Redraw();
+            }
+        }
+
         /// <summary>
         /// The radius of a layer vertex (in symbol art units) where a click will be considered
         /// to have hit that vertex.
@@ -76,6 +101,18 @@ namespace OpenSAE.Views
         {
             get => (ISymbolArtItem)GetValue(SelectedLayerProperty);
             set => SetValue(SelectedLayerProperty, value);
+        }
+
+        public bool ApplyToneCurve
+        {
+            get => (bool)GetValue(ApplyToneCurveProperty);
+            set => SetValue(ApplyToneCurveProperty, value);
+        }
+
+        public bool ShowGuides
+        {
+            get => (bool)GetValue(ShowGuidesProperty);
+            set => SetValue(ShowGuidesProperty, value);
         }
 
         /// <summary>
@@ -378,7 +415,7 @@ namespace OpenSAE.Views
             var material = new DiffuseMaterial()
             {
                 Brush = brush,
-                AmbientColor = layer.Color
+                AmbientColor = ApplyToneCurve ? SymbolArtColorHelper.ApplyCurve(layer.Color) : layer.Color
             };
 
             var geometry = new MeshGeometry3D()
@@ -431,7 +468,7 @@ namespace OpenSAE.Views
                     break;
 
                 case nameof(layer.Color):
-                    refs.Material.AmbientColor = layer.Color;
+                    refs.Material.AmbientColor = ApplyToneCurve ? SymbolArtColorHelper.ApplyCurve(layer.Color) : layer.Color;
                     break;
 
                 default:

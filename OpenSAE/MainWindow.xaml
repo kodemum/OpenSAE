@@ -78,6 +78,9 @@
         <KeyBinding Modifiers="Ctrl" Key="F" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
         <KeyBinding Modifiers="Ctrl" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" />
+
+        <KeyBinding Modifiers="Ctrl+Shift" Key="T" Command="{Binding ChangeSettingCommand}" CommandParameter="toneCurve" />
+        <KeyBinding Modifiers="Ctrl+Shift" Key="G" Command="{Binding ChangeSettingCommand}" CommandParameter="guideLines" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -128,8 +131,12 @@
                     <Separator />
                     <MenuItem Header="_Rotate 90 degrees" InputGestureText="Ctrl+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" Template="{StaticResource iconMenuItem}" Icon="{StaticResource rotateIcon}" />
                     <MenuItem Header="Rotate 90 degrees _counter-clockwise" InputGestureText="Ctrl+Shift+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" Template="{StaticResource mirroredIconMenuItem}" Icon="{StaticResource rotateIcon}" />
-                    <MenuItem Header="R_otate 180 degrees" Command="{Binding RotateCurrentItemCommand}" CommandParameter="180" Template="{StaticResource iconMenuItem}" Icon="{StaticResource rotateIcon}" />
+                    <MenuItem Header="R_otate 180 degrees" Command="{Binding RotateCurrentItemCommand}" CommandParameter="180" />
                 </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_View">
+                <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
+                <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
             </MenuItem>
         </Menu>
         <DockPanel Grid.Row="1">
@@ -213,7 +220,18 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
-                <views:SymbolArtRenderer x:Name="renderer" ClipToBounds="True" DataContext="{Binding CurrentSymbolArt}" SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}" Grid.Row="1" Grid.Column="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                <views:SymbolArtRenderer 
+                    x:Name="renderer"
+                    ClipToBounds="True"
+                    Grid.Row="1"
+                    Grid.Column="2"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    DataContext="{Binding CurrentSymbolArt}"
+                    SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}"
+                    ApplyToneCurve="{Binding DataContext.ApplyToneCurve, ElementName=mainWindow}"
+                    ShowGuides="{Binding DataContext.GuideLinesEnabled, ElementName=mainWindow}"
+                    />
             </Grid>
         </DockPanel>
     </Grid>

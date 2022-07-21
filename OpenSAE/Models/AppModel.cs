@@ -21,6 +21,8 @@ namespace OpenSAE.Models
         private readonly IDialogService _dialogService;
         private SymbolArtModel? _currentSymbolArt;
         private SymbolArtItemModel? _selectedItem;
+        private bool _applyToneCurve;
+        private bool _guideLinesEnabled;
 
         public event EventHandler? ExitRequested;
 
@@ -58,6 +60,24 @@ namespace OpenSAE.Models
             }
         }
 
+        /// <summary>
+        /// If the tone curve mapping is enabled to better approximate how colors look in-game
+        /// </summary>
+        public bool ApplyToneCurve
+        {
+            get => _applyToneCurve;
+            set => SetProperty(ref _applyToneCurve, value);
+        }
+
+        /// <summary>
+        /// If guide lines should be shown for the center of the symbol art
+        /// </summary>
+        public bool GuideLinesEnabled
+        {
+            get => _guideLinesEnabled;
+            set => SetProperty(ref _guideLinesEnabled, value);
+        }
+
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
@@ -91,6 +111,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> RotateCurrentItemCommand { get; }
 
+        public RelayCommand<string> ChangeSettingCommand { get; }
+
         public ICommand ExitCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -98,6 +120,7 @@ namespace OpenSAE.Models
             _dialogService = dialogService;
             SymbolsList = new SymbolListModel();
             RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
+            ApplyToneCurve = Settings.Default.ApplyToneCurve;
 
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
             NewFileCommand = new RelayCommand(NewFile_Implementation);
@@ -107,6 +130,21 @@ namespace OpenSAE.Models
 
             CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
             RotateCurrentItemCommand = new RelayCommand<string>(RotateCurrentItemCommand_Implementation, (_) => SelectedItem != null);
+            ChangeSettingCommand = new RelayCommand<string>(ChangeSetting_Implementation);
+        }
+
+        private void ChangeSetting_Implementation(string? operation)
+        {
+            switch (operation)
+            {
+                case "toneCurve":
+                    ApplyToneCurve = !ApplyToneCurve;
+                    break;
+
+                case "guideLines":
+                    GuideLinesEnabled = !GuideLinesEnabled;
+                    break;
+            }
         }
 
         private void RotateCurrentItemCommand_Implementation(string? angle)
@@ -212,6 +250,8 @@ namespace OpenSAE.Models
         public bool RequestExit()
         {
             Settings.Default.RecentFiles = RecentFiles.ToStringCollection();
+            Settings.Default.ApplyToneCurve = ApplyToneCurve;
+            Settings.Default.GuideLinesEnabled = GuideLinesEnabled;
 
             return true;
         }

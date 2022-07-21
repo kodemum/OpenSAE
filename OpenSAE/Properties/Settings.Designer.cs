@@ -59,5 +59,29 @@ namespace OpenSAE.Properties {
                 this["WindowHeight"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ApplyToneCurve {
+            get {
+                return ((bool)(this["ApplyToneCurve"]));
+            }
+            set {
+                this["ApplyToneCurve"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool GuideLinesEnabled {
+            get {
+                return ((bool)(this["GuideLinesEnabled"]));
+            }
+            set {
+                this["GuideLinesEnabled"] = value;
+            }
+        }
     }
 }

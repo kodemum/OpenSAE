@@ -147,9 +147,9 @@
                     </ContentPresenter.Style>
                 </ContentPresenter>
             </Border>
-
-
         </Grid>
 
+        <Rectangle Width="0.5" Fill="Black" Opacity="0.7" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
+        <Rectangle Height="0.5" Fill="Black" Opacity="0.7" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
     </Grid>
 </UserControl>
