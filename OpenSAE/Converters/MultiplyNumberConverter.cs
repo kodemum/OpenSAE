@@ -21,7 +21,7 @@ namespace OpenSAE.Converters
             if (values.Length != 2)
                 throw new ArgumentException("Converter must have two arguments", nameof(values));
 
-            if (TryGetDouble(values[1], out double value1) && TryGetDouble(values[1], out double value2))
+            if (TryGetDouble(values[0], out double value1) && TryGetDouble(values[1], out double value2))
             {
                 return value1 * value2;
             }
@@ -37,14 +37,14 @@ namespace OpenSAE.Converters
 
         private static bool TryGetDouble(object input, out double result)
         {
-            if (input is int i)
-            {
-                result = i;
-                return true;
-            }
-            else if (input is double d)
+            if (input is double d)
             {
                 result = d;
+                return true;
+            }
+            else if (input is int i)
+            {
+                result = i;
                 return true;
             }
             else if (input is string s)
