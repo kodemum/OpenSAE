@@ -83,5 +83,17 @@ namespace OpenSAE.Properties {
                 this["GuideLinesEnabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int MaxRecentFiles {
+            get {
+                return ((int)(this["MaxRecentFiles"]));
+            }
+            set {
+                this["MaxRecentFiles"] = value;
+            }
+        }
     }
 }

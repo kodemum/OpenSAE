@@ -288,6 +288,11 @@ namespace OpenSAE.Models
             }
 
             RecentFiles.Insert(0, filename);
+
+            while (RecentFiles.Count > Settings.Default.MaxRecentFiles)
+            {
+                RecentFiles.RemoveAt(RecentFiles.Count - 1);
+            }
         }
 
         private void Save_Implementation()
