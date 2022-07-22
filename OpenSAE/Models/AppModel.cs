@@ -19,12 +19,14 @@ namespace OpenSAE.Models
     public class AppModel : ObservableObject
     {
         private const string FileFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
+        private const double DefaultSymbolUnitWidth = 240;
 
         private readonly IDialogService _dialogService;
         private SymbolArtModel? _currentSymbolArt;
         private SymbolArtItemModel? _selectedItem;
         private bool _applyToneCurve;
         private bool _guideLinesEnabled;
+        private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
 
         public event EventHandler? ExitRequested;
 
@@ -39,6 +41,7 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _currentSymbolArt, value))
                 {
                     OnPropertyChanged(nameof(AppTitle));
+                    ZoomPercentage = 100;
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                 }
@@ -78,6 +81,29 @@ namespace OpenSAE.Models
         {
             get => _guideLinesEnabled;
             set => SetProperty(ref _guideLinesEnabled, value);
+        }
+
+        public double DisplaySymbolUnitWidth
+        {
+            get => _displaySymbolUnitWidth;
+            set
+            {
+                if (SetProperty(ref _displaySymbolUnitWidth, value))
+                {
+                    OnPropertyChanged(nameof(ZoomPercentage));
+                }
+            }
+        }
+
+        public double ZoomPercentage
+        {
+            get => DefaultSymbolUnitWidth / _displaySymbolUnitWidth * 100;
+            set
+            {
+                DisplaySymbolUnitWidth = DefaultSymbolUnitWidth * value / 100;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DisplaySymbolUnitWidth));
+            }
         }
 
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;

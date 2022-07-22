@@ -16,7 +16,7 @@
         MinHeight="500"
         Height="500"
         MinWidth="900"
-        Width="1000"
+        Width="1200"
         DragOver="mainWindow_DragOver"
         AllowDrop="True"
         Drop="mainWindow_Drop"
@@ -200,7 +200,6 @@
         </DockPanel>
 
         <DockPanel Grid.Row="1" Grid.Column="2">
-
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource gridIcon}" />
                 <TextBlock Text="{Binding MouseSymbolPosition, ElementName=renderer}" Width="45" />
@@ -208,6 +207,16 @@
                 <TextBlock>
                     Hold shift to select. Ctrl+click to rotate. Click and drag vertex to edit. Click and drag elsewhere to move.
                 </TextBlock>
+                <Separator />
+                <StatusBarItem HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource iconText}" Text="{StaticResource zoomIcon}" />
+                        <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth}" Minimum="24" Maximum="320" IsDirectionReversed="True" SmallChange="10" LargeChange="30" />
+                        <TextBlock>
+                            <Run Text="{Binding ZoomPercentage, Mode=OneWay, StringFormat=N0}" />%
+                        </TextBlock>
+                    </StackPanel>
+                </StatusBarItem>
             </StatusBar>
             <Grid>
                 <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -233,6 +242,7 @@
                     Grid.Column="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
+                    SymbolUnitWidth="{Binding DataContext.DisplaySymbolUnitWidth, ElementName=mainWindow}"
                     DataContext="{Binding CurrentSymbolArt}"
                     SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}"
                     ApplyToneCurve="{Binding DataContext.ApplyToneCurve, ElementName=mainWindow}"

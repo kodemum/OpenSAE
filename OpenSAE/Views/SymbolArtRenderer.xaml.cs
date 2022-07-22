@@ -22,7 +22,7 @@ namespace OpenSAE.Views
     /// <summary>
     /// Interaction logic for SymbolArtRenderer.xaml
     /// </summary>
-    public partial class SymbolArtRenderer : UserControl
+    public partial class SymbolArtRenderer : UserControl, INotifyPropertyChanged
     {
         public static readonly DependencyProperty SelectedLayerProperty =
             DependencyProperty.Register(
@@ -59,12 +59,29 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: false)
         );
 
+        public static readonly DependencyProperty SymbolUnitWidthProperty =
+            DependencyProperty.Register(
+              name: "SymbolUnitWidth",
+              propertyType: typeof(double),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: 240d, SymbolUnitWidthPropertyChanged)
+        );
+
         private static void ApplyToneCurvePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is SymbolArtRenderer renderer)
             {
                 // changing if tone curve is enabled necessitates redrawing everything
                 renderer.Redraw();
+            }
+        }
+
+        private static void SymbolUnitWidthPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is SymbolArtRenderer renderer)
+            {
+                // changing if tone curve is enabled necessitates redrawing everything
+                renderer.OnPropertyChanged(nameof(SymbolScaleFactor));
             }
         }
 
@@ -80,6 +97,9 @@ namespace OpenSAE.Views
         public SymbolArtRenderer()
         {
             InitializeComponent();
+
+            DependencyPropertyDescriptor.FromProperty(ActualWidthProperty, typeof(FrameworkElement))
+                .AddValueChanged(this, (_, __) => OnPropertyChanged(nameof(SymbolScaleFactor)));
         }
 
         private bool isDragging;
@@ -90,6 +110,24 @@ namespace OpenSAE.Views
         private int draggingVertexIndex;
         private Point draggingClickOrigin;
         private Point draggingLayerOriginalPos;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>
+        /// Current factor between symbol art units and WPF units
+        /// </summary>
+        public double SymbolScaleFactor
+            => ActualWidth / SymbolUnitWidth;
+
+        /// <summary>
+        /// Represents the width of the viewport in symbol art units. 
+        /// IE, decreasing the value zooms in.
+        /// </summary>
+        public double SymbolUnitWidth
+        {
+            get => (double)GetValue(SymbolUnitWidthProperty);
+            set => SetValue(SymbolUnitWidthProperty, value);
+        }
 
         public Point MouseSymbolPosition
         {
@@ -122,16 +160,17 @@ namespace OpenSAE.Views
         /// <returns></returns>
         private Point CoordinatesToSymbolArt(Point target)
         {
-            // we have (arbitrarily) assigned the width of the renderer to be 240 symbol art units
-            // (due to wanting to display some space around the symbol art)
-            var factor = viewport3d.ActualWidth / 240;
-
-            // additionally the coordinate system for the symbol arts starts with 0,0 at the center
+            // the coordinate system for the symbol arts starts with 0,0 at the center
             // so we need to subtract half of the width/height of the view
             return new Point(
-                (target.X - viewport3d.ActualWidth / 2) / factor,
-                (target.Y - viewport3d.ActualHeight / 2) / factor
+                (target.X - viewport3d.ActualWidth / 2) / SymbolScaleFactor,
+                (target.Y - viewport3d.ActualHeight / 2) / SymbolScaleFactor
                 );
+        }
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)

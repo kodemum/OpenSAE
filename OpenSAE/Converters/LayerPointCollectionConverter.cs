@@ -14,8 +14,6 @@ namespace OpenSAE.Converters
 {
     internal class LayerPointCollectionConverter : IMultiValueConverter
     {
-        public double ReferenceExtent { get; set; }
-
         public object? Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values.Length != 2)
@@ -26,10 +24,8 @@ namespace OpenSAE.Converters
                 return DependencyProperty.UnsetValue;
             }
 
-            if (values.Length == 2 && values[0] is double extent && values[1] is Point[] points)
+            if (values.Length == 2 && values[0] is double scale && values[1] is Point[] points)
             {
-                double scale = extent / ReferenceExtent;
-
                 // as this converter is used for calculating display, we need to round the vertices
                 return new PointCollection(new Point[]
                 {

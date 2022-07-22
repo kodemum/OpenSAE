@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:models="clr-namespace:OpenSAE.Models"
-             xmlns:converters="clr-namespace:OpenSAE.Converters"
+             xmlns:converters="clr-namespace:OpenSAE.Converters" xmlns:controls="clr-namespace:OpenSAE.Controls"
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=models:SymbolArtModel}"
              DataContextChanged="UserControl_DataContextChanged"
@@ -19,33 +19,18 @@
                 <SolidColorBrush Color="Black" />
             </DiffuseMaterial.Brush>
         </DiffuseMaterial>
-        <converters:RelativeNumberConverter x:Key="relativeNumberConverter" ReferenceExtent="240" />
-        <converters:RelativeNumberConverter x:Key="relativeNumberHalfConverter" ReferenceExtent="240" DivideBy="2" />
-        <converters:RelativeNumberConverter x:Key="relativeNumberHalfAddConverter" ReferenceExtent="240" DivideAdditionalValuesBy="2" />
-        <converters:LayerPointCollectionConverter x:Key="layerPointConverter" ReferenceExtent="240" />
+        <converters:MultiplyNumberConverter x:Key="symbolArtScaleConverter" />
+        <converters:LayerPointCollectionConverter x:Key="layerPointConverter" />
         <Style TargetType="Ellipse" x:Key="vertexCornerCircle">
             <Setter Property="Height" Value="10" />
             <Setter Property="Width" Value="10" />
             <Setter Property="Fill" Value="Black" />
-            <Setter Property="Opacity" Value="1" />
-            <Setter Property="Canvas.Top">
+            <Setter Property="Opacity" Value="0.8" />
+            <Setter Property="Canvas.Top" Value="{Binding Y}" />
+            <Setter Property="Canvas.Left" Value="{Binding X}" />
+            <Setter Property="RenderTransform">
                 <Setter.Value>
-                    <MultiBinding Converter="{StaticResource relativeNumberHalfAddConverter}">
-                        <Binding Path="ActualWidth" ElementName="renderer" />
-                        <Binding Path="Y" />
-                        <Binding Path="DataContext.Height" ElementName="renderer" />
-                        <Binding Source="-2" />
-                    </MultiBinding>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Canvas.Left">
-                <Setter.Value>
-                    <MultiBinding Converter="{StaticResource relativeNumberHalfAddConverter}">
-                        <Binding Path="ActualWidth" ElementName="renderer" />
-                        <Binding Path="X" />
-                        <Binding Path="DataContext.Width" ElementName="renderer" />
-                        <Binding Source="-2" />
-                    </MultiBinding>
+                    <TranslateTransform X="-5" Y="-5" />
                 </Setter.Value>
             </Setter>
         </Style>
@@ -62,93 +47,81 @@
                 </ModelVisual3D.Content>
             </ModelVisual3D>
 
-            <ModelVisual3D>
-                <ModelVisual3D.Content>
-                    <!-- Group for displaying the currently selected layer -->
-                    <Model3DGroup x:Name="selectedLayerContentGroup" />
-                </ModelVisual3D.Content>
-            </ModelVisual3D>
-
             <Viewport3D.Camera>
                 <!-- 
                 The camera is wider than the typical symbol art (192 units) 
                 since it is nice to have a view of what is outside the active area
                 -->
                 <OrthographicCamera 
-                Position="0.5 0.5 1"
-                LookDirection="0 0 -1"
-                UpDirection="0 1 0"
-                Width="240"
-                />
+                    Position="0.5 0.5 1"
+                    LookDirection="0 0 -1"
+                    UpDirection="0 1 0"
+                    Width="{Binding ElementName=renderer, Path=SymbolUnitWidth}"
+                    />
             </Viewport3D.Camera>
         </Viewport3D>
 
-        <Grid>
-            <!-- Border framing active area of symbol art -->
-            <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7">
-                <Border.Width>
-                    <MultiBinding Converter="{StaticResource relativeNumberConverter}">
-                        <Binding Path="ActualWidth" ElementName="renderer" />
-                        <Binding Path="Width" />
-                    </MultiBinding>
-                </Border.Width>
-                <Border.Height>
-                    <MultiBinding Converter="{StaticResource relativeNumberConverter}">
-                        <Binding Path="ActualWidth" ElementName="renderer" />
-                        <Binding Path="Height" />
-                    </MultiBinding>
-                </Border.Height>
+        <!-- Border framing active area of symbol art -->
+        <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7">
+            <Border.Width>
+                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                    <Binding Path="DataContext.Width" ElementName="renderer" />
+                </MultiBinding>
+            </Border.Width>
+            <Border.Height>
+                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                    <Binding Path="DataContext.Height" ElementName="renderer" />
+                </MultiBinding>
+            </Border.Height>
+        </Border>
 
-                <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
-                    <ContentPresenter.ContentTemplate>
-                        <DataTemplate>
-                            <Canvas>
-                                <!-- Highlight vertices of the current layer, if there is one -->
-                                <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices">
-                                    <Polyline.Points>
-                                        <MultiBinding Converter="{StaticResource layerPointConverter}">
-                                            <Binding Path="ActualWidth" ElementName="renderer" />
-                                            <Binding Path="Vertices" />
-                                        </MultiBinding>
-                                    </Polyline.Points>
-                                    <Canvas.Left>
-                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
-                                            <Binding Path="ActualWidth" ElementName="renderer" />
-                                            <Binding Path="DataContext.Width" ElementName="renderer" />
-                                        </MultiBinding>
-                                    </Canvas.Left>
-                                    <Canvas.Top>
-                                        <MultiBinding Converter="{StaticResource relativeNumberHalfConverter}">
-                                            <Binding Path="ActualWidth" ElementName="renderer" />
-                                            <Binding Path="DataContext.Height" ElementName="renderer" />
-                                        </MultiBinding>
-                                    </Canvas.Top>
-                                </Polyline>
-                                <Polyline Points="{Binding Points, ElementName=layerVertices}" Canvas.Top="{Binding Path=(Canvas.Top), ElementName=layerVertices}"
-                                          Canvas.Left="{Binding Path=(Canvas.Left), ElementName=layerVertices}"
-                                    StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
+        <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
+            <ContentPresenter.ContentTemplate>
+                <DataTemplate>
+                    <!-- CoordinateCanvas converts symbol art coordinates to screen coordinates for Canvas.Top and Canvas.Left -->
+                    <controls:CoordinateCanvas CoordinateWidth="{Binding ElementName=renderer, Path=SymbolUnitWidth}" VerticalAlignment="Center">
+                        <controls:CoordinateCanvas.Height>
+                            <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                                <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                                <Binding Path="DataContext.Height" ElementName="renderer" />
+                            </MultiBinding>
+                        </controls:CoordinateCanvas.Height>
 
-                                <!-- Circles on each vertex -->
-                                <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex1}" />
-                                <Ellipse Fill="#00FFFC" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex2}" />
-                                <Ellipse Fill="#00FF05" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex3}" />
-                                <Ellipse Fill="#6500FF" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
-                            </Canvas>
-                        </DataTemplate>
-                    </ContentPresenter.ContentTemplate>
-                    <ContentPresenter.Style>
-                        <Style TargetType="ContentPresenter">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=renderer, Path=SelectedLayer}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentPresenter.Style>
-                </ContentPresenter>
-            </Border>
-        </Grid>
+                        <!-- Highlight vertices of the current layer, if there is one -->
+                        <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices" Canvas.Top="0" Canvas.Left="0">
+                            <Polyline.Points>
+                                <MultiBinding Converter="{StaticResource layerPointConverter}">
+                                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                                    <Binding Path="Vertices" />
+                                </MultiBinding>
+                            </Polyline.Points>
+                        </Polyline>
+                        <Polyline Points="{Binding Points, ElementName=layerVertices}" Canvas.Top="{Binding Path=(Canvas.Top), ElementName=layerVertices}"
+                                    Canvas.Left="{Binding Path=(Canvas.Left), ElementName=layerVertices}"
+                            StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
+                        
+                        <!-- Circles on each vertex -->
+                        <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex1}" />
+                        <Ellipse Fill="#00FFFC" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex2}" />
+                        <Ellipse Fill="#00FF05" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex3}" />
+                        <Ellipse Fill="#6500FF" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
+                    </controls:CoordinateCanvas>
+                </DataTemplate>
+            </ContentPresenter.ContentTemplate>
+            <ContentPresenter.Style>
+                <Style TargetType="ContentPresenter">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=renderer, Path=SelectedLayer}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentPresenter.Style>
+        </ContentPresenter>
 
+        <!-- Center guides -->
         <Rectangle Width="0.5" Fill="Black" Opacity="0.7" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
         <Rectangle Height="0.5" Fill="Black" Opacity="0.7" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
     </Grid>

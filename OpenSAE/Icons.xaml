@@ -20,4 +20,5 @@
     <clr:String x:Key="gridIcon">&#xE80A;</clr:String>
     <clr:String x:Key="layersIcon">&#xE81E;</clr:String>
     <clr:String x:Key="rotateIcon">&#xE7AD;</clr:String>
+    <clr:String x:Key="zoomIcon">&#xE71E;</clr:String>
 </ResourceDictionary>
