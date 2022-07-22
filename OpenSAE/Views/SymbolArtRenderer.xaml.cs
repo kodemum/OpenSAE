@@ -466,7 +466,7 @@ namespace OpenSAE.Views
 
             var brush = new ImageBrush(layer.Symbol?.Image)
             {
-                Opacity = layer.Alpha
+                Opacity = layer.IsVisible ? layer.Alpha : 0
             };
 
             var material = new DiffuseMaterial()
