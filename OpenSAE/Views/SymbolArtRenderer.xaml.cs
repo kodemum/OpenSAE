@@ -64,7 +64,7 @@ namespace OpenSAE.Views
               name: "SymbolUnitWidth",
               propertyType: typeof(double),
               ownerType: typeof(SymbolArtRenderer),
-              typeMetadata: new FrameworkPropertyMetadata(defaultValue: 240d, SymbolUnitWidthPropertyChanged)
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: 240d, SymbolUnitWidthPropertyChanged, OnSymbolUnitWidthCoerce)
         );
 
         private static void ApplyToneCurvePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -83,6 +83,17 @@ namespace OpenSAE.Views
                 // changing if tone curve is enabled necessitates redrawing everything
                 renderer.OnPropertyChanged(nameof(SymbolScaleFactor));
             }
+        }
+        private static object OnSymbolUnitWidthCoerce(DependencyObject d, object baseValue)
+        {
+            if (baseValue is double newValue)
+            {
+                if (newValue < 24)
+                    return 24d;
+                else if (newValue > 320)
+                    return 320d;
+            }
+            return baseValue;
         }
 
         /// <summary>
@@ -214,6 +225,13 @@ namespace OpenSAE.Views
             Cursor = null;
 
             base.OnPreviewKeyUp(e);
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            SymbolUnitWidth -= e.Delta / 25;
         }
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs args)

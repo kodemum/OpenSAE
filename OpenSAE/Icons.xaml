@@ -21,4 +21,6 @@
     <clr:String x:Key="layersIcon">&#xE81E;</clr:String>
     <clr:String x:Key="rotateIcon">&#xE7AD;</clr:String>
     <clr:String x:Key="zoomIcon">&#xE71E;</clr:String>
+    <clr:String x:Key="zoomOutIcon">&#xE71F;</clr:String>
+    <clr:String x:Key="zoomInIcon">&#xE8A3;</clr:String>
 </ResourceDictionary>

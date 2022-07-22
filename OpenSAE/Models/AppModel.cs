@@ -20,6 +20,8 @@ namespace OpenSAE.Models
     {
         private const string FileFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
         private const double DefaultSymbolUnitWidth = 240;
+        private const double MinimumSymbolUnitWidth = 24;
+        private const double MaximumSymbolUnitWidth = 320;
 
         private readonly IDialogService _dialogService;
         private SymbolArtModel? _currentSymbolArt;
@@ -141,6 +143,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> ChangeSettingCommand { get; }
 
+        public RelayCommand<string> ZoomCommand { get; set; }
+
         public ICommand ExitCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -159,6 +163,26 @@ namespace OpenSAE.Models
             CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
             RotateCurrentItemCommand = new RelayCommand<string>(RotateCurrentItemCommand_Implementation, (_) => SelectedItem != null);
             ChangeSettingCommand = new RelayCommand<string>(ChangeSetting_Implementation);
+            ZoomCommand = new RelayCommand<string>(Zoom_Implementation);
+        }
+
+        private void Zoom_Implementation(string? obj)
+        {
+            if (obj == null)
+            {
+                ZoomPercentage = 100;
+            }
+            else
+            {
+                var newValue = DisplaySymbolUnitWidth + double.Parse(obj);
+
+                if (newValue < MinimumSymbolUnitWidth)
+                    DisplaySymbolUnitWidth = MinimumSymbolUnitWidth;
+                else if (newValue > MaximumSymbolUnitWidth)
+                    DisplaySymbolUnitWidth = MaximumSymbolUnitWidth;
+                else
+                    DisplaySymbolUnitWidth = newValue;
+            }
         }
 
         private void ChangeSetting_Implementation(string? operation)

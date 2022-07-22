@@ -86,6 +86,9 @@
 
         <KeyBinding Modifiers="Ctrl+Shift" Key="T" Command="{Binding ChangeSettingCommand}" CommandParameter="toneCurve" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="G" Command="{Binding ChangeSettingCommand}" CommandParameter="guideLines" />
+
+        <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="-24" />
+        <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="24" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -140,6 +143,10 @@
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="_View">
+                <MenuItem Header="_Zoom in" InputGestureText="Ctrl++" Command="{Binding ZoomCommand}" CommandParameter="-24" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomInIcon}" />
+                <MenuItem Header="Zoom _out" InputGestureText="Ctrl+-" Command="{Binding ZoomCommand}" CommandParameter="24" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomOutIcon}" />
+                <MenuItem Header="_Reset zoom" Command="{Binding ZoomCommand}" />
+                <Separator />
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
             </MenuItem>
@@ -207,12 +214,11 @@
                 <TextBlock>
                     Hold shift to select. Ctrl+click to rotate. Click and drag vertex to edit. Click and drag elsewhere to move.
                 </TextBlock>
-                <Separator />
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource iconText}" Text="{StaticResource zoomIcon}" />
                         <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth}" Minimum="24" Maximum="320" IsDirectionReversed="True" SmallChange="10" LargeChange="30" />
-                        <TextBlock>
+                        <TextBlock TextAlignment="Center" Width="38">
                             <Run Text="{Binding ZoomPercentage, Mode=OneWay, StringFormat=N0}" />%
                         </TextBlock>
                     </StackPanel>
@@ -225,11 +231,9 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource newFolderIcon}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource viewIcon}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipXIcon}" ToolTip="Horizontally flips the current symbol or group" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
-                        
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipXIcon}" ToolTip="Horizontally flips the current symbol or group (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource rotateIcon}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
-                        
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Creates a copy of the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
@@ -242,7 +246,7 @@
                     Grid.Column="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    SymbolUnitWidth="{Binding DataContext.DisplaySymbolUnitWidth, ElementName=mainWindow}"
+                    SymbolUnitWidth="{Binding DataContext.DisplaySymbolUnitWidth, ElementName=mainWindow, Mode=TwoWay}"
                     DataContext="{Binding CurrentSymbolArt}"
                     SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}"
                     ApplyToneCurve="{Binding DataContext.ApplyToneCurve, ElementName=mainWindow}"
