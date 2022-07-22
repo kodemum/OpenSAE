@@ -22,6 +22,7 @@ namespace OpenSAE.Models
         private SymbolArtFileFormat _fileFormat;
 
         public SymbolArtModel(string filename)
+            : base()
         {
             var sa = SymbolArt.LoadFromFile(filename);
             _name = sa.Name;
@@ -30,6 +31,7 @@ namespace OpenSAE.Models
             _width = sa.Width;
             _soundEffect = sa.Sound;
             _fileFormat = sa.FileFormat;
+            _authorId = sa.AuthorId;
 
             FileName = filename;
 
@@ -48,6 +50,13 @@ namespace OpenSAE.Models
                     throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art");
                 }
             }
+
+            ChildrenChanged += SymbolArtModel_ChildrenChanged;
+        }
+
+        private void SymbolArtModel_ChildrenChanged(object? sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(LayerCount));
         }
 
         public SymbolArtModel()
@@ -89,21 +98,31 @@ namespace OpenSAE.Models
                 switch (value)
                 {
                     case SymbolArtSize.AllianceLogo:
-                        _height = 32;
-                        _width = 32;
+                        Height = 32;
+                        Width = 32;
                         break;
 
                     case SymbolArtSize.Standard:
-                        _width = 193;
-                        _height = 96;
+                        Width = 193;
+                        Height = 96;
                         break;
                 }
             }
         }
 
-        public int Width => _width;
+        public int LayerCount => GetAllLayers().Count();
 
-        public int Height => _height;
+        public int Width
+        {
+            get => _width;
+            set => SetProperty(ref _width, value);
+        }
+
+        public int Height
+        {
+            get => _height;
+            set => SetProperty(ref _height, value);
+        }
 
         public SymbolArtSoundEffect SoundEffect
         {

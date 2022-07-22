@@ -14,6 +14,7 @@ namespace OpenSAE.Models
         private Point _rotationOrigin;
 
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
+            : this()
         {
             Parent = parent;
             _name = group.Name;
@@ -37,6 +38,7 @@ namespace OpenSAE.Models
         }
 
         public SymbolArtGroupModel(string name, SymbolArtItemModel parent)
+            : this()
         {
             _name = name;
             _visible = true;
@@ -44,6 +46,7 @@ namespace OpenSAE.Models
         }
 
         protected SymbolArtGroupModel()
+            : base()
         {
         }
 
@@ -132,7 +135,12 @@ namespace OpenSAE.Models
         }
         public double Alpha
         {
-            get => GetAllLayers().Average(x => x.Alpha);
+            get
+            {
+                var layers = GetAllLayers().ToArray();
+
+                return layers.Length > 0 ? layers.Average(x => x.Alpha) : 1;
+            }
             set
             {
                 foreach (var layer in GetAllLayers())

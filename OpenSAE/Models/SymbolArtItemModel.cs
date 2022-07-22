@@ -8,6 +8,17 @@ namespace OpenSAE.Models
 {
     public abstract class SymbolArtItemModel : ObservableObject
     {
+        protected SymbolArtItemModel()
+        {
+            Children.CollectionChanged += (_, __) =>
+            {
+                OnChildrenChanged();
+                Parent?.OnChildrenChanged();
+            };
+        }
+
+        public event EventHandler? ChildrenChanged;
+
         public abstract string? Name { get; set; }
 
         public abstract bool Visible { get; set; }
@@ -15,6 +26,11 @@ namespace OpenSAE.Models
         public abstract bool IsVisible { get; }
 
         public SymbolArtItemModel? Parent { get; set; }
+
+        protected void OnChildrenChanged()
+        {
+            ChildrenChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         public virtual void Delete()
         {

@@ -37,6 +37,8 @@
                     <ComboBox ItemsSource="{Binding SizeOptions}" Margin="5" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Size}" />
                     <TextBlock Text="Sound effect" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <ComboBox ItemsSource="{Binding SoundEffectOptions}" Margin="5" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding SoundEffect}" />
+                    <TextBlock Text="Author ID" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding AuthorId}" Margin="5" />
                 </UniformGrid>
             </StackPanel>
         </DataTemplate>
@@ -143,11 +145,12 @@
             </MenuItem>
         </Menu>
         <DockPanel Grid.Row="1">
-            <Menu DockPanel.Dock="Bottom" Padding="0 5">
-                <MenuItem Header="Add layer" />
-                <MenuItem Header="Add group" />
-                <MenuItem Header="Delete" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
-            </Menu>
+            <StatusBar DockPanel.Dock="Bottom" Padding="3">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource layersIcon}" />
+                <TextBlock>
+                    <Run Text="{Binding CurrentSymbolArt.LayerCount, Mode=OneWay}" />/225 symbols
+                </TextBlock>
+            </StatusBar>
             <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}">
                 <i:Interaction.Behaviors>
                     <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
