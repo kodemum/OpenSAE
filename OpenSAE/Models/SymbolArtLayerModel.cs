@@ -8,8 +8,13 @@ using System.Windows.Media.Media3D;
 
 namespace OpenSAE.Models
 {
-    public class SymbolArtLayerModel : SymbolArtItemModel, ISymbolArtItem
+    public class SymbolArtLayerModel : SymbolArtItemModel
     {
+        /// <summary>
+        /// Name used by the old japanese symbol art editor for new layers 'new layer'
+        /// </summary>
+        private const string LegacyEditorNewLayerName = "新規レイヤー";
+
         private string? _name;
         private double _alpha;
         private Color _color;
@@ -20,10 +25,12 @@ namespace OpenSAE.Models
         private Point _vertex3;
         private Point _vertex4;
         private bool _showBoundingVertices;
+        private int _index;
 
         public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel? parent)
         {
-            _name = layer.Name ?? string.Empty;
+            _index = layer.Index;
+            _name = layer.Name;
             _alpha = layer.Alpha;
             _color = layer.Color;
             _symbol = layer.SymbolId;
@@ -35,9 +42,9 @@ namespace OpenSAE.Models
             Parent = parent;
         }
 
-        public SymbolArtLayerModel(string name, SymbolArtItemModel parent)
+        public SymbolArtLayerModel(int index, SymbolArtItemModel parent)
         {
-            _name = name;
+            _index = index;
             _alpha = 1;
             _color = Color.FromRgb(0xf4, 0xd7, 0x00);
             _symbol = 240;
@@ -52,13 +59,45 @@ namespace OpenSAE.Models
         public override string? Name
         {
             get => _name;
-            set => SetProperty(ref _name, value);
+            set
+            {
+                if (SetProperty(ref _name, value))
+                {
+                    OnPropertyChanged(nameof(DisplayName));
+                }
+            }
+        }
+
+        public override string DisplayName
+        {
+            get
+            {
+                // consider name empty if it is the standard name for new layers in the old SA editor
+                if (string.IsNullOrEmpty(_name) || _name == LegacyEditorNewLayerName)
+                {
+                    // generate a suitable name
+                    return $"[{_index}]";
+                }
+                else
+                {
+                    return _name;
+                }
+            }
         }
 
         public Symbol? Symbol
         {
             get => SymbolUtil.GetById(_symbol + 1)!;
-            set => SetProperty(ref _symbol, value?.Id - 1 ?? 0);
+            set
+            {
+                if (SetProperty(ref _symbol, value?.Id - 1 ?? 0))
+                {
+                    if (string.IsNullOrEmpty(_name))
+                    {
+                        OnPropertyChanged(nameof(Name));
+                    }
+                };
+            }
         }
 
         public override bool Visible
@@ -71,7 +110,7 @@ namespace OpenSAE.Models
 
         public string? SymbolPackUri => Symbol?.Uri;
 
-        public double Alpha
+        public override double Alpha
         {
             get => _alpha;
             set => SetProperty(ref _alpha, Math.Round(value * 7) / 7);
@@ -95,7 +134,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public Color Color
+        public override Color Color
         {
             get => _color;
             set => SetProperty(ref _color, value);
@@ -165,7 +204,7 @@ namespace OpenSAE.Models
         /// Gets or sets the position of the entire symbol. The origin of the position
         /// is the leftmost vertex
         /// </summary>
-        public Point Position
+        public override Point Position
         {
             get => Vertices.GetMinBy(true);
             set
@@ -183,22 +222,7 @@ namespace OpenSAE.Models
                 }
 
                 Vertices = points;
-
-                OnPropertyChanged(nameof(PositionX));
-                OnPropertyChanged(nameof(PositionY));
             }
-        }
-
-        public short PositionX
-        {
-            get => (short)Math.Round(Position.X);
-            set => Position = new Point(value, Position.Y);
-        }
-
-        public short PositionY
-        {
-            get => (short)Math.Round(Position.Y);
-            set => Position = new Point(Position.X, value);
         }
 
         public Point[] RawVertices => new[]
@@ -289,7 +313,7 @@ namespace OpenSAE.Models
             Vertices = SymbolManipulationHelper.Rotate(Vertices, angle);
         }
 
-        public void TemporaryRotate(double angle)
+        public override void TemporaryRotate(double angle)
         {
             TemporaryRotate(angle, Vertices.GetCenter());
         }
@@ -301,7 +325,7 @@ namespace OpenSAE.Models
             Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices!, origin, angle);
         }
 
-        public void SetVertex(int vertexIndex, Point point)
+        public override void SetVertex(int vertexIndex, Point point)
         {
             StartManipulation();
 
@@ -347,7 +371,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public bool ShowBoundingVertices
+        public override bool ShowBoundingVertices
         {
             get => _showBoundingVertices;
             set
@@ -359,7 +383,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public void ResizeFromVertex(int vertexIndex, Point point)
+        public override void ResizeFromVertex(int vertexIndex, Point point)
         {
             StartManipulation();
 

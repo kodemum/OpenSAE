@@ -146,9 +146,9 @@ namespace OpenSAE.Views
             set => SetValue(MouseSymbolPositionProperty, value);
         }
 
-        public ISymbolArtItem SelectedLayer
+        public SymbolArtItemModel? SelectedLayer
         {
-            get => (ISymbolArtItem)GetValue(SelectedLayerProperty);
+            get => (SymbolArtItemModel)GetValue(SelectedLayerProperty);
             set => SetValue(SelectedLayerProperty, value);
         }
 
@@ -282,7 +282,7 @@ namespace OpenSAE.Views
             operation = ManipulationOperation.None;
 
             // if no layer is selected, there's nothing to manipulate
-            if (SelectedLayer is not ISymbolArtItem layer)
+            if (SelectedLayer == null)
                 return;
 
             // get the mouse location convert the coordinates
@@ -291,13 +291,13 @@ namespace OpenSAE.Views
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
                 operation = ManipulationOperation.Rotate;
-                rotatingOrigin = layer.Vertices.GetCenter();
+                rotatingOrigin = SelectedLayer.Vertices.GetCenter();
                 rotatingOriginAngle = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X);
             }
             else
             {
                 // get the distance from the mouse location to each vertex of the target layer
-                var distanceToVertices = layer.Vertices
+                var distanceToVertices = SelectedLayer.Vertices
                     .Select(point => (point - draggingClickOrigin).Length)
                     .ToArray();
 
@@ -308,7 +308,7 @@ namespace OpenSAE.Views
                 if (distanceToVertices[draggingVertexIndex] > LayerVertexClickRadius)
                 {
                     // drag entire symbol if we're not close enough to any vertex
-                    draggingLayerOriginalPos = layer.Position;
+                    draggingLayerOriginalPos = SelectedLayer.Position;
                     operation = ManipulationOperation.Move;
                 }
                 else
@@ -388,8 +388,7 @@ namespace OpenSAE.Views
 
             if (operation != ManipulationOperation.None)
             {
-                SelectedLayer.ShowBoundingVertices = false;
-                SelectedLayer.CommitManipulation();
+                SelectedLayer?.CommitManipulation();
                 operation = ManipulationOperation.None;
                 ReleaseMouseCapture();
                 args.Handled = true;

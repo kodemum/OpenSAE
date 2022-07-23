@@ -162,14 +162,41 @@
                 <i:Interaction.Behaviors>
                     <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
                 </i:Interaction.Behaviors>
-                <TreeView.ItemTemplate>
-                    <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                        <StackPanel Orientation="Horizontal">
+                <TreeView.Resources>
+                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtLayerModel}" ItemsSource="{Binding Children}">
+                        <DockPanel>
                             <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
-                            <TextBlock Margin="5 0" Text="{Binding Name}" />
-                        </StackPanel>
+                            <Rectangle Height="13" Width="13" Margin="3 0 0 0">
+                                <Rectangle.Fill>
+                                    <SolidColorBrush Color="{Binding Color}" />
+                                </Rectangle.Fill>
+                            </Rectangle>
+                            <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
+                            <TextBlock Margin="5 0" Text="{Binding Symbol.Name}" FontStyle="Italic" />
+                            <DockPanel.Style>
+                                <Style TargetType="DockPanel">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Visible}" Value="False">
+                                            <Setter Property="Opacity" Value="0.5" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DockPanel.Style>
+                        </DockPanel>
                     </HierarchicalDataTemplate>
-                </TreeView.ItemTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtGroupModel}" ItemsSource="{Binding Children}">
+                        <DockPanel>
+                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                            <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
+                        </DockPanel>
+                    </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtModel}" ItemsSource="{Binding Children}">
+                        <DockPanel>
+                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                            <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
+                        </DockPanel>
+                    </HierarchicalDataTemplate>
+                </TreeView.Resources>
             </TreeView>
         </DockPanel>
 

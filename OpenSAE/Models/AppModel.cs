@@ -243,7 +243,7 @@ namespace OpenSAE.Models
                         ?? SelectedItem.Parent as SymbolArtGroupModel
                         ?? CurrentSymbolArt!;
 
-                    var newLayer = new SymbolArtLayerModel("Symbol", targetGroup);
+                    var newLayer = new SymbolArtLayerModel(CurrentSymbolArt!.LayerCount + 1, targetGroup);
 
                     if (SelectedItem is SymbolArtLayerModel)
                     {

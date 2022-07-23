@@ -25,32 +25,32 @@
 
         <TextBlock Text="Vertex 1 (left-top)" Foreground="#FF0C00" />
         <TextBlock Grid.Column="1" Text="X" Margin="5 0" />
-        <TextBox Grid.Column="2" Width="40" Text="{Binding Vertices[0].X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Column="2" Width="40" Text="{Binding Vertices[0].X, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
         <TextBlock Grid.Column="3" Text="Y" Margin="5 0" />
-        <TextBox Grid.Column="4" Width="40" Text="{Binding Vertices[0].Y, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Column="4" Width="40" Text="{Binding Vertices[0].Y, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
 
         <TextBlock Grid.Row="1" Text="Vertex 2 (left-bottom)" Foreground="#00C8C6" />
         <TextBlock Grid.Row="1" Grid.Column="1" Text="X" Margin="5 0" />
-        <TextBox Grid.Row="1" Grid.Column="2" Width="40" Text="{Binding Vertices[1].X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="1" Grid.Column="2" Width="40" Text="{Binding Vertices[1].X, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
         <TextBlock Grid.Row="1" Grid.Column="3" Text="Y" Margin="5 0" />
-        <TextBox Grid.Row="1" Grid.Column="4" Width="40" Text="{Binding Vertices[1].Y, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="1" Grid.Column="4" Width="40" Text="{Binding Vertices[1].Y, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
 
         <TextBlock Grid.Row="2" Text="Vertex 3 (right-top)" Foreground="#00FF05" />
         <TextBlock Grid.Row="2" Grid.Column="1" Text="X" Margin="5 0" />
-        <TextBox Grid.Row="2" Grid.Column="2" Width="40" Text="{Binding Vertices[2].X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="2" Grid.Column="2" Width="40" Text="{Binding Vertices[2].X, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
         <TextBlock Grid.Row="2" Grid.Column="3" Text="Y" Margin="5 0" />
-        <TextBox Grid.Row="2" Grid.Column="4" Width="40" Text="{Binding Vertices[2].Y, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="2" Grid.Column="4" Width="40" Text="{Binding Vertices[2].Y, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
 
         <TextBlock Grid.Row="3" Text="Vertex 4 (right-bottom)" Foreground="#6500FF" />
         <TextBlock Grid.Row="3" Grid.Column="1" Text="X" Margin="5 0" />
-        <TextBox Grid.Row="3" Grid.Column="2" Width="40" Text="{Binding Vertices[3].X, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="3" Grid.Column="2" Width="40" Text="{Binding Vertices[3].X, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
         <TextBlock Grid.Row="3" Grid.Column="3" Text="Y" Margin="5 0" />
-        <TextBox Grid.Row="3" Grid.Column="4" Width="40" Text="{Binding Vertices[3].Y, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="3" Grid.Column="4" Width="40" Text="{Binding Vertices[3].Y, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
 
         <TextBlock Grid.Row="4" Text="Position" />
         <TextBlock Grid.Row="4" Grid.Column="1" Text="X" Margin="5 0" />
-        <TextBox Grid.Row="4" Grid.Column="2" Width="40" Text="{Binding PositionX, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="4" Grid.Column="2" Width="40" Text="{Binding Position.X, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
         <TextBlock Grid.Row="4" Grid.Column="3" Text="Y" Margin="5 0" />
-        <TextBox Grid.Row="4" Grid.Column="4" Width="40" Text="{Binding PositionY, UpdateSourceTrigger=PropertyChanged}" />
+        <TextBox Grid.Row="4" Grid.Column="4" Width="40" Text="{Binding Position.Y, UpdateSourceTrigger=PropertyChanged, StringFormat=N0}" IsReadOnly="True" />
     </Grid>
 </UserControl>

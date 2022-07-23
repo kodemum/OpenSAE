@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
@@ -24,6 +25,8 @@ namespace OpenSAE.Models
         public event EventHandler? ChildrenChanged;
 
         public abstract string? Name { get; set; }
+
+        public virtual string DisplayName => Name ?? "[unnamed]";
 
         public abstract bool Visible { get; set; }
 
@@ -116,6 +119,14 @@ namespace OpenSAE.Models
         public ObservableCollection<SymbolArtItemModel> Children { get; }
             = new();
 
+        public abstract Point Position { get; set; }
+
+        public abstract bool ShowBoundingVertices { get; set; }
+
+        public abstract double Alpha { get; set; }
+
+        public abstract Color Color { get; set; }
+
         public abstract SymbolArtItemModel Duplicate(SymbolArtItemModel parent);
 
         public abstract SymbolArtItem ToSymbolArtItem();
@@ -138,5 +149,11 @@ namespace OpenSAE.Models
 
             return childModel.Parent == parentItem;
         }
+
+        public abstract void SetVertex(int vertexIndex, Point point);
+
+        public abstract void TemporaryRotate(double angle);
+
+        public abstract void ResizeFromVertex(int vertexIndex, Point point);
     }
 }

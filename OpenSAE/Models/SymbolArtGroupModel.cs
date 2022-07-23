@@ -6,7 +6,7 @@ using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
-    public class SymbolArtGroupModel : SymbolArtItemModel, ISymbolArtItem
+    public class SymbolArtGroupModel : SymbolArtItemModel
     {
         protected string? _name;
         protected bool _visible;
@@ -58,6 +58,15 @@ namespace OpenSAE.Models
         {
             get => _visible;
             set => SetProperty(ref _visible, value);
+        }
+
+        /// <summary>
+        /// Only exists to prevent databinding error - is always null
+        /// </summary>
+        public Symbol? Symbol
+        {
+            get => null;
+            set { }
         }
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
@@ -131,7 +140,7 @@ namespace OpenSAE.Models
         /// Gets or sets the position of the entire symbol. The origin of the position
         /// is the leftmost vertex
         /// </summary>
-        public Point Position
+        public override Point Position
         {
             get => Vertices.GetMinBy(true);
             set
@@ -156,7 +165,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public double Alpha
+        public override double Alpha
         {
             get
             {
@@ -175,7 +184,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public Color Color
+        public override Color Color
         {
             get => GetAllLayers().FirstOrDefault()?.Color ?? new Color();
             set
@@ -192,7 +201,7 @@ namespace OpenSAE.Models
         /// <summary>
         /// Groups always show bounding vertices
         /// </summary>
-        public bool ShowBoundingVertices
+        public override bool ShowBoundingVertices
         {
             get => true;
             set
@@ -264,7 +273,7 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(Position));
         }
 
-        public void TemporaryRotate(double angle)
+        public override void TemporaryRotate(double angle)
         {
             StartManipulation();
 
@@ -296,7 +305,7 @@ namespace OpenSAE.Models
         /// <param name="vertexIndex">Index of vertex to change position for. (0-3)</param>
         /// <param name="point">New location for the vertex</param>
         /// <exception cref="ArgumentException"></exception>
-        public void ResizeFromVertex(int vertexIndex, Point point)
+        public override void ResizeFromVertex(int vertexIndex, Point point)
         {
             StartManipulation();
 
@@ -376,7 +385,7 @@ namespace OpenSAE.Models
         /// <param name="vertexIndex">Index of vertex to change position for. (0-3)</param>
         /// <param name="point">New location for the vertex</param>
         /// <exception cref="ArgumentException"></exception>
-        public void SetVertex(int vertexIndex, Point point)
+        public override void SetVertex(int vertexIndex, Point point)
         {
             StartManipulation();
 

@@ -50,7 +50,9 @@ namespace OpenSAE.Core.SAR
                         Visible = true,
                         Children = input.Layers.Select((layer, index) => (SymbolArtItem)new SymbolArtLayer()
                         {
-                            Name = $"Symbol {index + 1}",
+                            // SAR files have no name, we'll generate one from the index and selected symbol for display
+                            Name = null,
+                            Index = index,
                             Alpha = (double)layer.Alpha / 7,
                             Color = SymbolArtColorHelper.ConvertToColor(layer.ColorR, layer.ColorG, layer.ColorB),
                             SymbolId = layer.SymbolId,

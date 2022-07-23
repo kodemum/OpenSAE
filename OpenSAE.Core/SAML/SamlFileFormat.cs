@@ -14,6 +14,8 @@ namespace OpenSAE.Core.SAML
     /// </summary>
     public class SamlFileFormat : ISymbolArtFileFormat<SamlSymbolFile>
     {
+        private int _loadLayerIndex;
+
         public string Name => "SAML";
 
         public SymbolArt LoadFromStream(Stream inputStream)
@@ -24,6 +26,8 @@ namespace OpenSAE.Core.SAML
         /// <inheritdoc />
         public SymbolArt ToSymbolArt(SamlSymbolFile input)
         {
+            _loadLayerIndex = 0;
+
             return new SymbolArt()
             {
                 Name = input.Name,
@@ -52,6 +56,7 @@ namespace OpenSAE.Core.SAML
             {
                 return new SymbolArtLayer()
                 {
+                    Index = _loadLayerIndex++,
                     Name = layer.Name,
                     Visible = layer.Visible,
                     Alpha = layer.Alpha,

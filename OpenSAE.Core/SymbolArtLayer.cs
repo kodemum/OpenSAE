@@ -12,6 +12,12 @@ namespace OpenSAE.Core
 
         public double Alpha { get; set; }
 
+        /// <summary>
+        /// Index of the layer in the order loaded. This is only used for displaying
+        /// a title of layers with no name
+        /// </summary>
+        public int Index { get; set; }
+
         // Symbol arts have limited precision, the coordinates used do not support floating point.
         // but because this makes manipulating them not loose precision, we want to use floating points
         // whenever we manipulate them in the app.
