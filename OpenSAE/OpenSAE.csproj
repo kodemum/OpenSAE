@@ -9,7 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Shaders\ColorMapping.fx" />
+    <None Remove="Shaders\ColorMapping.ps" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="OpenSAE.ico" />
+    <Content Include="Shaders\ColorMapping.fx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +25,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OpenSAE.Core\OpenSAE.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Shaders\ColorMapping.ps" />
   </ItemGroup>
 
   <ItemGroup>

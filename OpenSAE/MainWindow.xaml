@@ -9,6 +9,7 @@
         xmlns:local="clr-namespace:OpenSAE"
         xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:shaders="clr-namespace:OpenSAE.Shaders"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
         Closing="Window_Closing"
@@ -247,7 +248,21 @@
                 SelectedColor="{Binding SelectedItem.Color, Mode=TwoWay}" 
                 DockPanel.Dock="Top" 
                 ShowAlpha="False"
-                Width="96" />
+                Width="96">
+                <colorpicker:StandardColorPicker.Style>
+                    <Style TargetType="{x:Type colorpicker:StandardColorPicker}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <shaders:ColorMappingEffect />
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </colorpicker:StandardColorPicker.Style>
+            </colorpicker:StandardColorPicker>
             <DockPanel DockPanel.Dock="Top" Margin="5 0">
                 <TextBlock DockPanel.Dock="Left" Text="Opacity" />
                 <Slider Minimum="0" Maximum="1" Value="{Binding SelectedItem.Alpha}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="0.1429" TickPlacement="BottomRight" />
@@ -312,7 +327,8 @@
                     SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}"
                     ApplyToneCurve="{Binding DataContext.ApplyToneCurve, ElementName=mainWindow}"
                     ShowGuides="{Binding DataContext.GuideLinesEnabled, ElementName=mainWindow}"
-                    />
+                    >
+                </views:SymbolArtRenderer>
             </Grid>
         </DockPanel>
     </Grid>
