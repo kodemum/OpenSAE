@@ -434,6 +434,7 @@ namespace OpenSAE.Views
                 }
             };
 
+            group.Children.CollectionChanged -= Children_CollectionChanged;
             group.Children.CollectionChanged += Children_CollectionChanged;
         }
 
@@ -534,6 +535,7 @@ namespace OpenSAE.Views
 
             _layerDictionary.Add(layer, new LayerModelReference(model, material, brush, geometry));
 
+            layer.PropertyChanged -= Layer_PropertyChanged;
             layer.PropertyChanged += Layer_PropertyChanged;
         }
 
