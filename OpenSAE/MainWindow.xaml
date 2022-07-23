@@ -6,6 +6,7 @@
         xmlns:models="clr-namespace:OpenSAE.Models"
         xmlns:views="clr-namespace:OpenSAE.Views"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:local="clr-namespace:OpenSAE"
         xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
@@ -81,6 +82,9 @@
         <KeyBinding Modifiers="Ctrl" Key="E" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="F" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
         <KeyBinding Modifiers="Ctrl" Key="F" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
+        <KeyBinding Modifiers="Alt" Key="Up" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
+        <KeyBinding Modifiers="Alt" Key="Down" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
+        
         <KeyBinding Modifiers="Ctrl" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" />
 
@@ -130,19 +134,22 @@
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
                 <MenuItem Header="_Add new group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
-                <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D"  />
+                <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
+                <Separator />
+                <MenuItem Header="Move item _up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
+                <MenuItem Header="Move item _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
                 <Separator />
                 <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
                 <MenuItem Header="_Duplicate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
                 <MenuItem Header="_Delete item" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
-                <MenuItem Header="_Transform selected item">
-                    <MenuItem Header="Flip _horizontally" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" InputGestureText="Ctrl+F" Template="{StaticResource iconMenuItem}" Icon="{StaticResource flipXIcon}" />
-                    <MenuItem Header="Flip _vertically" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" InputGestureText="Ctrl+Shift+F" Template="{StaticResource iconMenuItem}" Icon="{StaticResource flipYIcon}" />
-                    <Separator />
-                    <MenuItem Header="_Rotate 90 degrees" InputGestureText="Ctrl+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" Template="{StaticResource iconMenuItem}" Icon="{StaticResource rotateIcon}" />
-                    <MenuItem Header="Rotate 90 degrees _counter-clockwise" InputGestureText="Ctrl+Shift+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" Template="{StaticResource mirroredIconMenuItem}" Icon="{StaticResource rotateIcon}" />
-                    <MenuItem Header="R_otate 180 degrees" Command="{Binding RotateCurrentItemCommand}" CommandParameter="180" />
-                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Transform item">
+                <MenuItem Header="Flip _horizontally" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" InputGestureText="Ctrl+F" Template="{StaticResource iconMenuItem}" Icon="{StaticResource flipXIcon}" />
+                <MenuItem Header="Flip _vertically" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" InputGestureText="Ctrl+Shift+F" Template="{StaticResource iconMenuItem}" Icon="{StaticResource flipYIcon}" />
+                <Separator />
+                <MenuItem Header="_Rotate 90 degrees" InputGestureText="Ctrl+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" Template="{StaticResource iconMenuItem}" Icon="{StaticResource rotateIcon}" />
+                <MenuItem Header="Rotate 90 degrees _counter-clockwise" InputGestureText="Ctrl+Shift+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" Template="{StaticResource mirroredIconMenuItem}" Icon="{StaticResource rotateIcon}" />
+                <MenuItem Header="R_otate 180 degrees" Command="{Binding RotateCurrentItemCommand}" CommandParameter="180" />
             </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Zoom in" InputGestureText="Ctrl++" Command="{Binding ZoomCommand}" CommandParameter="-24" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomInIcon}" />
@@ -165,7 +172,16 @@
             </StatusBar>
 
             <!-- Tree view of groups/layers in current symbol art -->
-            <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}">
+            <TreeView
+                x:Name="treeView"
+                BorderThickness="0"
+                ItemsSource="{Binding CurrentSymbolArt.RootItems}"
+                AllowDrop="True"
+                DragEnter="TreeView_DragEnter"
+                Drop="TreeView_Drop"
+                PreviewMouseMove="TreeView_PreviewMouseMove"
+                PreviewMouseDown="treeView_MouseDown"
+                >
                 <i:Interaction.Behaviors>
                     <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
                 </i:Interaction.Behaviors>
@@ -275,6 +291,9 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource rotateIcon}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Creates a copy of the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <Separator />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>

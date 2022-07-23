@@ -30,6 +30,11 @@ namespace OpenSAE
     {
         private readonly AppModel _model;
 
+        private bool _treeViewDrag;
+        private DependencyObject? _treeViewClickSource;
+        private Point? _treeViewClickPoint;
+        private SymbolArtItemModel? _treeViewDraggingItem;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -57,8 +62,6 @@ namespace OpenSAE
 
         private void mainWindow_DragOver(object sender, DragEventArgs e)
         {
-            e.Effects = DragDropEffects.None;
-
             if (e.Data is IDataObject dataObject)
             {
                 var files = (string[]?)dataObject.GetData(DataFormats.FileDrop);
@@ -66,10 +69,9 @@ namespace OpenSAE
                 if (files?.Length == 1)
                 {
                     e.Effects |= DragDropEffects.Copy;
+                    e.Handled = true;
                 }
             }
-
-            e.Handled = true;
         }
 
         private void mainWindow_Drop(object sender, DragEventArgs e)
@@ -84,6 +86,88 @@ namespace OpenSAE
                     e.Handled = true;
                 }
             }
+        }
+
+        private void TreeView_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.OriginalSource is DependencyObject obj && FindParent<TreeViewItem>(obj) is TreeViewItem && _treeViewDraggingItem != null)
+            {
+                e.Effects = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey) ? DragDropEffects.Copy : DragDropEffects.Move;
+                e.Handled = true;
+            }
+        }
+
+        private void TreeView_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed && _treeViewDrag)
+            {
+                // ensure that a drag operation is intended by measuring how far
+                // the mouse has moved since the button was pressed
+                Point currentPosition = e.GetPosition(this);
+                if ((_treeViewClickPoint - currentPosition)?.Length > 15)
+                {
+                    var treeViewItem = FindParent<TreeViewItem>(_treeViewClickSource!);
+
+                    if (treeViewItem == null || treeViewItem.DataContext is not SymbolArtItemModel item)
+                        return;
+
+                    _treeViewDraggingItem = item;
+                    _treeViewDrag = false;
+
+                    DragDrop.DoDragDrop(treeView, nameof(SymbolArtItemModel), DragDropEffects.Move | DragDropEffects.Copy);
+                }
+            }
+        }
+
+        private void TreeView_Drop(object sender, DragEventArgs e)
+        {
+            if (e.OriginalSource is DependencyObject obj && FindParent<TreeViewItem>(obj) is TreeViewItem treeViewItem && _treeViewDraggingItem != null)
+            {
+                if (treeViewItem?.DataContext is SymbolArtItemModel targetItem)
+                {
+                    var stringContent = e.Data.GetData(DataFormats.StringFormat) as string;
+
+                    if (stringContent != nameof(SymbolArtItemModel))
+                        return;
+
+                    if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
+                    {
+                        _treeViewDraggingItem.CopyTo(targetItem);
+                    }
+                    else
+                    {
+                        _treeViewDraggingItem.MoveTo(targetItem);
+                    }
+                }
+            }
+        }
+
+        private void treeView_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.OriginalSource is DependencyObject obj && FindParent<TreeViewItem>(obj) is not null)
+            {
+                _treeViewClickSource = obj;
+                // save the point the mouse was clicked
+                _treeViewClickPoint = e.GetPosition(this);
+                _treeViewDrag = true;
+            }
+            else
+            {
+                _treeViewDrag = false;
+            }
+        }
+
+        public static T? FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            if (parentObject == null)
+            {
+                // we didn't find it
+                return null;
+            }
+
+            return parentObject as T ?? FindParent<T>(parentObject);
         }
     }
 }

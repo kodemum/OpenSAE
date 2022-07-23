@@ -1,6 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:converters="clr-namespace:OpenSAE.Converters"
-                    xmlns:msconv="clr-namespace:System.Windows.Converters;assembly=WindowsBase"
+                    xmlns:local="clr-namespace:OpenSAE"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <converters:NumberOffsetConverter x:Key="numberOffsetConverter" />
     <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
@@ -176,5 +176,11 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="local:TreeViewDropHighlighter.IsPossibleDropTarget" Value="True">
+                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
+                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

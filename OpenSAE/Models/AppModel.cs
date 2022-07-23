@@ -235,6 +235,14 @@ namespace OpenSAE.Models
                     SelectedItem.FlipY();
                     break;
 
+                case "moveUp":
+                    SelectedItem.MoveUp();
+                    break;
+
+                case "moveDown":
+                    SelectedItem.MoveDown();
+                    break;
+
                 case "addLayer":
                     // find group to add layer to - may be current item, it's parent
                     // or possibly the root symbol art

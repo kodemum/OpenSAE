@@ -279,7 +279,10 @@ namespace OpenSAE.Models
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
-            return new SymbolArtLayerModel((SymbolArtLayer)ToSymbolArtItem(), parent);
+            var duplicate = (SymbolArtLayer)ToSymbolArtItem();
+            duplicate.Index = GetMaxLayerIndex() + 1;
+
+            return new SymbolArtLayerModel(duplicate, parent);
         }
 
         public override SymbolArtItem ToSymbolArtItem()
@@ -288,6 +291,7 @@ namespace OpenSAE.Models
             {
                 Name = _name,
                 Alpha = _alpha,
+                Index = _index,
                 Color = _color,
                 SymbolId = _symbol,
                 Visible = _visible,

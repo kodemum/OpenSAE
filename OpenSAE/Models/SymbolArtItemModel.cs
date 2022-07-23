@@ -127,6 +127,81 @@ namespace OpenSAE.Models
 
         public abstract Color Color { get; set; }
 
+        public int IndexInParent
+        {
+            get => Parent?.Children.IndexOf(this) ?? 0;
+            set 
+            {
+                if (Parent != null)
+                {
+                    Parent.Children.Move(IndexInParent, value);
+                }
+            }
+        }
+
+        public void MoveUp()
+        {
+            if (IndexInParent > 0)
+            {
+                IndexInParent--;
+            }
+        }
+
+        public void MoveDown()
+        {
+            if (IndexInParent < Parent?.Children.Count - 1)
+            {
+                IndexInParent++;
+            }
+        }
+
+        public void MoveTo(SymbolArtItemModel target)
+        {
+            if (Parent == null)
+                return;
+
+            if (target is SymbolArtGroupModel group)
+            {
+                Parent.Children.Remove(this);
+                group.Children.Insert(0, this);
+                Parent = group;
+            }
+            else if (target.Parent == Parent)
+            {
+                // already in same group
+                IndexInParent = target.IndexInParent;
+            }
+            else if (target.Parent != null)
+            {
+                // move to group at same index as target
+                Parent.Children.Remove(this);
+                target.Parent.Children.Insert(target.IndexInParent, this);
+                Parent = target.Parent;
+            }
+        }
+
+        public void CopyTo(SymbolArtItemModel target)
+        {
+            if (Parent == null)
+                return;
+
+            if (target is SymbolArtGroupModel group)
+            {
+                group.Children.Insert(0, Duplicate(group));
+            }
+            else if (target.Parent != null)
+            {
+                // copy to group at same index as target
+                target.Parent.Children.Insert(target.IndexInParent, Duplicate(target.Parent));
+            }
+        }
+
+        /// <summary>
+        /// Gets the maximum layer index that can be found in the tree of items
+        /// </summary>
+        public virtual int GetMaxLayerIndex()
+            => Parent?.GetMaxLayerIndex() ?? 0;
+
         public abstract SymbolArtItemModel Duplicate(SymbolArtItemModel parent);
 
         public abstract SymbolArtItem ToSymbolArtItem();

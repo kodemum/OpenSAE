@@ -112,6 +112,8 @@ namespace OpenSAE.Models
 
         public int LayerCount => GetAllLayers().Count();
 
+        public override int GetMaxLayerIndex() => LayerCount - 1;
+
         public int Width
         {
             get => _width;
