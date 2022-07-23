@@ -10,7 +10,7 @@
         FilledSymbols = 5,
         OutlinedSymbols = 6,
         LineSegments = 7,
-        VariousSymbols = 8,
+        LineSymbols = 8,
         CalligraphySymbols = 9,
         GradientSymbols = 10,
         Patterns = 11,
