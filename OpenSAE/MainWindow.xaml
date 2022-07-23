@@ -102,6 +102,8 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="250" />
         </Grid.ColumnDefinitions>
+        
+        <!-- Main menu -->
         <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Command="{Binding NewFileCommand}" InputGestureText="Ctrl+N" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFileIcon}" />
@@ -151,13 +153,18 @@
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
             </MenuItem>
         </Menu>
+        
+        
         <DockPanel Grid.Row="1">
+            <!-- Info bar below tree view -->
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource layersIcon}" />
                 <TextBlock>
                     <Run Text="{Binding CurrentSymbolArt.LayerCount, Mode=OneWay}" />/225 symbols
                 </TextBlock>
             </StatusBar>
+
+            <!-- Tree view of groups/layers in current symbol art -->
             <TreeView BorderThickness="0" ItemsSource="{Binding CurrentSymbolArt.RootItems}">
                 <i:Interaction.Behaviors>
                     <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
@@ -200,8 +207,10 @@
             </TreeView>
         </DockPanel>
 
+        <!-- Splitter between layer tree and renderer -->
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
+        <!-- Grid background for symbol art renderer -->
         <Rectangle Grid.Row="1" Grid.Column="2">
             <Rectangle.Fill>
                 <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
@@ -212,8 +221,10 @@
             </Rectangle.Fill>
         </Rectangle>
 
+        <!-- Splitter between layer tree and current item options panel -->
         <GridSplitter Grid.Row="1" Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />
 
+        <!-- Panel for editing current item (file, group, layer) -->
         <DockPanel Grid.Row="1" Grid.Column="4">
             <ContentControl DockPanel.Dock="Top" Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
             <colorpicker:StandardColorPicker 
@@ -234,6 +245,7 @@
         </DockPanel>
 
         <DockPanel Grid.Row="1" Grid.Column="2">
+            <!-- Status bar with info/config for renderer -->
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource gridIcon}" />
                 <TextBlock Text="{Binding MouseSymbolPosition, ElementName=renderer}" Width="45" />
@@ -252,6 +264,7 @@
                 </StatusBarItem>
             </StatusBar>
             <Grid>
+                <!-- Upper icon toolbar -->
                 <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <ToolBar Padding="2" FontSize="24">
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource addIcon}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
@@ -266,6 +279,8 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
+                
+                <!-- Symbol art renderer -->
                 <views:SymbolArtRenderer 
                     x:Name="renderer"
                     ClipToBounds="True"
