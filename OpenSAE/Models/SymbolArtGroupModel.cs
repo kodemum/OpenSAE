@@ -10,8 +10,6 @@ namespace OpenSAE.Models
     {
         protected string? _name;
         protected bool _visible;
-        private bool _isRotating;
-        private Point _rotationOrigin;
 
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
             : this()
@@ -64,12 +62,7 @@ namespace OpenSAE.Models
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
 
-        public Point Vertex1 => Vertices[0];
-        public Point Vertex2 => Vertices[1];
-        public Point Vertex3 => Vertices[2];
-        public Point Vertex4 => Vertices[3];
-
-        public Point[] Vertices
+        public override Point[] Vertices
         {
             get
             {
@@ -97,6 +90,39 @@ namespace OpenSAE.Models
                     new Point(minX, maxY),
                     new Point(maxX, minY),
                     new Point(maxX, maxY)
+                };
+            }
+            set
+            {
+            }
+        }
+
+        public Point[] AbsoluteVertices
+        {
+            get
+            {
+                var layers = GetAllLayers().ToArray();
+
+                // we'll just assume the 4 points are the 4 extreme points of any in the group/subgroups
+                var allPoints = layers.SelectMany(x => x.Vertices).ToArray();
+
+                if (allPoints.Length == 0)
+                {
+                    var none = new Point(0, 0);
+
+                    return new Point[]
+                    {
+                        none, none, none, none
+                    };
+                }
+
+                return new[]
+                {
+                    allPoints.OrderBy(x => x.X).First(),
+                    allPoints.OrderByDescending(x => x.Y).First(),
+                    allPoints.OrderBy(x => x.Y).First(),
+                    allPoints.OrderByDescending(x => x.X).First(),
+
                 };
             }
         }
@@ -127,12 +153,9 @@ namespace OpenSAE.Models
 
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertices));
-                OnPropertyChanged(nameof(Vertex1));
-                OnPropertyChanged(nameof(Vertex2));
-                OnPropertyChanged(nameof(Vertex3));
-                OnPropertyChanged(nameof(Vertex4));
             }
         }
+
         public double Alpha
         {
             get
@@ -163,6 +186,17 @@ namespace OpenSAE.Models
                 }
 
                 OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Groups always show bounding vertices
+        /// </summary>
+        public bool ShowBoundingVertices
+        {
+            get => true;
+            set
+            {
             }
         }
 
@@ -228,41 +262,31 @@ namespace OpenSAE.Models
 
             OnPropertyChanged(nameof(Vertices));
             OnPropertyChanged(nameof(Position));
-            OnPropertyChanged(nameof(Vertex1));
-            OnPropertyChanged(nameof(Vertex2));
-            OnPropertyChanged(nameof(Vertex3));
-            OnPropertyChanged(nameof(Vertex4));
         }
 
         public void TemporaryRotate(double angle)
         {
-            if (!_isRotating)
-            {
-                _isRotating = true;
-                _rotationOrigin = Vertices.GetCenter();
-            }
+            StartManipulation();
+
+            var origin = _temporaryVertices.GetCenter();
 
             foreach (var layer in GetAllLayers())
             {
-                layer.TemporaryRotate(angle, _rotationOrigin);
+                layer.TemporaryRotate(angle, origin);
             }
 
             OnPropertyChanged(nameof(Vertices));
             OnPropertyChanged(nameof(Position));
-            OnPropertyChanged(nameof(Vertex1));
-            OnPropertyChanged(nameof(Vertex2));
-            OnPropertyChanged(nameof(Vertex3));
-            OnPropertyChanged(nameof(Vertex4));
         }
 
-        public void CommitRotate()
+        public override void CommitManipulation()
         {
             foreach (var layer in GetAllLayers())
             {
-                layer.CommitRotate();
+                layer.CommitManipulation();
             }
 
-            _isRotating = false;
+            base.CommitManipulation();
         }
 
         /// <summary>
@@ -272,13 +296,15 @@ namespace OpenSAE.Models
         /// <param name="vertexIndex">Index of vertex to change position for. (0-3)</param>
         /// <param name="point">New location for the vertex</param>
         /// <exception cref="ArgumentException"></exception>
-        public void SetVertex(int vertexIndex, Point point)
+        public void ResizeFromVertex(int vertexIndex, Point point)
         {
+            StartManipulation();
+
             // find the origin and opposite vertex - this is necessary
             // in order to calculate the vector for each vertex of each layer
             // in this group
-            var originVertex = (Point)Vertices[vertexIndex];
-            var oppositeVertex = (Point)Vertices[vertexIndex switch
+            var originVertex = Vertices[vertexIndex];
+            var oppositeVertex = Vertices[vertexIndex switch
             {
                 0 => 3,
                 1 => 2,
@@ -289,18 +315,25 @@ namespace OpenSAE.Models
 
             Vector vector = point - originVertex;
 
-            if (vector.Length == 0)
-            {
-                return;
-            }
-
-            var layers = GetAllLayers().ToArray();
-
             // get the bounds of the group
             var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
             var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
 
-            foreach (var layer in layers)
+            // ensure it is not possible to resize the group below 1x1 by clearing the 
+            // x and or y axis of the vector according to the direction being resized
+            var absVectorX = vertexIndex == 0 || vertexIndex == 1 ? vector.X : -vector.X;
+            var absVectorY = vertexIndex == 0 || vertexIndex == 2 ? vector.Y : -vector.Y;
+
+            if (width - absVectorX < 1)
+                vector.X = 0;
+
+            if (height - absVectorY < 1)
+                vector.Y = 0;
+
+            if (vector.Length == 0)
+                return;
+
+            foreach (var layer in GetAllLayers())
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -334,10 +367,72 @@ namespace OpenSAE.Models
             OnPropertyChanged();
             OnPropertyChanged(nameof(Position));
             OnPropertyChanged(nameof(Vertices));
-            OnPropertyChanged(nameof(Vertex1));
-            OnPropertyChanged(nameof(Vertex2));
-            OnPropertyChanged(nameof(Vertex3));
-            OnPropertyChanged(nameof(Vertex4));
+        }
+
+        /// <summary>
+        /// Moves the specified (virtual) vertex to the specified point, shifting all points in the group
+        /// and transforming the shape of the group.
+        /// </summary>
+        /// <param name="vertexIndex">Index of vertex to change position for. (0-3)</param>
+        /// <param name="point">New location for the vertex</param>
+        /// <exception cref="ArgumentException"></exception>
+        public void SetVertex(int vertexIndex, Point point)
+        {
+            StartManipulation();
+
+            // find the origin and opposite vertex - this is necessary
+            // in order to calculate the vector for each vertex of each layer
+            // in this group
+            var originVertex = _temporaryVertices[vertexIndex];
+            var oppositeVertex = _temporaryVertices[vertexIndex switch
+            {
+                0 => 3,
+                1 => 2,
+                2 => 1,
+                3 => 0,
+                _ => throw new ArgumentException("Vertex must be in the range 0-3")
+            }];
+
+            Vector vector = point - originVertex;
+
+            if (vector.Length == 0)
+            {
+                return;
+            }
+
+            var diff = (originVertex - oppositeVertex).Length;
+
+            foreach (var layer in GetAllLayers())
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    // for each vertex for the layer, calculate
+                    var targetVertex = layer.OriginalVertices[i];
+
+                    // find the distance from the x and y origins of the group for the vertex
+                    var distanceFromOrigin = (originVertex - targetVertex).Length;
+
+                    // and reduce the vector to add accordingly
+                    var scale = 1 - distanceFromOrigin / diff * 1.2;
+
+                    // Explanation:
+                    // Imagine that this vertex is at the absolute corner of the group (the coordinates are identical)
+                    // This means that it should be moved exactly to the point specified as an argument to this function,
+                    // thus the xScale and yScale are both 1.
+                    //
+                    // For another vertex in the group at _any other location_, it will need to be moved less in order to
+                    // properly resize the group. Unless the distance to this vertex from the origin vertex is identical
+                    // for X and Y, the scale factor will be different for X and Y.
+                    //
+                    // Imagine a vertex right in the center of the group. This vertex will have both an X and Y scale
+                    // of 0.5. So it will move half as much as our imagined vertex at the corner as described above.
+                    layer.SetVertex(i, targetVertex + new Vector(vector.X * scale, vector.Y * scale));
+                }
+            }
+
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(Position));
+            OnPropertyChanged(nameof(Vertices));
         }
     }
 }

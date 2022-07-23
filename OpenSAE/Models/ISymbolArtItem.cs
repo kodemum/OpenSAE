@@ -17,13 +17,7 @@ namespace OpenSAE.Models
 
         Point Position { get; set; }
 
-        Point Vertex1 { get; }
-
-        Point Vertex2 { get; }
-
-        Point Vertex3 { get; }
-
-        Point Vertex4 { get; }
+        bool ShowBoundingVertices { get; set; }
 
         bool Visible { get; set; }
 
@@ -37,6 +31,8 @@ namespace OpenSAE.Models
 
         void TemporaryRotate(double angle);
 
-        void CommitRotate();
+        void CommitManipulation();
+
+        void ResizeFromVertex(int vertexIndex, Point point);
     }
 }

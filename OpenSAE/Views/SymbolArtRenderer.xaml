@@ -39,6 +39,12 @@
         <Grid.Background>
             <SolidColorBrush Color="Black" Opacity="0" />
         </Grid.Background>
+        <!--<StackPanel HorizontalAlignment="Right" Panel.ZIndex="30">
+            <TextBlock>Debug</TextBlock>
+            <TextBlock Text="{Binding ElementName=renderer, Path=ActualWidth}" />
+            <TextBlock Text="{Binding ElementName=renderer, Path=SymbolUnitWidth, StringFormat=N2}" />
+            <TextBlock Text="{Binding ElementName=renderer, Path=SymbolScaleFactor, StringFormat=N2}" />
+        </StackPanel>-->
         <Viewport3D x:Name="viewport3d">
             <ModelVisual3D>
                 <ModelVisual3D.Content>
@@ -103,10 +109,10 @@
                             StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
                         
                         <!-- Circles on each vertex -->
-                        <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex1}" />
-                        <Ellipse Fill="#00FFFC" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex2}" />
-                        <Ellipse Fill="#00FF05" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex3}" />
-                        <Ellipse Fill="#6500FF" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertex4}" />
+                        <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[0]}" />
+                        <Ellipse Fill="#00FFFC" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[1]}" />
+                        <Ellipse Fill="#00FF05" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[2]}" />
+                        <Ellipse Fill="#6500FF" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[3]}" />
                     </controls:CoordinateCanvas>
                 </DataTemplate>
             </ContentPresenter.ContentTemplate>

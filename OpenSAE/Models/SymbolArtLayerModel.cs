@@ -19,8 +19,7 @@ namespace OpenSAE.Models
         private Point _vertex2;
         private Point _vertex3;
         private Point _vertex4;
-        private Point[]? _temporaryVertices;
-        private bool _isRotating;
+        private bool _showBoundingVertices;
 
         public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel? parent)
         {
@@ -112,8 +111,6 @@ namespace OpenSAE.Models
             {
                 if (SetProperty(ref _vertex1, value))
                 {
-                    OnPropertyChanged(nameof(Vertex1X));
-                    OnPropertyChanged(nameof(Vertex1Y));
                     OnPropertyChanged(nameof(Vertices));
                 }
             }
@@ -129,8 +126,6 @@ namespace OpenSAE.Models
             {
                 if (SetProperty(ref _vertex2, value))
                 {
-                    OnPropertyChanged(nameof(Vertex2X));
-                    OnPropertyChanged(nameof(Vertex2Y));
                     OnPropertyChanged(nameof(Vertices));
                 }
             }
@@ -146,8 +141,6 @@ namespace OpenSAE.Models
             {
                 if (SetProperty(ref _vertex3, value))
                 {
-                    OnPropertyChanged(nameof(Vertex3X));
-                    OnPropertyChanged(nameof(Vertex3Y));
                     OnPropertyChanged(nameof(Vertices));
                 }
             }
@@ -163,59 +156,9 @@ namespace OpenSAE.Models
             {
                 if (SetProperty(ref _vertex4, value))
                 {
-                    OnPropertyChanged(nameof(Vertex4X));
-                    OnPropertyChanged(nameof(Vertex4Y));
                     OnPropertyChanged(nameof(Vertices));
                 }
             }
-        }
-
-        public short Vertex1X
-        {
-            get => (short)Math.Round(Vertex1.X);
-            set => Vertex1 = new Point(value, Vertex1.Y);
-        }
-
-        public short Vertex1Y
-        {
-            get => (short)Math.Round(Vertex1.Y);
-            set => Vertex1 = new Point(Vertex1.X, value);
-        }
-
-        public short Vertex2X
-        {
-            get => (short)Math.Round(Vertex2.X);
-            set => Vertex2 = new Point(value, Vertex2.Y);
-        }
-
-        public short Vertex2Y
-        {
-            get => (short)Math.Round(Vertex2.Y);
-            set => Vertex2 = new Point(Vertex2.X, value);
-        }
-
-        public short Vertex3X
-        {
-            get => (short)Math.Round(Vertex3.X);
-            set => Vertex3 = new Point(value, Vertex3.Y);
-        }
-
-        public short Vertex3Y
-        {
-            get => (short)Math.Round(Vertex3.Y);
-            set => Vertex3 = new Point(Vertex3.X, value);
-        }
-
-        public short Vertex4X
-        {
-            get => (short)Math.Round(Vertex4.X);
-            set => Vertex4 = new Point(value, Vertex4.Y);
-        }
-
-        public short Vertex4Y
-        {
-            get => (short)Math.Round(Vertex4.Y);
-            set => Vertex4 = new Point(Vertex4.X, value);
         }
 
         /// <summary>
@@ -258,17 +201,32 @@ namespace OpenSAE.Models
             set => Position = new Point(Position.X, value);
         }
 
-        public Point[] Vertices
+        public Point[] RawVertices => new[]
+            {
+                Vertex1,
+                Vertex2,
+                Vertex3,
+                Vertex4,
+            };
+
+        public override Point[] Vertices
         {
             get
             {
-                return new[]
+                if (ShowBoundingVertices)
                 {
-                    Vertex1,
-                    Vertex2,
-                    Vertex3,
-                    Vertex4,
-                };
+                    return BoundingVertices;
+                }
+                else
+                {
+                    return new[]
+                    {
+                        Vertex1,
+                        Vertex2,
+                        Vertex3,
+                        Vertex4,
+                    };
+                }
             }
             set
             {
@@ -282,7 +240,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public PointCollection PointCollection => new(Vertices.Select(x => (Point)x));
+        public PointCollection PointCollection => new(Vertices);
 
         public IEnumerable<Point3D> Points3D
         {
@@ -338,26 +296,15 @@ namespace OpenSAE.Models
 
         public void TemporaryRotate(double angle, Point origin)
         {
-            if (!_isRotating)
-            {
-                _temporaryVertices = Vertices;
-                _isRotating = true;
-            }
+            StartManipulation();
 
             Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices!, origin, angle);
         }
 
-        public void CommitRotate()
-        {
-            if (_isRotating)
-            {
-                _isRotating = false;
-                _temporaryVertices = null;
-            }
-        }
-
         public void SetVertex(int vertexIndex, Point point)
         {
+            StartManipulation();
+
             switch (vertexIndex)
             {
                 case 0:
@@ -378,6 +325,83 @@ namespace OpenSAE.Models
 
                 default:
                     throw new ArgumentException("Vertex index must be 0-3", nameof(point));
+            }
+        }
+
+        public Point[] BoundingVertices
+        {
+            get
+            {
+                var vertices = RawVertices;
+
+                double minX = vertices.MinBy(x => x.X).X, maxX = vertices.MaxBy(x => x.X).X;
+                double minY = vertices.MinBy(x => x.Y).Y, maxY = vertices.MaxBy(x => x.Y).Y;
+
+                return new[]
+                {
+                    new Point(minX, minY),
+                    new Point(minX, maxY),
+                    new Point(maxX, minY),
+                    new Point(maxX, maxY)
+                };
+            }
+        }
+
+        public bool ShowBoundingVertices
+        {
+            get => _showBoundingVertices;
+            set
+            {
+                if (SetProperty(ref _showBoundingVertices, value))
+                {
+                    OnPropertyChanged(nameof(Vertices));
+                }
+            }
+        }
+
+        public void ResizeFromVertex(int vertexIndex, Point point)
+        {
+            StartManipulation();
+
+            var boundVertices = BoundingVertices;
+
+            // find the origin and opposite vertex - this is necessary
+            // in order to calculate the vector for each vertex 
+            var originVertex = boundVertices[vertexIndex];
+            var oppositeVertex = boundVertices[vertexIndex switch
+            {
+                0 => 3,
+                1 => 2,
+                2 => 1,
+                3 => 0,
+                _ => throw new ArgumentException("Vertex must be in the range 0-3")
+            }];
+
+            Vector vector = point - originVertex;
+
+            if (vector.Length == 0)
+            {
+                return;
+            }
+
+            // get the bounds
+            var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
+            var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
+
+            for (int i = 0; i < 4; i++)
+            {
+                // for each vertex for the layer, calculate
+                var targetVertex = RawVertices[i];
+
+                // find the distance from the x and y origins of the group for the vertex
+                var distanceFromOriginX = Math.Max(originVertex.X, targetVertex.X) - Math.Min(originVertex.X, targetVertex.X);
+                var distanceFromOriginY = Math.Max(originVertex.Y, targetVertex.Y) - Math.Min(originVertex.Y, targetVertex.Y);
+
+                // and reduce the vector to add accordingly
+                var xScale = 1 - distanceFromOriginX / width;
+                var yScale = 1 - distanceFromOriginY / height;
+
+                SetVertex(i, targetVertex + new Vector(vector.X * xScale, vector.Y * yScale));
             }
         }
     }

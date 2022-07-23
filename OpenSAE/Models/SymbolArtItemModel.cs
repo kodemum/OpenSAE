@@ -3,11 +3,15 @@ using OpenSAE.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows;
 
 namespace OpenSAE.Models
 {
     public abstract class SymbolArtItemModel : ObservableObject
     {
+        protected bool _isManipulating;
+        protected Point[] _temporaryVertices;
+
         protected SymbolArtItemModel()
         {
             Children.CollectionChanged += (_, __) =>
@@ -27,6 +31,15 @@ namespace OpenSAE.Models
 
         public SymbolArtItemModel? Parent { get; set; }
 
+        public abstract Point[] Vertices { get; set; }
+
+        /// <summary>
+        /// Gets the currently committed vertices for the item. If the item is in manipulation mode
+        /// will return the vertices before the manipulation begin. If not in manipulation mode
+        /// returns the current vertices.
+        /// </summary>
+        public Point[] OriginalVertices => _isManipulating ? _temporaryVertices : Vertices;
+
         protected void OnChildrenChanged()
         {
             ChildrenChanged?.Invoke(this, EventArgs.Empty);
@@ -37,6 +50,41 @@ namespace OpenSAE.Models
             if (Parent != null)
             {
                 Parent.Children.Remove(this);
+            }
+        }
+
+        /// <summary>
+        /// Commits the changes made in the current manipulation.
+        /// </summary>
+        public virtual void CommitManipulation()
+        {
+            _isManipulating = false;
+        }
+
+        /// <summary>
+        /// Discards any non-committed manipulations performed on the item.
+        /// </summary>
+        public virtual void DiscardManipulation()
+        {
+            if (_isManipulating)
+            {
+                _isManipulating = false;
+                Vertices = _temporaryVertices;
+            }
+        }
+
+        /// <summary>
+        /// Specify that a manipulation should be started if one is not already in progress.
+        /// Enabling this saves a copy of the current vertices so that operations can be performed
+        /// on these rather than successively on the same vertices. This helps to avoid rounding errors
+        /// if many operations are performed such as when drag-rotating an item.
+        /// </summary>
+        protected void StartManipulation()
+        {
+            if (!_isManipulating)
+            {
+                _isManipulating = true;
+                _temporaryVertices = Vertices;
             }
         }
 

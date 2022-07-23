@@ -212,7 +212,7 @@
                 <TextBlock Text="{Binding MouseSymbolPosition, ElementName=renderer}" Width="45" />
                 <Separator />
                 <TextBlock>
-                    Hold shift to select. Ctrl+click to rotate. Click and drag vertex to edit. Click and drag elsewhere to move.
+                    Hold shift to select. Ctrl+click to rotate. Alt+click to resize. Click and drag vertex to edit. Click and drag elsewhere to move.
                 </TextBlock>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">

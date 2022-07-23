@@ -113,11 +113,11 @@ namespace OpenSAE.Views
                 .AddValueChanged(this, (_, __) => OnPropertyChanged(nameof(SymbolScaleFactor)));
         }
 
-        private bool isDragging;
+        private ManipulationOperation operation;
+
         private Point rotatingOrigin;
         private double rotatingOriginAngle;
 
-        private bool isRotating;
         private int draggingVertexIndex;
         private Point draggingClickOrigin;
         private Point draggingLayerOriginalPos;
@@ -179,7 +179,7 @@ namespace OpenSAE.Views
                 );
         }
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        protected virtual void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -214,6 +214,18 @@ namespace OpenSAE.Views
                         SelectedLayer.Position += new Vector(1, 0);
                         e.Handled = true;
                         break;
+
+                    case Key.System:
+                        if (e.KeyboardDevice.IsKeyDown(Key.LeftAlt))
+                        {
+                            SelectedLayer.ShowBoundingVertices = true;
+                            e.Handled = true;
+                        }
+                        else
+                        {
+                            SelectedLayer.ShowBoundingVertices = false;
+                        }
+                        break;
                 }
             }
 
@@ -223,6 +235,16 @@ namespace OpenSAE.Views
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
             Cursor = null;
+
+            if (SelectedLayer != null)
+            {
+                switch (e.Key)
+                {
+                    case Key.System:
+                        SelectedLayer.ShowBoundingVertices = false;
+                        break;
+                }
+            }
 
             base.OnPreviewKeyUp(e);
         }
@@ -257,6 +279,8 @@ namespace OpenSAE.Views
                 return;
             }
 
+            operation = ManipulationOperation.None;
+
             // if no layer is selected, there's nothing to manipulate
             if (SelectedLayer is not ISymbolArtItem layer)
                 return;
@@ -266,7 +290,7 @@ namespace OpenSAE.Views
 
             if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
             {
-                isRotating = true;
+                operation = ManipulationOperation.Rotate;
                 rotatingOrigin = layer.Vertices.GetCenter();
                 rotatingOriginAngle = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X);
             }
@@ -284,11 +308,17 @@ namespace OpenSAE.Views
                 if (distanceToVertices[draggingVertexIndex] > LayerVertexClickRadius)
                 {
                     // drag entire symbol if we're not close enough to any vertex
-                    draggingVertexIndex = -1;
                     draggingLayerOriginalPos = layer.Position;
+                    operation = ManipulationOperation.Move;
                 }
+                else
+                {
+                    operation = Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.LeftAlt)
+                        ? ManipulationOperation.Resize
+                        : ManipulationOperation.DragVertex;
 
-                isDragging = true;
+                    SelectedLayer.ShowBoundingVertices = operation == ManipulationOperation.Resize;
+                }
             }
 
             CaptureMouse();
@@ -323,42 +353,44 @@ namespace OpenSAE.Views
             if (SelectedLayer == null)
                 return;
 
-            if (isRotating)
+            switch (operation)
             {
-                var angleNow = Math.Atan2(ptMouse.Y - rotatingOrigin.Y, ptMouse.X - rotatingOrigin.X);
+                case ManipulationOperation.Rotate:
+                    var angleNow = Math.Atan2(ptMouse.Y - rotatingOrigin.Y, ptMouse.X - rotatingOrigin.X);
 
-                SelectedLayer.TemporaryRotate(angleNow - rotatingOriginAngle);
-            }
-            else if (isDragging)
-            {
-                if (draggingVertexIndex == -1)
-                {
+                    SelectedLayer.TemporaryRotate(angleNow - rotatingOriginAngle);
+                    break;
+
+                case ManipulationOperation.DragVertex:
+                    SelectedLayer.SetVertex(draggingVertexIndex, ptMouse);
+                    break;
+
+                case ManipulationOperation.Resize:
+                    SelectedLayer.ResizeFromVertex(draggingVertexIndex, ptMouse);
+                    break;
+
+                case ManipulationOperation.Move:
                     var diff = ptMouse - draggingClickOrigin;
 
                     SelectedLayer.Position = draggingLayerOriginalPos + new Vector(Math.Round(diff.X), Math.Round(diff.Y));
-                }
-                else
-                {
-                    SelectedLayer.SetVertex(draggingVertexIndex, ptMouse);
-                }
+                    break;
 
-                args.Handled = true;
+                default:
+                    return;
             }
+
+            args.Handled = true;
         }
 
         protected override void OnMouseLeftButtonUp(MouseButtonEventArgs args)
         {
             base.OnMouseUp(args);
 
-            if (isRotating)
+            if (operation != ManipulationOperation.None)
             {
-                SelectedLayer.CommitRotate();
-            }
-
-            if (isDragging || isRotating)
-            {
-                isDragging = false;
-                isRotating = false;
+                SelectedLayer.ShowBoundingVertices = false;
+                SelectedLayer.CommitManipulation();
+                operation = ManipulationOperation.None;
                 ReleaseMouseCapture();
                 args.Handled = true;
             }
@@ -575,6 +607,15 @@ namespace OpenSAE.Views
             public ImageBrush Brush { get; }
 
             public MeshGeometry3D Geometry { get; }
+        }
+
+        private enum ManipulationOperation
+        {
+            None,
+            DragVertex,
+            Move,
+            Resize,
+            Rotate
         }
     }
 }
