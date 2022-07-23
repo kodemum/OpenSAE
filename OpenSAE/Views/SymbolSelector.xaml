@@ -15,9 +15,13 @@
             <TextBox Text="{Binding ItemSize}" DockPanel.Dock="Right" />
             <Slider DockPanel.Dock="Bottom" Value="{Binding ItemSize}" Minimum="24" Maximum="96" TickFrequency="8" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
         </DockPanel>
+        <TextBlock DockPanel.Dock="Bottom">
+                Symbol <Run Text="{Binding SelectedSymbol.Id, ElementName=symbolSelector, Mode=OneWay}" />:
+                <Run Text="{Binding SelectedSymbol.Description, ElementName=symbolSelector, Mode=OneWay}" />
+        </TextBlock>
 
         <controls:ListBoxScroll ItemsSource="{Binding Symbols}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="true" 
-         VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding SelectedSymbol,ElementName=symbolSelector}">
+         VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding SelectedSymbol, ElementName=symbolSelector}">
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel IsItemsHost="True" />
