@@ -18,6 +18,14 @@ namespace OpenSAE.Core.SAR
             => new(X + SarFileConstants.GridOrigin, Y + SarFileConstants.GridOrigin);
 
         public static SarSymbolVertex FromPoint(Point point)
-            => new((byte)(point.X - SarFileConstants.GridOrigin), (byte)(point.Y - SarFileConstants.GridOrigin));
+        {
+            // Clamp values to maximum possible value.
+            // This will change the shape of the vertex, but we'll assume it's a background
+            // element and that it is okay
+            double x = Math.Clamp(point.X - SarFileConstants.GridOrigin, 0, 255);
+            double y = Math.Clamp(point.Y - SarFileConstants.GridOrigin, 0, 255);
+
+            return new((byte)Math.Round(x), (byte)Math.Round(y));
+        }
     }
 }
