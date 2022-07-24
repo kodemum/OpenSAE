@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using static OpenSAE.Behaviors.TreeViewSelectionBehavior;
 
@@ -29,6 +30,7 @@ namespace OpenSAE.Models
         private bool _applyToneCurve;
         private bool _guideLinesEnabled;
         private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
+        private Point _viewPosition = new(0, 0);
 
         public event EventHandler? ExitRequested;
 
@@ -44,6 +46,7 @@ namespace OpenSAE.Models
                 {
                     OnPropertyChanged(nameof(AppTitle));
                     ZoomPercentage = 100;
+                    ViewPosition = new(0, 0);
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                 }
@@ -85,6 +88,10 @@ namespace OpenSAE.Models
             set => SetProperty(ref _guideLinesEnabled, value);
         }
 
+        /// <summary>
+        /// Width of viewport in symbol art units. Shows the full width when equal to the width
+        /// of the current symbol art, any other value zooms in or out.
+        /// </summary>
         public double DisplaySymbolUnitWidth
         {
             get => _displaySymbolUnitWidth;
@@ -106,6 +113,15 @@ namespace OpenSAE.Models
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DisplaySymbolUnitWidth));
             }
+        }
+
+        /// <summary>
+        /// Position of viewport relative to the center (0,0) (symbol art units)
+        /// </summary>
+        public Point ViewPosition
+        {
+            get => _viewPosition;
+            set => SetProperty(ref _viewPosition, value);
         }
 
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;

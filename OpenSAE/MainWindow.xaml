@@ -279,14 +279,14 @@
             <!-- Status bar with info/config for renderer -->
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource gridIcon}" />
-                <TextBlock Text="{Binding MouseSymbolPosition, ElementName=renderer}" Width="45" />
+                <TextBlock Text="{Binding MouseSymbolPosition, ElementName=renderer}" MinWidth="45" />
                 <Separator />
                 <TextBlock>
-                    Hold shift to select. Ctrl+click to rotate. Alt+click to resize. Click and drag vertex to edit. Click and drag elsewhere to move.
+                    Hold shift to select. Ctrl+click to rotate. Alt+click to resize. Click and drag vertex to edit. Right-click and drag to move canvas.
                 </TextBlock>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource iconText}" Text="{StaticResource zoomIcon}" />
+                        <TextBlock Style="{StaticResource iconText}" Text="{StaticResource zoomIcon}" Margin="0 0 5 0" />
                         <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth}" Minimum="24" Maximum="320" IsDirectionReversed="True" SmallChange="10" LargeChange="30" />
                         <TextBlock TextAlignment="Center" Width="38">
                             <Run Text="{Binding ZoomPercentage, Mode=OneWay, StringFormat=N0}" />%
@@ -322,6 +322,7 @@
                     Grid.Column="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
+                    ViewPosition="{Binding ViewPosition, Mode=TwoWay}"
                     SymbolArt="{Binding CurrentSymbolArt}"
                     SymbolUnitWidth="{Binding DisplaySymbolUnitWidth, Mode=TwoWay}"
                     SelectedLayer="{Binding SelectedItem, Mode=TwoWay}"

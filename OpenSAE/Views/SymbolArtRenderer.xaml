@@ -19,6 +19,7 @@
         </DiffuseMaterial>
         <converters:MultiplyNumberConverter x:Key="symbolArtScaleConverter" />
         <converters:LayerPointCollectionConverter x:Key="layerPointConverter" />
+        <converters:Point3DConverter x:Key="point3dConverter" Z="1" />
         <Style TargetType="Ellipse" x:Key="vertexCornerCircle">
             <Setter Property="Height" Value="10" />
             <Setter Property="Width" Value="10" />
@@ -42,6 +43,9 @@
             <TextBlock Text="{Binding ElementName=renderer, Path=ActualWidth}" />
             <TextBlock Text="{Binding ElementName=renderer, Path=SymbolUnitWidth, StringFormat=N2}" />
             <TextBlock Text="{Binding ElementName=renderer, Path=SymbolScaleFactor, StringFormat=N2}" />
+            <TextBlock>
+                <Run Text="{Binding ElementName=renderer, Path=ViewPosition.X, StringFormat=N2}" />, <Run Text="{Binding ElementName=renderer, Path=ViewPosition.Y, StringFormat=N2}" />
+            </TextBlock>
         </StackPanel>-->
         <Viewport3D x:Name="viewport3d">
             <ModelVisual3D>
@@ -57,61 +61,86 @@
                 since it is nice to have a view of what is outside the active area
                 -->
                 <OrthographicCamera 
-                    Position="0.5 0.5 1"
                     LookDirection="0 0 -1"
                     UpDirection="0 1 0"
+                    Position="{Binding ElementName=renderer, Path=ViewPosition, Converter={StaticResource point3dConverter}}"
                     Width="{Binding ElementName=renderer, Path=SymbolUnitWidth}"
-                    />
+                    >
+                </OrthographicCamera>
             </Viewport3D.Camera>
         </Viewport3D>
 
         <!-- Border framing active area of symbol art -->
-        <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.7">
-            <Border.Width>
-                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
-                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
-                    <Binding Path="SymbolArt.Width" ElementName="renderer" />
-                </MultiBinding>
-            </Border.Width>
-            <Border.Height>
+        <controls:CoordinateCanvas CoordinateWidth="{Binding ElementName=renderer, Path=SymbolArt.Width}" 
+                                   Offset="{Binding ElementName=renderer, Path=ViewPosition}"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center">
+            <controls:CoordinateCanvas.Height>
                 <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
                     <Binding Path="SymbolScaleFactor" ElementName="renderer" />
                     <Binding Path="SymbolArt.Height" ElementName="renderer" />
                 </MultiBinding>
-            </Border.Height>
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ElementName=renderer, Path=SymbolArt}" Value="{x:Null}">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-        </Border>
+            </controls:CoordinateCanvas.Height>
+            <controls:CoordinateCanvas.Width>
+                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                    <Binding Path="SymbolArt.Width" ElementName="renderer" />
+                </MultiBinding>
+            </controls:CoordinateCanvas.Width>
+            <Border BorderThickness="1" BorderBrush="Black" Opacity="0.7" ClipToBounds="False">
+                <Border.Width>
+                    <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                        <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                        <Binding Path="SymbolArt.Width" ElementName="renderer" />
+                    </MultiBinding>
+                </Border.Width>
+                <Border.Height>
+                    <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                        <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                        <Binding Path="SymbolArt.Height" ElementName="renderer" />
+                    </MultiBinding>
+                </Border.Height>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ElementName=renderer, Path=SymbolArt}" Value="{x:Null}">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+            </Border>
 
-        <!-- Border framing the largest possible coordinates for symbol art vertices -->
-        <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.3"
-                Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}">
-            <Border.Width>
-                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
-                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
-                    <Binding Source="256" />
-                </MultiBinding>
-            </Border.Width>
-            <Border.Height>
-                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
-                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
-                    <Binding Source="256" />
-                </MultiBinding>
-            </Border.Height>
-        </Border>
+            <!-- Border framing the largest possible coordinates for symbol art vertices -->
+            <Border BorderThickness="1" BorderBrush="Black" Opacity="0.7" ClipToBounds="False" controls:CoordinateCanvas.Center="True"
+                    Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}">
+                <Border.Width>
+                    <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                        <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                        <Binding Source="256" />
+                    </MultiBinding>
+                </Border.Width>
+                <Border.Height>
+                    <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                        <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                        <Binding Source="256" />
+                    </MultiBinding>
+                </Border.Height>
+            </Border>
+
+            <!-- Center guides -->
+            <Rectangle Width="0.5" Height="5000" Fill="Black" Opacity="0.7" controls:CoordinateCanvas.Center="True" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
+            <Rectangle Height="0.5" Width="5000" Fill="Black" Opacity="0.7" controls:CoordinateCanvas.Center="True" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
+        </controls:CoordinateCanvas>
 
         <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
             <ContentPresenter.ContentTemplate>
                 <DataTemplate>
                     <!-- CoordinateCanvas converts symbol art coordinates to screen coordinates for Canvas.Top and Canvas.Left -->
-                    <controls:CoordinateCanvas CoordinateWidth="{Binding ElementName=renderer, Path=SymbolUnitWidth}" VerticalAlignment="Center">
+                    <controls:CoordinateCanvas 
+                        CoordinateWidth="{Binding ElementName=renderer, Path=SymbolUnitWidth}"
+                        VerticalAlignment="Center"
+                        CenterOrigin="True"
+                        Offset="{Binding ElementName=renderer, Path=ViewPosition}">
                         <controls:CoordinateCanvas.Height>
                             <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
                                 <Binding Path="SymbolScaleFactor" ElementName="renderer" />
@@ -120,7 +149,7 @@
                         </controls:CoordinateCanvas.Height>
 
                         <!-- Highlight vertices of the current layer, if there is one -->
-                        <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices" Canvas.Top="0" Canvas.Left="0">
+                        <Polyline StrokeThickness="1" Stroke="Black" x:Name="layerVertices">
                             <Polyline.Points>
                                 <MultiBinding Converter="{StaticResource layerPointConverter}">
                                     <Binding Path="SymbolScaleFactor" ElementName="renderer" />
@@ -128,9 +157,7 @@
                                 </MultiBinding>
                             </Polyline.Points>
                         </Polyline>
-                        <Polyline Points="{Binding Points, ElementName=layerVertices}" Canvas.Top="{Binding Path=(Canvas.Top), ElementName=layerVertices}"
-                                    Canvas.Left="{Binding Path=(Canvas.Left), ElementName=layerVertices}"
-                            StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
+                        <Polyline Points="{Binding Points, ElementName=layerVertices}" StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
                         
                         <!-- Circles on each vertex -->
                         <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[0]}" />
@@ -150,9 +177,5 @@
                 </Style>
             </ContentPresenter.Style>
         </ContentPresenter>
-
-        <!-- Center guides -->
-        <Rectangle Width="0.5" Fill="Black" Opacity="0.7" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
-        <Rectangle Height="0.5" Fill="Black" Opacity="0.7" Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}" />
     </Grid>
 </UserControl>

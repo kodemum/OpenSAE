@@ -2,7 +2,6 @@
                     xmlns:converters="clr-namespace:OpenSAE.Converters"
                     xmlns:local="clr-namespace:OpenSAE"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <converters:NumberOffsetConverter x:Key="numberOffsetConverter" />
     <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
 
     <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="iconMenuItem">
