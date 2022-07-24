@@ -288,23 +288,6 @@ namespace OpenSAE.Views
             Focus();
             Keyboard.Focus(this);
 
-            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-            {
-                // selection mode
-                HitTestResult result = VisualTreeHelper.HitTest(viewport3d, args.GetPosition(viewport3d));
-
-                if (result is RayMeshGeometry3DHitTestResult meshHit)
-                {
-                    var hitLayer = _layerDictionary.FirstOrDefault(x => x.Value.Geometry == meshHit.MeshHit);
-
-                    if (hitLayer.Key != null)
-                    {
-                        SelectedLayer = hitLayer.Key;
-                    }
-                }
-                return;
-            }
-
             operation = ManipulationOperation.None;
 
             // if no layer is selected, there's nothing to manipulate
@@ -361,19 +344,21 @@ namespace OpenSAE.Views
 
             if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
             {
-                // highlight layers under cursor
-                HitTestResult result = VisualTreeHelper.HitTest(viewport3d, args.GetPosition(viewport3d));
+                if (SymbolArt == null)
+                    return;
 
-                if (result is RayMeshGeometry3DHitTestResult meshHit)
+                // select layer under cursor by traversing all layers in the symbol art
+                // until we find one that is visible and where the mouse pointer is inside
+                foreach (var layer in SymbolArt.GetAllLayers().Where(x => x.IsVisible))
                 {
-                    var hitLayer = _layerDictionary.FirstOrDefault(x => x.Value.Geometry == meshHit.MeshHit);
-
-                    if (hitLayer.Key != null)
+                    if (layer.IsPointInside(ptMouse))
                     {
-                        SelectedLayer = hitLayer.Key;
-                        return;
+                        SelectedLayer = layer;
+                        break;
                     }
                 }
+
+                return;
             }
 
             if (SelectedLayer == null)

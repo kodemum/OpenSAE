@@ -202,6 +202,35 @@ namespace OpenSAE.Models
         public virtual int GetMaxLayerIndex()
             => Parent?.GetMaxLayerIndex() ?? 0;
 
+        /// <summary>
+        /// Checks if the specified point (symbol art coordinates) is inside of the item.
+        /// </summary>
+        /// <param name="testPoint"></param>
+        /// <returns></returns>
+        public bool IsPointInside(Point testPoint)
+        {
+            // todo: lets switch to using normal vertex ordering, shall we?
+            var polygon = Vertices;
+
+            (polygon[2], polygon[3]) = (polygon[3], polygon[2]);
+
+            bool result = false;
+            int j = polygon.Length - 1;
+            for (int i = 0; i < polygon.Length; i++)
+            {
+                if (polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y || polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)
+                {
+                    if (polygon[i].X + (testPoint.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < testPoint.X)
+                    {
+                        result = !result;
+                    }
+                }
+                j = i;
+            }
+
+            return result;
+        }
+
         public abstract SymbolArtItemModel Duplicate(SymbolArtItemModel parent);
 
         public abstract SymbolArtItem ToSymbolArtItem();
