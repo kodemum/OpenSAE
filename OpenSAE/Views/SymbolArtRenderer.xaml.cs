@@ -24,6 +24,18 @@ namespace OpenSAE.Views
     /// </summary>
     public partial class SymbolArtRenderer : UserControl, INotifyPropertyChanged
     {
+        public static readonly DependencyProperty SymbolArtProperty =
+            DependencyProperty.Register(
+              name: "SymbolArt",
+              propertyType: typeof(SymbolArtModel),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(
+                  defaultValue: null,
+                  flags: FrameworkPropertyMetadataOptions.AffectsRender,
+                  SymbolArtPropertyChanged
+                  )
+        );
+
         public static readonly DependencyProperty SelectedLayerProperty =
             DependencyProperty.Register(
               name: "SelectedLayer",
@@ -84,6 +96,15 @@ namespace OpenSAE.Views
                 renderer.OnPropertyChanged(nameof(SymbolScaleFactor));
             }
         }
+
+        private static void SymbolArtPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is SymbolArtRenderer renderer)
+            {
+                renderer.Redraw();
+            }
+        }
+
         private static object OnSymbolUnitWidthCoerce(DependencyObject d, object baseValue)
         {
             if (baseValue is double newValue)
@@ -129,6 +150,12 @@ namespace OpenSAE.Views
         /// </summary>
         public double SymbolScaleFactor
             => ActualWidth / SymbolUnitWidth;
+
+        public SymbolArtModel? SymbolArt
+        {
+            get => (SymbolArtModel?)GetValue(SymbolArtProperty);
+            set => SetValue(SymbolArtProperty, value);
+        }
 
         /// <summary>
         /// Represents the width of the viewport in symbol art units. 
@@ -275,7 +302,6 @@ namespace OpenSAE.Views
                         SelectedLayer = hitLayer.Key;
                     }
                 }
-
                 return;
             }
 
@@ -395,20 +421,15 @@ namespace OpenSAE.Views
             }
         }
 
-        private void UserControl_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            Redraw();
-        }
-
         private void Redraw()
         {
             symbolArtContentGroup.Children.Clear();
             symbolArtContentGroup.Children.Add(new AmbientLight(Colors.White));
             _layerDictionary.Clear();
 
-            if (DataContext is SymbolArtModel sa)
+            if (SymbolArt != null)
             {
-                DrawSymbolArtGroup(sa);
+                DrawSymbolArtGroup(SymbolArt);
             }
         }
 

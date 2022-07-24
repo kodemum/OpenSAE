@@ -6,8 +6,6 @@
              xmlns:models="clr-namespace:OpenSAE.Models"
              xmlns:converters="clr-namespace:OpenSAE.Converters" xmlns:controls="clr-namespace:OpenSAE.Controls"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=models:SymbolArtModel}"
-             DataContextChanged="UserControl_DataContextChanged"
              x:Name="renderer"
              Focusable="True"
              IsTabStop="True"
@@ -72,15 +70,24 @@
             <Border.Width>
                 <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
                     <Binding Path="SymbolScaleFactor" ElementName="renderer" />
-                    <Binding Path="DataContext.Width" ElementName="renderer" />
+                    <Binding Path="SymbolArt.Width" ElementName="renderer" />
                 </MultiBinding>
             </Border.Width>
             <Border.Height>
                 <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
                     <Binding Path="SymbolScaleFactor" ElementName="renderer" />
-                    <Binding Path="DataContext.Height" ElementName="renderer" />
+                    <Binding Path="SymbolArt.Height" ElementName="renderer" />
                 </MultiBinding>
             </Border.Height>
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ElementName=renderer, Path=SymbolArt}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
         </Border>
 
         <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
@@ -91,7 +98,7 @@
                         <controls:CoordinateCanvas.Height>
                             <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
                                 <Binding Path="SymbolScaleFactor" ElementName="renderer" />
-                                <Binding Path="DataContext.Height" ElementName="renderer" />
+                                <Binding Path="SymbolArt.Height" ElementName="renderer" />
                             </MultiBinding>
                         </controls:CoordinateCanvas.Height>
 

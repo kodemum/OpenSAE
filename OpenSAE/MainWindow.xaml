@@ -192,7 +192,7 @@
                             <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
                             <Rectangle Height="13" Width="13" Margin="3 0 0 0">
                                 <Rectangle.Fill>
-                                    <SolidColorBrush Color="{Binding Color}" />
+                                    <SolidColorBrush Color="{Binding Color, FallbackValue=White}" />
                                 </Rectangle.Fill>
                             </Rectangle>
                             <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
@@ -322,11 +322,11 @@
                     Grid.Column="2"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Stretch"
-                    SymbolUnitWidth="{Binding DataContext.DisplaySymbolUnitWidth, ElementName=mainWindow, Mode=TwoWay}"
-                    DataContext="{Binding CurrentSymbolArt}"
-                    SelectedLayer="{Binding DataContext.SelectedItem, ElementName=mainWindow, Mode=TwoWay}"
-                    ApplyToneCurve="{Binding DataContext.ApplyToneCurve, ElementName=mainWindow}"
-                    ShowGuides="{Binding DataContext.GuideLinesEnabled, ElementName=mainWindow}"
+                    SymbolArt="{Binding CurrentSymbolArt}"
+                    SymbolUnitWidth="{Binding DisplaySymbolUnitWidth, Mode=TwoWay}"
+                    SelectedLayer="{Binding SelectedItem, Mode=TwoWay}"
+                    ApplyToneCurve="{Binding ApplyToneCurve}"
+                    ShowGuides="{Binding GuideLinesEnabled}"
                     >
                 </views:SymbolArtRenderer>
             </Grid>
