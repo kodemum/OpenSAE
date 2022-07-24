@@ -169,10 +169,14 @@ namespace OpenSAE.Core.SAR
 
             foreach (var layer in item.Layers)
             {
+                // The order of the vertices here is not an accident.
+                // SAR files use a nonstandard order of (Left-up, left-down, right-up, right-down)
+                // rather than the standard counter clockwise ordering.
+                // For this reason we need to switch the 3rd and 4th vertex
                 WriteVertex(writer, layer.Vertex1);
                 WriteVertex(writer, layer.Vertex2);
-                WriteVertex(writer, layer.Vertex3);
                 WriteVertex(writer, layer.Vertex4);
+                WriteVertex(writer, layer.Vertex3);
 
                 writer.Write((uint)layer.Flag1);
                 writer.Write((uint)layer.Flag2);
@@ -203,10 +207,14 @@ namespace OpenSAE.Core.SAR
 
             for (int i = 0; i < layerCount; i++)
             {
+                // The order of the vertices here is not an accident.
+                // SAR files use a nonstandard order of (Left-up, left-down, right-up, right-down)
+                // rather than the standard counter clockwise ordering.
+                // For this reason we need to switch the 3rd and 4th vertex
                 var vertex1 = ReadVertex(reader);
                 var vertex2 = ReadVertex(reader);
-                var vertex3 = ReadVertex(reader);
                 var vertex4 = ReadVertex(reader);
+                var vertex3 = ReadVertex(reader);
 
                 uint flag1 = reader.ReadUInt32();
                 uint flag2 = reader.ReadUInt32();

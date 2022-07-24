@@ -63,8 +63,8 @@ namespace OpenSAE.Core.SAML
                     Color = (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(layer.Color),
                     Vertex1 = new System.Windows.Point(layer.Ltx, layer.Lty),
                     Vertex2 = new System.Windows.Point(layer.Lbx, layer.Lby),
-                    Vertex3 = new System.Windows.Point(layer.Rtx, layer.Rty),
-                    Vertex4 = new System.Windows.Point(layer.Rbx, layer.Rby),
+                    Vertex3 = new System.Windows.Point(layer.Rbx, layer.Rby),
+                    Vertex4 = new System.Windows.Point(layer.Rtx, layer.Rty),
                     SymbolId = layer.Type
                 };
             }
@@ -98,10 +98,10 @@ namespace OpenSAE.Core.SAML
                     Lty = (short)Math.Round(layer.Vertex1.Y),
                     Lbx = (short)Math.Round(layer.Vertex2.X),
                     Lby = (short)Math.Round(layer.Vertex2.Y),
-                    Rtx = (short)Math.Round(layer.Vertex3.X),
-                    Rty = (short)Math.Round(layer.Vertex3.Y),
-                    Rbx = (short)Math.Round(layer.Vertex4.X),
-                    Rby = (short)Math.Round(layer.Vertex4.Y)
+                    Rbx = (short)Math.Round(layer.Vertex3.X),
+                    Rby = (short)Math.Round(layer.Vertex3.Y),
+                    Rtx = (short)Math.Round(layer.Vertex4.X),
+                    Rty = (short)Math.Round(layer.Vertex4.Y)
                 };
             }
             else

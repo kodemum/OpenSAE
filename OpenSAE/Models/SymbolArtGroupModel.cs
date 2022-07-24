@@ -97,8 +97,8 @@ namespace OpenSAE.Models
                 {
                     new Point(minX, minY),
                     new Point(minX, maxY),
-                    new Point(maxX, minY),
-                    new Point(maxX, maxY)
+                    new Point(maxX, maxY),
+                    new Point(maxX, minY)
                 };
             }
             set
@@ -129,9 +129,8 @@ namespace OpenSAE.Models
                 {
                     allPoints.OrderBy(x => x.X).First(),
                     allPoints.OrderByDescending(x => x.Y).First(),
-                    allPoints.OrderBy(x => x.Y).First(),
                     allPoints.OrderByDescending(x => x.X).First(),
-
+                    allPoints.OrderBy(x => x.Y).First(),
                 };
             }
         }
@@ -313,14 +312,7 @@ namespace OpenSAE.Models
             // in order to calculate the vector for each vertex of each layer
             // in this group
             var originVertex = Vertices[vertexIndex];
-            var oppositeVertex = Vertices[vertexIndex switch
-            {
-                0 => 3,
-                1 => 2,
-                2 => 1,
-                3 => 0,
-                _ => throw new ArgumentException("Vertex must be in the range 0-3")
-            }];
+            var oppositeVertex = Vertices.GetOppositeVertex(vertexIndex);
 
             Vector vector = point - originVertex;
 
@@ -393,14 +385,7 @@ namespace OpenSAE.Models
             // in order to calculate the vector for each vertex of each layer
             // in this group
             var originVertex = _temporaryVertices[vertexIndex];
-            var oppositeVertex = _temporaryVertices[vertexIndex switch
-            {
-                0 => 3,
-                1 => 2,
-                2 => 1,
-                3 => 0,
-                _ => throw new ArgumentException("Vertex must be in the range 0-3")
-            }];
+            var oppositeVertex = _temporaryVertices.GetOppositeVertex(vertexIndex);
 
             Vector vector = point - originVertex;
 

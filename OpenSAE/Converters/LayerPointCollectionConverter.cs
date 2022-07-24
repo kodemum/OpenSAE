@@ -31,8 +31,8 @@ namespace OpenSAE.Converters
                 {
                     points[0].Multiply(scale).Round(),
                     points[1].Multiply(scale).Round(),
-                    points[3].Multiply(scale).Round(),
                     points[2].Multiply(scale).Round(),
+                    points[3].Multiply(scale).Round(),
                     points[0].Multiply(scale).Round()
                 });
             }

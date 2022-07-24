@@ -51,8 +51,8 @@ namespace OpenSAE.Models
             _visible = true;
             _vertex1 = new Point(-16, -16);
             _vertex2 = new Point(-16, 16);
-            _vertex3 = new Point(16, -16);
-            _vertex4 = new Point(16, 16);
+            _vertex3 = new Point(16, 16);
+            _vertex4 = new Point(16, -16);
             Parent = parent;
         }
 
@@ -272,8 +272,8 @@ namespace OpenSAE.Models
             {
                 yield return new Point3D(Math.Round(Vertex2.X), -Math.Round(Vertex2.Y), 0);
                 yield return new Point3D(Math.Round(Vertex1.X), -Math.Round(Vertex1.Y), 0);
-                yield return new Point3D(Math.Round(Vertex4.X), -Math.Round(Vertex4.Y), 0);
                 yield return new Point3D(Math.Round(Vertex3.X), -Math.Round(Vertex3.Y), 0);
+                yield return new Point3D(Math.Round(Vertex4.X), -Math.Round(Vertex4.Y), 0);
             }
         }
 
@@ -319,7 +319,9 @@ namespace OpenSAE.Models
 
         public override void TemporaryRotate(double angle)
         {
-            TemporaryRotate(angle, Vertices.GetCenter());
+            StartManipulation();
+
+            TemporaryRotate(angle, _temporaryVertices.GetCenter());
         }
 
         public void TemporaryRotate(double angle, Point origin)
@@ -369,8 +371,8 @@ namespace OpenSAE.Models
                 {
                     new Point(minX, minY),
                     new Point(minX, maxY),
-                    new Point(maxX, minY),
-                    new Point(maxX, maxY)
+                    new Point(maxX, maxY),
+                    new Point(maxX, minY)
                 };
             }
         }
@@ -396,14 +398,7 @@ namespace OpenSAE.Models
             // find the origin and opposite vertex - this is necessary
             // in order to calculate the vector for each vertex 
             var originVertex = boundVertices[vertexIndex];
-            var oppositeVertex = boundVertices[vertexIndex switch
-            {
-                0 => 3,
-                1 => 2,
-                2 => 1,
-                3 => 0,
-                _ => throw new ArgumentException("Vertex must be in the range 0-3")
-            }];
+            var oppositeVertex = boundVertices.GetOppositeVertex(vertexIndex);
 
             Vector vector = point - originVertex;
 
