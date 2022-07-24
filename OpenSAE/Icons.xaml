@@ -23,4 +23,5 @@
     <clr:String x:Key="zoomIcon">&#xE71E;</clr:String>
     <clr:String x:Key="zoomOutIcon">&#xE71F;</clr:String>
     <clr:String x:Key="zoomInIcon">&#xE8A3;</clr:String>
+    <clr:String x:Key="helpIcon">&#xE897;</clr:String>
 </ResourceDictionary>

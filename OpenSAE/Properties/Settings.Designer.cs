@@ -95,5 +95,17 @@ namespace OpenSAE.Properties {
                 this["MaxRecentFiles"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool HelpShown {
+            get {
+                return ((bool)(this["HelpShown"]));
+            }
+            set {
+                this["HelpShown"] = value;
+            }
+        }
     }
 }

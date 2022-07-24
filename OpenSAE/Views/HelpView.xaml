@@ -1,0 +1,110 @@
+﻿<UserControl x:Class="OpenSAE.Views.HelpView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OpenSAE.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="800" d:DesignWidth="800">
+    <StackPanel>
+        <TextBlock Style="{StaticResource titleText}">
+            OpenSAE Symbol Art Editor help
+        </TextBlock>
+        <TextBlock>
+            There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Symbol tree
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            On the right side you will find the symbol tree. This shows all groups and layers in the symbol art with the top item representing the symbol art as a whole.
+            The tree has checkboxes to enable/disable each symbol or group and items can be dragged to other positions in the tree (or duplicated if Ctrl is held at the same time)
+            <LineBreak />
+            Select an item in the tree to have it highlighted in the canvas and the item editor.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Canvas
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            In the center of the app is the canvas. The canvas displays the current symbol art and allows you to manipulate individual symbols or symbol groups.
+        </TextBlock>
+        <StackPanel Margin="5">
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">Select symbols by holding down <Run FontWeight="Bold">Shift</Run> and moving the mouse across the canvas</TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">With a symbol selected, you can change the shape of it by clicking on each coner and dragging it</TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">To resize a symbol, hold down <Run FontWeight="Bold">Alt</Run> and drag the corner in the direction you wish to resize</TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">To rotate a symbol, hold down <Run FontWeight="Bold">Ctrl</Run> and drag</TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">To move a symbol, left-click anywhere not a corner and drag</TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">To move around the canvas <Run FontWeight="Bold">right-click</Run> and drag. Use the <Run FontWeight="Bold">scroll wheel</Run> or the slider at the bottom to zoom</TextBlock>
+            </ContentControl>
+        </StackPanel>
+
+        <TextBlock>The toolbar at the top has the following commands:</TextBlock>
+        <StackPanel Margin="5">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource addIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Add a new symbol (Ctrl+E)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource newFolderIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Add a new group (Ctrl+Shift+E)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource viewIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Toggle the visibility of the current symbol or group (Ctrl+,)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource flipXIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Horizontally flips the current symbol or group (Ctrl+F)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource flipYIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Vertically flips the current symbol or group (Ctrl+Shift+F)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource rotateIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource copyIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Creates a copy of the current symbol or group (Ctrl+Shift+D)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource upIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Moves the current symbol or group up in the drawing order (Alt+Up)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource downIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Moves the current symbol or group down in the drawing order (Alt+Up)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Delete the current symbol or group (Shift+Del)</TextBlock>
+            </StackPanel>
+        </StackPanel>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Item editor
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            On the right is the item editor. It enables changing properties depending on what type of item is currenly selected. When the item at the top of the tree
+            (the symbol art itself) is selected, you can change the name, size, author etc.
+            <LineBreak />
+            The color and opacity of the current item can be changed here. When changing this for a group, <Run FontWeight="Bold">all items in it</Run> will be affected.
+            <LineBreak />
+            Additionally when a symbol is selected, the type of symbol can be changed.
+        </TextBlock>
+    </StackPanel>
+</UserControl>

@@ -29,6 +29,25 @@
         <Setter Property="FontSize" Value="16" />
     </Style>
 
+    <Style TargetType="TextBlock" x:Key="titleText">
+        <Setter Property="FontSize" Value="28" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="subtitleText">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Margin" Value="0 10 0 5" />
+    </Style>
+
+    <ControlTemplate x:Key="BulletTemplate" TargetType="{x:Type ContentControl}">
+        <BulletDecorator>
+            <BulletDecorator.Bullet>
+                <Ellipse Height="9" Width="9" Fill="Black" />
+            </BulletDecorator.Bullet>
+            <ContentPresenter />
+        </BulletDecorator>
+    </ControlTemplate>
+
     <Style TargetType="TreeViewItem">
         <Setter Property="Template">
             <Setter.Value>

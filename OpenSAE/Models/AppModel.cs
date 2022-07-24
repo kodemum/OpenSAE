@@ -29,6 +29,7 @@ namespace OpenSAE.Models
         private SymbolArtItemModel? _selectedItem;
         private bool _applyToneCurve;
         private bool _guideLinesEnabled;
+        private bool _showHelpScreen;
         private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
         private Point _viewPosition = new(0, 0);
 
@@ -47,6 +48,7 @@ namespace OpenSAE.Models
                     OnPropertyChanged(nameof(AppTitle));
                     ZoomPercentage = 100;
                     ViewPosition = new(0, 0);
+                    ShowHelpScreen = false;
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                 }
@@ -124,6 +126,12 @@ namespace OpenSAE.Models
             set => SetProperty(ref _viewPosition, value);
         }
 
+        public bool ShowHelpScreen
+        {
+            get => _showHelpScreen;
+            set => SetProperty(ref _showHelpScreen, value);
+        }
+
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
@@ -161,6 +169,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> ZoomCommand { get; set; }
 
+        public RelayCommand HelpCommand { get; set; }
+
         public ICommand ExitCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -180,6 +190,13 @@ namespace OpenSAE.Models
             RotateCurrentItemCommand = new RelayCommand<string>(RotateCurrentItemCommand_Implementation, (_) => SelectedItem != null);
             ChangeSettingCommand = new RelayCommand<string>(ChangeSetting_Implementation);
             ZoomCommand = new RelayCommand<string>(Zoom_Implementation);
+            HelpCommand = new RelayCommand(() => ShowHelpScreen = !ShowHelpScreen);
+
+            if (!Settings.Default.HelpShown)
+            {
+                ShowHelpScreen = true;
+                Settings.Default.HelpShown = true;
+            }
         }
 
         private void Zoom_Implementation(string? obj)

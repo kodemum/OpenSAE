@@ -94,6 +94,8 @@
 
         <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="-24" />
         <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="24" />
+
+        <KeyBinding Key="F1" Command="{Binding HelpCommand}" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -159,6 +161,9 @@
                 <Separator />
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Show _help..." InputGestureText="F1" Command="{Binding HelpCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource helpIcon}" />
             </MenuItem>
         </Menu>
         
@@ -274,6 +279,24 @@
                 Visibility="{Binding DataContext.SelectedItemIsLayer, ElementName=mainWindow, Converter={StaticResource booleanToVisibilityConverter}}">
             </views:SymbolSelector>
         </DockPanel>
+
+        <!-- Help -->
+        <Border Grid.Row="1" Grid.ColumnSpan="5" Panel.ZIndex="3" Margin="50" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="1000"
+                Visibility="{Binding ShowHelpScreen, Converter={StaticResource booleanToVisibilityConverter}}"
+                BorderBrush="Blue" BorderThickness="1">
+            <Border.Background>
+                <SolidColorBrush Color="White" Opacity="0.95" />
+            </Border.Background>
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="5">
+                    <Button Content="Close help" Padding="5" Command="{Binding HelpCommand}"/>
+                </StackPanel>
+                <ScrollViewer>
+                    <views:HelpView Margin="15" />
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+        
 
         <DockPanel Grid.Row="1" Grid.Column="2">
             <!-- Status bar with info/config for renderer -->
