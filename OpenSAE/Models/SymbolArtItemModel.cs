@@ -209,10 +209,7 @@ namespace OpenSAE.Models
         /// <returns></returns>
         public bool IsPointInside(Point testPoint)
         {
-            // todo: lets switch to using normal vertex ordering, shall we?
             var polygon = Vertices;
-
-            (polygon[2], polygon[3]) = (polygon[3], polygon[2]);
 
             bool result = false;
             int j = polygon.Length - 1;
