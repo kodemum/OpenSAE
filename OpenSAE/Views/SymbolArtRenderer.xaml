@@ -90,6 +90,23 @@
             </Border.Style>
         </Border>
 
+        <!-- Border framing the largest possible coordinates for symbol art vertices -->
+        <Border BorderThickness="1" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.3"
+                Visibility="{Binding ElementName=renderer, Path=ShowGuides, Converter={StaticResource booleanToVisibilityConverter}}">
+            <Border.Width>
+                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                    <Binding Source="256" />
+                </MultiBinding>
+            </Border.Width>
+            <Border.Height>
+                <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                    <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                    <Binding Source="256" />
+                </MultiBinding>
+            </Border.Height>
+        </Border>
+
         <ContentPresenter Content="{Binding ElementName=renderer, Path=SelectedLayer}">
             <ContentPresenter.ContentTemplate>
                 <DataTemplate>
