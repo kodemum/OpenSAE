@@ -165,7 +165,7 @@
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
                 <MenuItem Header="Add new _group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
-                <MenuItem Header="Add new _overlay image" Command="{Binding AddImageLayerCommand}" />
+                <MenuItem Header="Add new _overlay image" Command="{Binding AddImageLayerCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
                 <Separator />
                 <MenuItem Header="Move item _up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />

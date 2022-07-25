@@ -68,6 +68,20 @@ namespace OpenSAE.Core.SAML
                     SymbolId = layer.Type
                 };
             }
+            else if (item is SamlBitmapImageLayer imageLayer)
+            {
+                return new SymbolArtBitmapImageLayer()
+                {
+                    Name = imageLayer.Name,
+                    Visible = imageLayer.Visible,
+                    Alpha = imageLayer.Alpha,
+                    ImageData = imageLayer.ImageData,
+                    Vertex1 = new System.Windows.Point(imageLayer.Ltx, imageLayer.Lty),
+                    Vertex2 = new System.Windows.Point(imageLayer.Lbx, imageLayer.Lby),
+                    Vertex3 = new System.Windows.Point(imageLayer.Rbx, imageLayer.Rby),
+                    Vertex4 = new System.Windows.Point(imageLayer.Rtx, imageLayer.Rty)
+                };
+            }
             else
             {
                 throw new Exception($"Unknown type {item.GetType().Name} encountered in SamlItem");
@@ -102,6 +116,24 @@ namespace OpenSAE.Core.SAML
                     Rby = (short)Math.Round(layer.Vertex3.Y),
                     Rtx = (short)Math.Round(layer.Vertex4.X),
                     Rty = (short)Math.Round(layer.Vertex4.Y)
+                };
+            }
+            else if (item is SymbolArtBitmapImageLayer imageLayer)
+            {
+                return new SamlBitmapImageLayer()
+                {
+                    Name = imageLayer.Name,
+                    Alpha = imageLayer.Alpha,
+                    Visible = imageLayer.Visible,
+                    ImageData = imageLayer.ImageData,
+                    Ltx = imageLayer.Vertex1.X,
+                    Lty = imageLayer.Vertex1.Y,
+                    Lbx = imageLayer.Vertex2.X,
+                    Lby = imageLayer.Vertex2.Y,
+                    Rbx = imageLayer.Vertex3.X,
+                    Rby = imageLayer.Vertex3.Y,
+                    Rtx = imageLayer.Vertex4.X,
+                    Rty = imageLayer.Vertex4.Y
                 };
             }
             else

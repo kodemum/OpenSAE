@@ -45,6 +45,10 @@ namespace OpenSAE.Models
                 {
                     Children.Add(new SymbolArtLayerModel(layer, this));
                 }
+                else if (item is SymbolArtBitmapImageLayer imageLayer)
+                {
+                    Children.Add(new SymbolArtImageLayerModel(imageLayer, this));
+                }
                 else
                 {
                     throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art");
