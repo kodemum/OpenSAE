@@ -149,7 +149,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public Point[] RawVertices => new[]
+        public override Point[] RawVertices => new[]
             {
                 _vertex1,
                 _vertex2,
@@ -254,6 +254,7 @@ namespace OpenSAE.Models
             }
 
             OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(RawVertices));
         }
 
         public override SymbolArtItem ToSymbolArtItem()

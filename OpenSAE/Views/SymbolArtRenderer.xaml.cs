@@ -608,7 +608,7 @@ namespace OpenSAE.Views
 
         private static Point3DCollection GetLayer3DPoints(SymbolArtItemModel layer)
         {
-            var vertices = layer.Vertices;
+            var vertices = layer.RawVertices;
 
             if (layer.EnforceGridPositioning)
             {
@@ -658,7 +658,7 @@ namespace OpenSAE.Views
                     break;
 
                 default:
-                    if (e.PropertyName?.StartsWith("Vertex") == true || e.PropertyName == nameof(layer.Vertices))
+                    if (e.PropertyName?.StartsWith("Vertex") == true || e.PropertyName == nameof(layer.RawVertices))
                     {
                         refs.Geometry.Positions = GetLayer3DPoints(layer);
                     }

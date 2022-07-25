@@ -143,6 +143,7 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _vertex1, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
+                    OnPropertyChanged(nameof(RawVertices));
                 }
             }
         }
@@ -158,6 +159,7 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _vertex2, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
+                    OnPropertyChanged(nameof(RawVertices));
                 }
             }
         }
@@ -173,6 +175,7 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _vertex3, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
+                    OnPropertyChanged(nameof(RawVertices));
                 }
             }
         }
@@ -188,11 +191,12 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _vertex4, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
+                    OnPropertyChanged(nameof(RawVertices));
                 }
             }
         }
 
-        public Point[] RawVertices => new[]
+        public override Point[] RawVertices => new[]
             {
                 Vertex1,
                 Vertex2,
@@ -210,13 +214,7 @@ namespace OpenSAE.Models
                 }
                 else
                 {
-                    return new[]
-                    {
-                        Vertex1,
-                        Vertex2,
-                        Vertex3,
-                        Vertex4,
-                    };
+                    return RawVertices;
                 }
             }
             set

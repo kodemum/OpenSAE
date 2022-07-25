@@ -29,7 +29,13 @@ namespace OpenSAE.Models
         public virtual string? Name
         {
             get => _name;
-            set => SetProperty(ref _name, value);
+            set
+            {
+                if (SetProperty(ref _name, value))
+                {
+                    OnPropertyChanged(nameof(DisplayName));
+                }
+            }
         }
 
         public virtual string DisplayName => Name ?? "[unnamed]";
@@ -51,6 +57,8 @@ namespace OpenSAE.Models
         public SymbolArtItemModel? Parent { get; set; }
 
         public abstract Point[] Vertices { get; set; }
+
+        public abstract Point[] RawVertices { get; }
 
         /// <summary>
         /// Gets the currently committed vertices for the item. If the item is in manipulation mode

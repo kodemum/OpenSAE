@@ -95,6 +95,8 @@ namespace OpenSAE.Models
             }
         }
 
+        public override Point[] RawVertices => Vertices;
+
         public Point[] AbsoluteVertices
         {
             get
@@ -150,6 +152,7 @@ namespace OpenSAE.Models
 
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Vertices));
+                OnPropertyChanged(nameof(RawVertices));
             }
         }
 
@@ -258,6 +261,7 @@ namespace OpenSAE.Models
             }
 
             OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(RawVertices));
             OnPropertyChanged(nameof(Position));
         }
 
@@ -273,6 +277,7 @@ namespace OpenSAE.Models
             }
 
             OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(RawVertices));
             OnPropertyChanged(nameof(Position));
         }
 
@@ -357,6 +362,7 @@ namespace OpenSAE.Models
             OnPropertyChanged();
             OnPropertyChanged(nameof(Position));
             OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(RawVertices));
         }
 
         /// <summary>
@@ -416,6 +422,7 @@ namespace OpenSAE.Models
             OnPropertyChanged();
             OnPropertyChanged(nameof(Position));
             OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(RawVertices));
         }
     }
 }
