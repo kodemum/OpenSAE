@@ -355,6 +355,12 @@ namespace OpenSAE.Views
                     if (distanceToVertices[draggingVertexIndex] * SymbolScaleFactor > LayerVertexClickRadius)
                     {
                         // drag entire symbol if we're not close enough to any vertex
+                        // unless alt is pressed for resize
+                        if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.LeftAlt))
+                        {
+                            return;
+                        }
+
                         draggingLayerOriginalPos = SelectedLayer.Position;
                         operation = ManipulationOperation.MoveItem;
                     }

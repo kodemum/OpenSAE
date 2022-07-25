@@ -20,7 +20,6 @@ namespace OpenSAE.Models
             Children.CollectionChanged += (_, __) =>
             {
                 OnChildrenChanged();
-                Parent?.OnChildrenChanged();
             };
         }
 
@@ -70,6 +69,7 @@ namespace OpenSAE.Models
         protected void OnChildrenChanged()
         {
             ChildrenChanged?.Invoke(this, EventArgs.Empty);
+            Parent?.OnChildrenChanged();
         }
 
         public virtual void Delete()
@@ -333,6 +333,17 @@ namespace OpenSAE.Models
                 return false;
 
             return childModel.Parent == parentItem;
+        }
+
+        public static bool IsChildOfRecursive(SymbolArtItemModel childItem, SymbolArtItemModel parentItem)
+        {
+            if (childItem.Parent == parentItem)
+                return true;
+
+            if (childItem.Parent == null)
+                return false;
+
+            return IsChildOfRecursive(childItem.Parent, parentItem);
         }
 
         public abstract void SetVertex(int vertexIndex, Point point);

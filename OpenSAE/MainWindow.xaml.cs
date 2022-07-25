@@ -130,6 +130,10 @@ namespace OpenSAE
                     if (stringContent != nameof(SymbolArtItemModel))
                         return;
 
+                    // ensure we do not try to move an element into itself or one of its children
+                    if (_treeViewDraggingItem == targetItem || SymbolArtItemModel.IsChildOfRecursive(targetItem, _treeViewDraggingItem))
+                        return;
+
                     if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
                     {
                         _treeViewDraggingItem.CopyTo(targetItem);

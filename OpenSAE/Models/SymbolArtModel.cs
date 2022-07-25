@@ -70,6 +70,8 @@ namespace OpenSAE.Models
             _soundEffect = SymbolArtSoundEffect.None;
             _visible = true;
             Size = SymbolArtSize.Standard;
+
+            ChildrenChanged += SymbolArtModel_ChildrenChanged;
         }
 
         /// <summary>
