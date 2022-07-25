@@ -11,6 +11,8 @@ namespace OpenSAE.Models
     public abstract class SymbolArtItemModel : ObservableObject
     {
         protected bool _isManipulating;
+        protected bool _visible;
+        protected string? _name;
         protected Point[] _temporaryVertices;
 
         protected SymbolArtItemModel()
@@ -24,13 +26,27 @@ namespace OpenSAE.Models
 
         public event EventHandler? ChildrenChanged;
 
-        public abstract string? Name { get; set; }
+        public virtual string? Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
 
         public virtual string DisplayName => Name ?? "[unnamed]";
 
-        public abstract bool Visible { get; set; }
+        public virtual bool Visible
+        {
+            get => _visible;
+            set => SetProperty(ref _visible, value);
+        }
 
         public abstract bool IsVisible { get; }
+
+        /// <summary>
+        /// Indicates if the vertices in this item should be enforced to the symbol art coordinate grid.
+        /// If this value is false, vertex positions will not be rounded when displayed
+        /// </summary>
+        public virtual bool EnforceGridPositioning => true;
 
         public SymbolArtItemModel? Parent { get; set; }
 
@@ -116,10 +132,47 @@ namespace OpenSAE.Models
             }
         }
 
+        public IEnumerable<SymbolArtItemModel> GetAllItems()
+        {
+            yield return this;
+
+            foreach (var child in Children)
+            {
+                foreach (var childItem in child.GetAllItems())
+                {
+                    yield return childItem;
+                }
+            }
+        }
+
         public ObservableCollection<SymbolArtItemModel> Children { get; }
             = new();
 
-        public abstract Point Position { get; set; }
+        /// <summary>
+        /// Gets or sets the position of the entire symbol. The origin of the position
+        /// is the leftmost vertex
+        /// </summary>
+        public virtual Point Position
+        {
+            get => Vertices.GetMinBy(true);
+            set
+            {
+                var points = Vertices;
+
+                int minIndex = points.GetMinIndexBy(true);
+
+                // find diff between previous min point and the new one
+                var diff = value - points[minIndex];
+
+                for (int i = 0; i < points.Length; i++)
+                {
+                    points[i] += diff;
+                }
+
+                Vertices = points;
+                OnPropertyChanged();
+            }
+        }
 
         public abstract bool ShowBoundingVertices { get; set; }
 
@@ -232,11 +285,34 @@ namespace OpenSAE.Models
 
         public abstract SymbolArtItem ToSymbolArtItem();
 
-        public abstract void FlipX();
+        public virtual void FlipX()
+        {
+            Vertices = SymbolManipulationHelper.FlipX(Vertices);
+        }
 
-        public abstract void FlipY();
+        public virtual void FlipY()
+        {
+            Vertices = SymbolManipulationHelper.FlipY(Vertices);
+        }
 
-        public abstract void Rotate(double angle);
+        public virtual void Rotate(double angle)
+        {
+            Vertices = SymbolManipulationHelper.Rotate(Vertices, angle);
+        }
+
+        public virtual void TemporaryRotate(double angle)
+        {
+            StartManipulation();
+
+            TemporaryRotate(angle, _temporaryVertices.GetCenter());
+        }
+
+        public virtual void TemporaryRotate(double angle, Point origin)
+        {
+            StartManipulation();
+
+            Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices!, origin, angle);
+        }
 
         public static bool IsChildOf(object childItem, object parentItem)
         {
@@ -252,8 +328,6 @@ namespace OpenSAE.Models
         }
 
         public abstract void SetVertex(int vertexIndex, Point point);
-
-        public abstract void TemporaryRotate(double angle);
 
         public abstract void ResizeFromVertex(int vertexIndex, Point point);
     }

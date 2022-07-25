@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using static OpenSAE.Behaviors.TreeViewSelectionBehavior;
 
 namespace OpenSAE.Models
@@ -20,6 +21,7 @@ namespace OpenSAE.Models
     public class AppModel : ObservableObject
     {
         private const string FileFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
+        private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif";
         private const double DefaultSymbolUnitWidth = 240;
         private const double MinimumSymbolUnitWidth = 24;
         private const double MaximumSymbolUnitWidth = 320;
@@ -30,6 +32,7 @@ namespace OpenSAE.Models
         private bool _applyToneCurve;
         private bool _guideLinesEnabled;
         private bool _showHelpScreen;
+        private bool _showImageOverlays;
         private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
         private Point _viewPosition = new(0, 0);
 
@@ -51,6 +54,7 @@ namespace OpenSAE.Models
                     ShowHelpScreen = false;
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
+                    AddImageLayerCommand.NotifyCanExecuteChanged();
                 }
             }
         }
@@ -68,6 +72,23 @@ namespace OpenSAE.Models
                     CurrentItemCommand.NotifyCanExecuteChanged();
                     RotateCurrentItemCommand.NotifyCanExecuteChanged();
                     OnPropertyChanged(nameof(SelectedItemIsLayer));
+                }
+            }
+        }
+
+        public bool ShowImageOverlays
+        {
+            get => _showImageOverlays;
+            set
+            {
+                SetProperty(ref _showImageOverlays, value);
+
+                if (CurrentSymbolArt != null)
+                {
+                    foreach (var imageLayer in CurrentSymbolArt.GetAllItems().OfType<SymbolArtImageLayerModel>())
+                    {
+                        imageLayer.Visible = value;
+                    }
                 }
             }
         }
@@ -173,6 +194,8 @@ namespace OpenSAE.Models
 
         public ICommand ExitCommand { get; }
 
+        public RelayCommand<string> AddImageLayerCommand { get; }
+
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -185,6 +208,7 @@ namespace OpenSAE.Models
             ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
             SaveCommand = new RelayCommand(Save_Implementation, () => CurrentSymbolArt != null);
             SaveAsCommand = new RelayCommand(SaveAs_Implementation, () => CurrentSymbolArt != null);
+            AddImageLayerCommand = new RelayCommand<string>(AddImageLayer_Implementation, (arg) => CurrentSymbolArt != null);
 
             CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
             RotateCurrentItemCommand = new RelayCommand<string>(RotateCurrentItemCommand_Implementation, (_) => SelectedItem != null);
@@ -197,6 +221,44 @@ namespace OpenSAE.Models
                 ShowHelpScreen = true;
                 Settings.Default.HelpShown = true;
             }
+        }
+
+        private void AddImageLayer_Implementation(string? filename)
+        {
+            if (filename == null)
+            {
+                filename = _dialogService.BrowseOpenFile("Open overlay image", BitmapFormatFilter);
+
+                if (filename == null)
+                    return;
+            }
+
+            byte[] imageBuffer;
+
+            try
+            {
+                imageBuffer = System.IO.File.ReadAllBytes(filename);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Unable to open image", "Unable to read the content of the specified file", ex);
+                return;
+            }
+
+            try
+            {
+                // ensure the image is readable
+                Converters.ImageSourceConverter.AssertImageIsReadable(imageBuffer);
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Unable to open image", "Image could not be opened - unknown format?", ex);
+                return;
+            }
+
+            var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
+
+            SelectedItem = newLayer;
         }
 
         private void Zoom_Implementation(string? obj)
@@ -251,6 +313,10 @@ namespace OpenSAE.Models
                     SelectedItem.Visible = !SelectedItem.Visible;
                     break;
 
+                case "toggleImageOverlays":
+                    ShowImageOverlays = !ShowImageOverlays;
+                    break;
+
                 case "deselect":
                     SelectedItem = null;
                     break;
@@ -277,25 +343,7 @@ namespace OpenSAE.Models
                     break;
 
                 case "addLayer":
-                    // find group to add layer to - may be current item, it's parent
-                    // or possibly the root symbol art
-                    SymbolArtGroupModel targetGroup =
-                        SelectedItem as SymbolArtGroupModel
-                        ?? SelectedItem.Parent as SymbolArtGroupModel
-                        ?? CurrentSymbolArt!;
-
-                    var newLayer = new SymbolArtLayerModel(CurrentSymbolArt!.LayerCount + 1, targetGroup);
-
-                    if (SelectedItem is SymbolArtLayerModel)
-                    {
-                        // if selected item is a layer, add the new layer before it
-                        targetGroup.Children.Insert(targetGroup.Children.IndexOf(SelectedItem), newLayer);
-                    }
-                    else
-                    {
-                        // and if it is a group, add the layer as the first
-                        targetGroup.Children.Insert(0, newLayer);
-                    }
+                    var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(CurrentSymbolArt!.LayerCount + 1, group));
 
                     SelectedItem = newLayer;
                     break;
@@ -338,6 +386,31 @@ namespace OpenSAE.Models
         {
             CurrentSymbolArt = new SymbolArtModel();
             SelectedItem = CurrentSymbolArt;
+        }
+
+        private SymbolArtItemModel AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
+        {
+            // find group to add layer to - may be current item, it's parent
+            // or possibly the root symbol art
+            SymbolArtGroupModel targetGroup =
+                SelectedItem as SymbolArtGroupModel
+                ?? SelectedItem?.Parent as SymbolArtGroupModel
+                ?? CurrentSymbolArt!;
+
+            var item = itemCreationPredicate(targetGroup);
+
+            if (SelectedItem is SymbolArtLayerModel)
+            {
+                // if selected item is a layer, add the new layer before it
+                targetGroup.Children.Insert(targetGroup.Children.IndexOf(SelectedItem), item);
+            }
+            else
+            {
+                // and if it is a group, add the layer as the first
+                targetGroup.Children.Insert(0, item);
+            }
+
+            return item;
         }
 
         public bool RequestExit()

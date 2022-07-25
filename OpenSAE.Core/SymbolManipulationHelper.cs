@@ -64,5 +64,34 @@ namespace OpenSAE.Core
             }
             return result;
         }
+
+        public static Point[] CenterArbitrarySizeInArea(double areaWidth, double areaHeight, double width, double height)
+        {
+            double offsetX = -(areaWidth / 2), offsetY = -(areaHeight / 2);
+            
+            var aspect = width / height;
+            if (aspect < 2)
+            {
+                // image is less wide than a typical symbol art - restrict height
+                height = areaHeight;
+                width = height * aspect;
+                offsetX += (areaWidth - width) / 2;
+            }
+            else
+            {
+                // image equal to or wider than a typical symbol art - restrict width
+                width = areaWidth;
+                height = width / aspect;
+                offsetY += (areaHeight - height) / 2;
+            }
+
+            return new[]
+            {
+                new Point(offsetX, offsetY),
+                new Point(offsetX, offsetY + height),
+                new Point(offsetX + width, offsetY + height),
+                new Point(offsetX + width, offsetY)
+            };
+        }
     }
 }

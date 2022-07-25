@@ -8,9 +8,6 @@ namespace OpenSAE.Models
 {
     public class SymbolArtGroupModel : SymbolArtItemModel
     {
-        protected string? _name;
-        protected bool _visible;
-
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
             : this()
         {
@@ -46,18 +43,6 @@ namespace OpenSAE.Models
         protected SymbolArtGroupModel()
             : base()
         {
-        }
-
-        public override string? Name
-        {
-            get => _name;
-            set => SetProperty(ref _name, value);
-        }
-
-        public override bool Visible
-        {
-            get => _visible;
-            set => SetProperty(ref _visible, value);
         }
 
         /// <summary>

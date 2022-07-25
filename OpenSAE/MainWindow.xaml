@@ -9,7 +9,7 @@
         xmlns:local="clr-namespace:OpenSAE"
         xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:shaders="clr-namespace:OpenSAE.Shaders"
+        xmlns:shaders="clr-namespace:OpenSAE.Shaders" xmlns:controls="clr-namespace:OpenSAE.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
         Closing="Window_Closing"
@@ -52,6 +52,22 @@
                     <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable group" IsChecked="{Binding Visible}" />
+                    <TextBlock Text="Color (all symbols)" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <colorpicker:PortableColorPicker SelectedColor="{Binding Color, Mode=TwoWay}" Height="20">
+                        <colorpicker:PortableColorPicker.Style>
+                            <Style TargetType="{x:Type colorpicker:PortableColorPicker}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                        <Setter Property="Effect">
+                                            <Setter.Value>
+                                                <shaders:ColorMappingEffect />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </colorpicker:PortableColorPicker.Style>
+                    </colorpicker:PortableColorPicker>
                 </UniformGrid>
             </StackPanel>
         </DataTemplate>
@@ -68,6 +84,17 @@
             </StackPanel>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type models:SymbolArtImageLayerModel}">
+            <StackPanel>
+                <UniformGrid Columns="2" Margin="10 5">
+                    <TextBlock Text="Overlay image name" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding Name}" Margin="5" />
+                    <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <CheckBox Margin="5" Content="Enable" IsChecked="{Binding Visible}" />
+                </UniformGrid>
+                <Image Source="{Binding Image}" />
+            </StackPanel>
+        </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding OpenFileCommand}" />
@@ -85,7 +112,8 @@
         <KeyBinding Modifiers="Ctrl" Key="F" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
         <KeyBinding Modifiers="Alt" Key="Up" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
         <KeyBinding Modifiers="Alt" Key="Down" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
-        
+        <KeyBinding Modifiers="Ctrl" Key="I" Command="{Binding CurrentItemCommand}" CommandParameter="toggleImageOverlays" />
+
         <KeyBinding Modifiers="Ctrl" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" />
 
@@ -136,14 +164,15 @@
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
-                <MenuItem Header="_Add new group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
+                <MenuItem Header="Add new _group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
+                <MenuItem Header="Add new _overlay image" Command="{Binding AddImageLayerCommand}" />
                 <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
                 <Separator />
                 <MenuItem Header="Move item _up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
                 <MenuItem Header="Move item _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
                 <Separator />
                 <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
-                <MenuItem Header="_Duplicate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
+                <MenuItem Header="D_uplicate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
                 <MenuItem Header="_Delete item" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
             </MenuItem>
             <MenuItem Header="_Transform item">
@@ -161,6 +190,7 @@
                 <Separator />
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
+                <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+I" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="Show _help..." InputGestureText="F1" Command="{Binding HelpCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource helpIcon}" />
@@ -225,6 +255,12 @@
                             <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
                         </DockPanel>
                     </HierarchicalDataTemplate>
+                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtImageLayerModel}" ItemsSource="{Binding Children}">
+                        <DockPanel>
+                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                            <TextBlock Margin="5 0" FontStyle="Italic" FontWeight="Bold" Text="{Binding DisplayName}" />
+                        </DockPanel>
+                    </HierarchicalDataTemplate>
                 </TreeView.Resources>
             </TreeView>
         </DockPanel>
@@ -253,6 +289,7 @@
                 SelectedColor="{Binding SelectedItem.Color, Mode=TwoWay}" 
                 DockPanel.Dock="Top" 
                 ShowAlpha="False"
+                Visibility="{Binding DataContext.SelectedItemIsLayer, ElementName=mainWindow, Converter={StaticResource booleanToVisibilityConverter}}"
                 Width="96">
                 <colorpicker:StandardColorPicker.Style>
                     <Style TargetType="{x:Type colorpicker:StandardColorPicker}">
@@ -272,7 +309,6 @@
                 <TextBlock DockPanel.Dock="Left" Text="Opacity" />
                 <Slider Minimum="0" Maximum="1" Value="{Binding SelectedItem.Alpha}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="0.1429" TickPlacement="BottomRight" />
             </DockPanel>
-            
             <views:SymbolSelector
                 DataContext="{Binding SymbolsList}"
                 SelectedSymbol="{Binding DataContext.SelectedItem.Symbol, ElementName=mainWindow, Mode=TwoWay}"

@@ -134,7 +134,7 @@ namespace OpenSAE.Views
         /// </summary>
         private const int LayerVertexClickRadius = 15;
 
-        private Dictionary<SymbolArtLayerModel, LayerModelReference> _layerDictionary
+        private Dictionary<SymbolArtItemModel, LayerModelReference> _layerDictionary
             = new();
 
         public SymbolArtRenderer()
@@ -421,9 +421,17 @@ namespace OpenSAE.Views
 
                 case ManipulationOperation.MoveItem:
                     var diff = ptMouse - draggingClickOrigin;
-                    // When moving a layer, round of the vector so that items can only be moved on the 
-                    // true symbol art grid
-                    SelectedLayer.Position = draggingLayerOriginalPos + new Vector(Math.Round(diff.X), Math.Round(diff.Y));
+
+                    if (SelectedLayer.EnforceGridPositioning)
+                    {
+                        // When moving a layer, round of the vector so that items can only be moved on the 
+                        // true symbol art grid
+                        SelectedLayer.Position = draggingLayerOriginalPos + new Vector(Math.Round(diff.X), Math.Round(diff.Y));
+                    }
+                    else
+                    {
+                        SelectedLayer.Position = draggingLayerOriginalPos + diff;
+                    }
                     break;
 
                 case ManipulationOperation.MoveView:
@@ -472,9 +480,9 @@ namespace OpenSAE.Views
         {
             for (int i = group.Children.Count - 1; i >= 0; i--)
             {
-                if (group.Children[i] is SymbolArtLayerModel layer)
+                if (group.Children[i] is SymbolArtLayerModel || group.Children[i] is SymbolArtImageLayerModel)
                 {
-                    Draw3d(layer);
+                    Draw3d(group.Children[i]);
                 }
                 else
                 {
@@ -501,12 +509,12 @@ namespace OpenSAE.Views
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                     foreach (SymbolArtItemModel deletedItem in e.OldItems!)
                     {
-                        foreach (var deletedLayer in deletedItem.GetAllLayers())
+                        foreach (var item in deletedItem.GetAllItems())
                         {
-                            if (_layerDictionary.TryGetValue(deletedLayer, out LayerModelReference? refs))
+                            if (_layerDictionary.TryGetValue(item, out LayerModelReference? refs))
                             {
                                 symbolArtContentGroup.Children.Remove(refs.Model);
-                                _layerDictionary.Remove(deletedLayer);
+                                _layerDictionary.Remove(item);
                             }
                         }
                     }
@@ -524,9 +532,9 @@ namespace OpenSAE.Views
         {
             foreach (var item in group.Children)
             {
-                if (item is SymbolArtLayerModel layer)
+                if (item is SymbolArtLayerModel || item is SymbolArtImageLayerModel)
                 {
-                    RefreshLayerVisibility(layer);
+                    RefreshLayerVisibility(item);
                 }
                 else
                 {
@@ -535,24 +543,27 @@ namespace OpenSAE.Views
             }
         }
 
-        private void Draw3d(SymbolArtLayerModel layer)
+        private static BitmapImage? GetLayerImage(SymbolArtItemModel layer)
+        {
+            if (layer is SymbolArtLayerModel symbolLayer)
+            {
+                return symbolLayer.Symbol?.Image;
+            }
+            else if (layer is SymbolArtImageLayerModel imageLayer)
+            {
+                return imageLayer.Image;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private void Draw3d(SymbolArtItemModel layer)
         {
             // GeometryModel3D does not support data binding :(
 
-            // order:
-            // left bottom
-            // left top
-            // right bottom
-            // right top
-            var points = new Point3DCollection(layer.Points3D);
-
-            var uri = layer.SymbolPackUri;
-            if (uri == null)
-            {
-                return;
-            }
-
-            var brush = new ImageBrush(layer.Symbol?.Image)
+            var brush = new ImageBrush(GetLayerImage(layer))
             {
                 Opacity = layer.IsVisible ? layer.Alpha : 0
             };
@@ -565,7 +576,7 @@ namespace OpenSAE.Views
 
             var geometry = new MeshGeometry3D()
             {
-                Positions = points,
+                Positions = GetLayer3DPoints(layer),
                 TextureCoordinates = new PointCollection()
                 {
                     new Point(0, 1),
@@ -595,9 +606,35 @@ namespace OpenSAE.Views
             layer.PropertyChanged += Layer_PropertyChanged;
         }
 
+        private static Point3DCollection GetLayer3DPoints(SymbolArtItemModel layer)
+        {
+            var vertices = layer.Vertices;
+
+            if (layer.EnforceGridPositioning)
+            {
+                return new Point3DCollection
+                {
+                    new Point3D(Math.Round(vertices[1].X), -Math.Round(vertices[1].Y), 0),
+                    new Point3D(Math.Round(vertices[0].X), -Math.Round(vertices[0].Y), 0),
+                    new Point3D(Math.Round(vertices[2].X), -Math.Round(vertices[2].Y), 0),
+                    new Point3D(Math.Round(vertices[3].X), -Math.Round(vertices[3].Y), 0)
+                };
+            }
+            else
+            {
+                return new Point3DCollection
+                {
+                    new Point3D(vertices[1].X, -vertices[1].Y, 0),
+                    new Point3D(vertices[0].X, -vertices[0].Y, 0),
+                    new Point3D(vertices[2].X, -vertices[2].Y, 0),
+                    new Point3D(vertices[3].X, -vertices[3].Y, 0)
+                };
+            }
+        }
+
         private void Layer_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (sender is not SymbolArtLayerModel layer)
+            if (sender is not SymbolArtItemModel layer)
                 return;
 
             var refs = _layerDictionary[layer];
@@ -609,8 +646,11 @@ namespace OpenSAE.Views
                     RefreshLayerVisibility(layer);
                     break;
 
-                case nameof(layer.Symbol):
-                    refs.Brush.ImageSource = layer.Symbol?.Image;
+                case nameof(SymbolArtLayerModel.Symbol):
+                    if (layer is not SymbolArtLayerModel symbolLayer)
+                        return;
+
+                    refs.Brush.ImageSource = symbolLayer.Symbol?.Image;
                     break;
 
                 case nameof(layer.Color):
@@ -618,15 +658,15 @@ namespace OpenSAE.Views
                     break;
 
                 default:
-                    if (e.PropertyName?.StartsWith("Vertex") == true)
+                    if (e.PropertyName?.StartsWith("Vertex") == true || e.PropertyName == nameof(layer.Vertices))
                     {
-                        refs.Geometry.Positions = new Point3DCollection(layer.Points3D);
+                        refs.Geometry.Positions = GetLayer3DPoints(layer);
                     }
                     break;
             }
         }
 
-        private void RefreshLayerVisibility(SymbolArtLayerModel layer)
+        private void RefreshLayerVisibility(SymbolArtItemModel layer)
         {
             if (!_layerDictionary.TryGetValue(layer, out var refs))
             {

@@ -15,11 +15,9 @@ namespace OpenSAE.Models
         /// </summary>
         private const string LegacyEditorNewLayerName = "新規レイヤー";
 
-        private string? _name;
         private double _alpha;
         private Color _color;
         private int _symbol;
-        private bool _visible;
         private Point _vertex1;
         private Point _vertex2;
         private Point _vertex3;
@@ -98,12 +96,6 @@ namespace OpenSAE.Models
                     }
                 };
             }
-        }
-
-        public override bool Visible
-        {
-            get => _visible;
-            set => SetProperty(ref _visible, value);
         }
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
@@ -200,31 +192,6 @@ namespace OpenSAE.Models
             }
         }
 
-        /// <summary>
-        /// Gets or sets the position of the entire symbol. The origin of the position
-        /// is the leftmost vertex
-        /// </summary>
-        public override Point Position
-        {
-            get => Vertices.GetMinBy(true);
-            set
-            {
-                var points = Vertices;
-                
-                int minIndex = points.GetMinIndexBy(true);
-
-                // find diff between previous min point and the new one
-                var diff = value - points[minIndex];
-
-                for (int i = 0; i < points.Length; i++)
-                {
-                    points[i] += diff;
-                }
-
-                Vertices = points;
-            }
-        }
-
         public Point[] RawVertices => new[]
             {
                 Vertex1,
@@ -266,17 +233,6 @@ namespace OpenSAE.Models
 
         public PointCollection PointCollection => new(Vertices);
 
-        public IEnumerable<Point3D> Points3D
-        {
-            get
-            {
-                yield return new Point3D(Math.Round(Vertex2.X), -Math.Round(Vertex2.Y), 0);
-                yield return new Point3D(Math.Round(Vertex1.X), -Math.Round(Vertex1.Y), 0);
-                yield return new Point3D(Math.Round(Vertex3.X), -Math.Round(Vertex3.Y), 0);
-                yield return new Point3D(Math.Round(Vertex4.X), -Math.Round(Vertex4.Y), 0);
-            }
-        }
-
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
             var duplicate = (SymbolArtLayer)ToSymbolArtItem();
@@ -300,35 +256,6 @@ namespace OpenSAE.Models
                 Vertex3 = _vertex3,
                 Vertex4 = _vertex4,
             };
-        }
-
-        public override void FlipX()
-        {
-            Vertices = SymbolManipulationHelper.FlipX(Vertices);
-        }
-
-        public override void FlipY()
-        {
-            Vertices = SymbolManipulationHelper.FlipY(Vertices);
-        }
-
-        public override void Rotate(double angle)
-        {
-            Vertices = SymbolManipulationHelper.Rotate(Vertices, angle);
-        }
-
-        public override void TemporaryRotate(double angle)
-        {
-            StartManipulation();
-
-            TemporaryRotate(angle, _temporaryVertices.GetCenter());
-        }
-
-        public void TemporaryRotate(double angle, Point origin)
-        {
-            StartManipulation();
-
-            Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices!, origin, angle);
         }
 
         public override void SetVertex(int vertexIndex, Point point)
