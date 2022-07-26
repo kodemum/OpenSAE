@@ -127,6 +127,7 @@ namespace OpenSAE.Models
                 _vertex4 = value[3];
 
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(RawVertices));
             }
         }
 
