@@ -307,7 +307,7 @@
             </colorpicker:StandardColorPicker>
             <DockPanel DockPanel.Dock="Top" Margin="5 0">
                 <TextBlock DockPanel.Dock="Left" Text="Opacity" />
-                <Slider Minimum="0" Maximum="1" Value="{Binding SelectedItem.Alpha}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="0.1429" TickPlacement="BottomRight" />
+                <Slider Minimum="0" Maximum="1" Value="{Binding SelectedItem.Alpha}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="0.1429" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
             </DockPanel>
             <views:SymbolSelector
                 DataContext="{Binding SymbolsList}"
@@ -346,7 +346,7 @@
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Style="{StaticResource iconText}" Text="{StaticResource zoomIcon}" Margin="0 0 5 0" />
-                        <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth}" Minimum="24" Maximum="320" IsDirectionReversed="True" SmallChange="10" LargeChange="30" />
+                        <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth}" Minimum="24" Maximum="320" IsDirectionReversed="True" SmallChange="10" IsMoveToPointEnabled="True" />
                         <TextBlock TextAlignment="Center" Width="38">
                             <Run Text="{Binding ZoomPercentage, Mode=OneWay, StringFormat=N0}" />%
                         </TextBlock>
