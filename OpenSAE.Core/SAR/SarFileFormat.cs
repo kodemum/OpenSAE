@@ -24,10 +24,12 @@ namespace OpenSAE.Core.SAR
             int width = input.Width switch
             {
                 64 => 32,
+                192 => 193,
                 _ => input.Width
             };
             int height = input.Width switch
             {
+                192 => 96,
                 193 => 96,
                 64 => 32,
                 _ => input.Height
@@ -81,8 +83,8 @@ namespace OpenSAE.Core.SAR
                 Height = input.Width switch
                 {
                     32 => 64,
-                    193 => 96,
-                    192 => 96,
+                    193 => 128,
+                    192 => 128,
                     _ => (byte)input.Height
                 },
                 Name = input.Name ?? string.Empty,
