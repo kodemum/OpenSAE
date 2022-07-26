@@ -3,6 +3,7 @@
                     xmlns:local="clr-namespace:OpenSAE"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+    <converters:ColorConversionConverter x:Key="colorConversionConverter" />
 
     <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="iconMenuItem">
         <MenuItem Header="{TemplateBinding Header}" InputGestureText="{TemplateBinding InputGestureText}" Command="{TemplateBinding Command}" CommandParameter="{TemplateBinding CommandParameter}">

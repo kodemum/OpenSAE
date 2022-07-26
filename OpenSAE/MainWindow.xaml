@@ -9,7 +9,6 @@
         xmlns:local="clr-namespace:OpenSAE"
         xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-        xmlns:shaders="clr-namespace:OpenSAE.Shaders" xmlns:controls="clr-namespace:OpenSAE.Controls"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
         Closing="Window_Closing"
@@ -53,16 +52,13 @@
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable group" IsChecked="{Binding Visible}" />
                     <TextBlock Text="Color (all symbols)" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
-                    <colorpicker:PortableColorPicker SelectedColor="{Binding Color, Mode=TwoWay}" Height="20">
+                    <colorpicker:PortableColorPicker Height="20">
                         <colorpicker:PortableColorPicker.Style>
                             <Style TargetType="{x:Type colorpicker:PortableColorPicker}">
+                                <Setter Property="SelectedColor" Value="{Binding Color, Mode=TwoWay}" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
-                                        <Setter Property="Effect">
-                                            <Setter.Value>
-                                                <shaders:ColorMappingEffect />
-                                            </Setter.Value>
-                                        </Setter>
+                                        <Setter Property="SelectedColor" Value="{Binding Color, Mode=TwoWay, Converter={StaticResource colorConversionConverter}}" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -226,9 +222,24 @@
                         <DockPanel>
                             <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
                             <Rectangle Height="13" Width="13" Margin="3 0 0 0">
-                                <Rectangle.Fill>
-                                    <SolidColorBrush Color="{Binding Color, FallbackValue=White}" />
-                                </Rectangle.Fill>
+                                <Rectangle.Style>
+                                    <Style TargetType="Rectangle">
+                                        <Setter Property="Fill">
+                                            <Setter.Value>
+                                                <SolidColorBrush Color="{Binding Color, FallbackValue=White}" />
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                                <Setter Property="Fill">
+                                                    <Setter.Value>
+                                                        <SolidColorBrush Color="{Binding Color, FallbackValue=White, Converter={StaticResource colorConversionConverter}}" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Rectangle.Style>
                             </Rectangle>
                             <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
                             <TextBlock Margin="5 0" Text="{Binding Symbol.Name}" FontStyle="Italic" />
@@ -286,20 +297,16 @@
         <DockPanel Grid.Row="1" Grid.Column="4">
             <ContentControl DockPanel.Dock="Top" Grid.Row="1" Grid.Column="4" Content="{Binding SelectedItem}" />
             <colorpicker:StandardColorPicker 
-                SelectedColor="{Binding SelectedItem.Color, Mode=TwoWay}" 
                 DockPanel.Dock="Top" 
                 ShowAlpha="False"
                 Visibility="{Binding DataContext.SelectedItemIsLayer, ElementName=mainWindow, Converter={StaticResource booleanToVisibilityConverter}}"
                 Width="96">
                 <colorpicker:StandardColorPicker.Style>
                     <Style TargetType="{x:Type colorpicker:StandardColorPicker}">
+                        <Setter Property="SelectedColor" Value="{Binding SelectedItem.Color, Mode=TwoWay}" />
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <shaders:ColorMappingEffect />
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter Property="SelectedColor" Value="{Binding SelectedItem.Color, Mode=TwoWay, Converter={StaticResource colorConversionConverter}}" />
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
