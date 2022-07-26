@@ -319,10 +319,6 @@ namespace OpenSAE.Views
 
             operation = ManipulationOperation.None;
 
-            // if no layer is selected, there's nothing to manipulate
-            if (SelectedLayer == null)
-                return;
-
             if (args.RightButton == MouseButtonState.Pressed)
             {
                 // drag viewport
@@ -333,6 +329,10 @@ namespace OpenSAE.Views
             }
             else
             {
+                // if no layer is selected, there's nothing to manipulate
+                if (SelectedLayer == null)
+                    return;
+
                 draggingClickOrigin = CoordinatesToSymbolArt(args.GetPosition(viewport3d), true);
 
                 if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
@@ -406,6 +406,18 @@ namespace OpenSAE.Views
                 return;
             }
 
+            if (operation == ManipulationOperation.MoveView)
+            {
+                // distance traveled by mouse in screen units, not symbol art units
+                var rawDiff = args.GetPosition(viewport3d) - draggingClickOrigin;
+
+                // update view position
+                ViewPosition = draggingLayerOriginalPos + new Vector(rawDiff.X / SymbolScaleFactor, rawDiff.Y / SymbolScaleFactor);
+                
+                args.Handled = true;
+                return;
+            }
+
             if (SelectedLayer == null)
                 return;
 
@@ -441,11 +453,7 @@ namespace OpenSAE.Views
                     break;
 
                 case ManipulationOperation.MoveView:
-                    // distance traveled by mouse in screen units, not symbol art units
-                    var rawDiff = args.GetPosition(viewport3d) - draggingClickOrigin;
-
-                    // update view position
-                    ViewPosition = draggingLayerOriginalPos + new Vector(rawDiff.X / SymbolScaleFactor, rawDiff.Y / SymbolScaleFactor);
+                    
                     break;
 
                 default:
