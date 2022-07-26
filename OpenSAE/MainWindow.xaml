@@ -112,7 +112,7 @@
         <KeyBinding Modifiers="Ctrl" Key="F" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
         <KeyBinding Modifiers="Alt" Key="Up" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
         <KeyBinding Modifiers="Alt" Key="Down" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
-        <KeyBinding Modifiers="Ctrl" Key="I" Command="{Binding CurrentItemCommand}" CommandParameter="toggleImageOverlays" />
+        <KeyBinding Modifiers="Ctrl" Key="Space" Command="{Binding CurrentItemCommand}" CommandParameter="toggleImageOverlays" />
 
         <KeyBinding Modifiers="Ctrl" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" />
@@ -190,7 +190,7 @@
                 <Separator />
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
-                <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+I" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
+                <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="Show _help..." InputGestureText="F1" Command="{Binding HelpCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource helpIcon}" />

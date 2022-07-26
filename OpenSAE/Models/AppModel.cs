@@ -349,22 +349,7 @@ namespace OpenSAE.Models
                     break;
 
                 case "addGroup":
-                    SymbolArtGroupModel parentGroup =
-                        SelectedItem as SymbolArtGroupModel
-                        ?? SelectedItem.Parent as SymbolArtGroupModel
-                        ?? CurrentSymbolArt!;
-
-                    var newGroup = new SymbolArtGroupModel("Group", parentGroup);
-
-                    var parentIndex = parentGroup.Children.IndexOf(SelectedItem);
-                    if (parentIndex != -1)
-                    {
-                        parentGroup.Children.Insert(parentIndex, newGroup);
-                    }
-                    else
-                    {
-                        parentGroup.Children.Add(newGroup);
-                    }
+                    var newGroup = AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel("Group", parentGroup));
 
                     SelectedItem = newGroup;
                     break;
