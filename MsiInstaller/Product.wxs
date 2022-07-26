@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="OpenSAE Symbol Art Editor" Language="1033" Version="1.0" Manufacturer="Magnus No" UpgradeCode="D350A939-1E98-4051-90AB-7F763D96731F">
+		<Package InstallerVersion="500" Compressed="yes" />
+		
+		<Property Id="MSIINSTALLPERUSER" Secure="yes" Value="1"/>
+		<Property Id="ALLUSERS" Secure="yes" Value="2"/>
+		<Icon Id="OpenSAE.exe" SourceFile="$(var.OpenSAE.ProjectDir)OpenSAE.ico"/>
+		<Property Id="ARPPRODUCTICON" Value="OpenSAE.exe" />
+		<Property Id="REBOOT" Value="ReallySuppress" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<Media Id="1" Cabinet="OpenSAE.cab" EmbedCab="yes" CompressionLevel="high" />
+
+		<Feature Id="ProductFeature" Title="OpenSAE" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+
+		<UI>
+			<UIRef Id="WixUI_Advanced" />
+			<TextStyle Id="White12" FaceName="Tahoma" Size="12" Red="255" Blue="255" Green="255"/>
+			<TextStyle Id="White8" FaceName="Tahoma" Size="8" Red="255" Blue="255" Green="255"/>
+		</UI>
+		<Property Id="ApplicationFolderName" Value="OpenSAE" />
+		<Property Id="WixAppFolder" Value="WixPerUserFolder" />
+		<Property Id="WIXUI_EXITDIALOGOPTIONALTEXT" Value="Done. Good luck with creating memorable symbol arts!" />
+
+		<WixVariable Id="WixUIBannerBmp" Value="logo-top.bmp" />
+		<WixVariable Id="WixUIDialogBmp" Value="logo-background.bmp" />
+
+		<WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+	</Product>
+
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="APPLICATIONFOLDER" Name="OpenSAE Symbol Art Editor" />
+			</Directory>
+			<Directory Id="ProgramMenuFolder" />
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="APPLICATIONFOLDER">
+			<Component>
+				<File Id="OpenSAE.exe" Source="$(var.OpenSAE.TargetDir)OpenSAE.exe" KeyPath="yes">
+					<Shortcut Id="OpenSAE.exe" Directory="ProgramMenuFolder" Name="OpenSAE Symbol Art Editor" WorkingDirectory="INSTALLDIR" Advertise="yes" Icon="OpenSAE.exe" IconIndex="0" />
+				</File>
+				<File Source="$(var.OpenSAE.TargetDir)OpenSAE.runtimeconfig.json" />
+
+				<!-- File type/extension registration to enable opening symbol art from Windows Explorer -->
+				<RegistryKey Root="HKCR" Key=".saml">
+					<RegistryValue Type="string" Value="PSO2SymbolArt" />
+				</RegistryKey>
+				<RegistryKey Root="HKCR" Key=".sar">
+					<RegistryValue Type="string" Value="PSO2SymbolArt" />
+				</RegistryKey>
+				<RegistryKey Root="HKCR" Key="PSO2SymbolArt">
+					<RegistryValue Type="string" Value="PSO2 Symbol Art" />
+					<RegistryKey Key="DefaultIcon">
+						<RegistryValue Type="string" Value="&quot;[#OpenSAE.ico]&quot;,0" />
+					</RegistryKey>
+					<RegistryKey Key="shell">
+						<RegistryValue Type="string" Value="Open" />
+						<RegistryKey Key="Open">
+							<RegistryValue Type="string" Value="Open in OpenSAE Symbol Art Editor" />
+							<RegistryValue Type="string" Name="Icon" Value="&quot;[#OpenSAE.ico]&quot;,0" />
+							<RegistryKey Key="command">
+								<RegistryValue Type="string" Value="&quot;[#OpenSAE.exe]&quot; &quot;%1&quot;" />
+							</RegistryKey>
+						</RegistryKey>
+					</RegistryKey>
+				</RegistryKey>
+			</Component>
+			<Component>
+				<File Source="$(var.OpenSAE.TargetDir)OpenSAE.dll" KeyPath="yes" />
+				<File Source="$(var.OpenSAE.TargetDir)OpenSAE.deps.json" KeyPath="no" />
+			</Component>
+			<Component>
+				<File Source="$(var.OpenSAE.TargetDir)OpenSAE.Core.dll" KeyPath="yes" />
+			</Component>
+			<Component>
+				<File Source="$(var.OpenSAE.TargetDir)Microsoft.Xaml.Behaviors.dll" KeyPath="yes" />
+			</Component>
+			<Component>
+				<File Source="$(var.OpenSAE.TargetDir)CommunityToolkit.Mvvm.dll" KeyPath="yes" />
+			</Component>
+			<Component>
+				<File Source="$(var.OpenSAE.TargetDir)ColorPicker.dll" KeyPath="yes" />
+			</Component>
+			<Component>
+				<File Id="OpenSAE.ico" Source="$(var.OpenSAE.ProjectDir)OpenSAE.ico" KeyPath="yes" />
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Wix>

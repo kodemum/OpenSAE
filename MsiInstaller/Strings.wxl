@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WixLocalization Culture="en-us" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+	<String Id="AdvancedWelcomeEulaDlgTitle">{\White12}OpenSAE license agreement</String>
+	<String Id="InstallScopeDlgTitle">{\White12}Installation Scope</String>
+	<String Id="InstallScopeDlgDescription">{\White8}Choose the installation scope and folder</String>
+	<String Id="InstallDirDlgTitle">{\White12}Destination Folder</String>
+	<String Id="InstallDirDlgDescription">{\White8}Click Next to install to the default folder.</String>
+	<String Id="VerifyReadyDlgInstallTitle">{\White12}Ready to install [ProductName]</String>
+	<String Id="VerifyReadyDlgChangeTitle">{\White12}Ready to change [ProductName]</String>
+	<String Id="VerifyReadyDlgRepairTitle">{\White12}Ready to repair [ProductName]</String>
+	<String Id="VerifyReadyDlgRemoveTitle">{\White12}Ready to remove [ProductName]</String>
+	<String Id="WaitForCostingDlg_Title">[ProductName] Setup</String>
+	<String Id="ProgressDlgTitleInstalling">{\White12}Installing [ProductName]</String>
+</WixLocalization>

@@ -46,6 +46,13 @@ namespace OpenSAE
 
             Width = Settings.Default.WindowWidth;
             Height = Settings.Default.WindowHeight;
+
+            var args = Environment.GetCommandLineArgs();
+
+            if (args.Length > 1)
+            {
+                _model.OpenFileCommand.Execute(args[1]);
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
