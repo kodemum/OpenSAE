@@ -11,7 +11,7 @@
             OpenSAE Symbol Art Editor help
         </TextBlock>
         <TextBlock>
-            There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.
+            There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree and palette</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.
         </TextBlock>
 
         <TextBlock Style="{StaticResource subtitleText}">
@@ -22,6 +22,13 @@
             The tree has checkboxes to enable/disable each symbol or group and items can be dragged to other positions in the tree (or duplicated if Ctrl is held at the same time)
             <LineBreak />
             Select an item in the tree to have it highlighted in the canvas and the item editor.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Palette
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            The palette allows you to change the color of all symbols with that color. Simply select the color to change from the list and modify it.
         </TextBlock>
 
         <TextBlock Style="{StaticResource subtitleText}">

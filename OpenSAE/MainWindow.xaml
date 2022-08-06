@@ -64,6 +64,8 @@
                             </Style>
                         </colorpicker:PortableColorPicker.Style>
                     </colorpicker:PortableColorPicker>
+                    <TextBlock Text="Text to symbols" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
+                    <TextBox Text="{Binding PendingSymbolText, UpdateSourceTrigger=PropertyChanged}" Margin="5 5 5 0" />
                 </UniformGrid>
             </StackPanel>
         </DataTemplate>
@@ -133,7 +135,7 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="250" />
         </Grid.ColumnDefinitions>
-        
+
         <!-- Main menu -->
         <Menu DockPanel.Dock="Top" Grid.ColumnSpan="5" Padding="5">
             <MenuItem Header="_File">
@@ -192,9 +194,9 @@
                 <MenuItem Header="Show _help..." InputGestureText="F1" Command="{Binding HelpCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource helpIcon}" />
             </MenuItem>
         </Menu>
-        
-        
-        <DockPanel Grid.Row="1">
+
+
+        <DockPanel Grid.Row="1" Background="{x:Static SystemColors.ControlBrush}">
             <!-- Info bar below tree view -->
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource layersIcon}" />
@@ -204,76 +206,113 @@
             </StatusBar>
 
             <!-- Tree view of groups/layers in current symbol art -->
-            <TreeView
-                x:Name="treeView"
-                BorderThickness="0"
-                ItemsSource="{Binding CurrentSymbolArt.RootItems}"
-                AllowDrop="True"
-                DragEnter="TreeView_DragEnter"
-                Drop="TreeView_Drop"
-                PreviewMouseMove="TreeView_PreviewMouseMove"
-                PreviewMouseDown="treeView_MouseDown"
-                >
-                <i:Interaction.Behaviors>
-                    <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
-                </i:Interaction.Behaviors>
-                <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtLayerModel}" ItemsSource="{Binding Children}">
-                        <DockPanel>
-                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
-                            <Rectangle Height="13" Width="13" Margin="3 0 0 0">
-                                <Rectangle.Style>
-                                    <Style TargetType="Rectangle">
-                                        <Setter Property="Fill">
-                                            <Setter.Value>
-                                                <SolidColorBrush Color="{Binding Color, FallbackValue=White}" />
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
-                                                <Setter Property="Fill">
-                                                    <Setter.Value>
-                                                        <SolidColorBrush Color="{Binding Color, FallbackValue=White, Converter={StaticResource colorConversionConverter}}" />
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Rectangle.Style>
-                            </Rectangle>
-                            <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
-                            <TextBlock Margin="5 0" Text="{Binding Symbol.Name}" FontStyle="Italic" />
-                            <DockPanel.Style>
-                                <Style TargetType="DockPanel">
+            <TabControl SelectedIndex="{Binding TabIndex}">
+                <TabItem Header="Symbol tree">
+                    <TreeView
+                        x:Name="treeView"
+                        BorderThickness="0"
+                        ItemsSource="{Binding CurrentSymbolArt.RootItems}"
+                        AllowDrop="True"
+                        DragEnter="TreeView_DragEnter"
+                        Drop="TreeView_Drop"
+                        PreviewMouseMove="TreeView_PreviewMouseMove"
+                        PreviewMouseDown="treeView_MouseDown"
+                        >
+                        <i:Interaction.Behaviors>
+                            <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
+                        </i:Interaction.Behaviors>
+                        <TreeView.Resources>
+                            <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtLayerModel}" ItemsSource="{Binding Children}">
+                                <DockPanel>
+                                    <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                                    <Rectangle Height="13" Width="13" Margin="3 0 0 0">
+                                        <Rectangle.Style>
+                                            <Style TargetType="Rectangle">
+                                                <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorSolidBrushConverter}}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                                        <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorToneSolidBrushConverter}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Rectangle.Style>
+                                    </Rectangle>
+                                    <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
+                                    <TextBlock Margin="5 0" Text="{Binding Symbol.Name}" FontStyle="Italic" />
+                                    <DockPanel.Style>
+                                        <Style TargetType="DockPanel">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Visible}" Value="False">
+                                                    <Setter Property="Opacity" Value="0.5" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DockPanel.Style>
+                                </DockPanel>
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtGroupModel}" ItemsSource="{Binding Children}">
+                                <DockPanel>
+                                    <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                                    <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
+                                </DockPanel>
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtModel}" ItemsSource="{Binding Children}">
+                                <DockPanel>
+                                    <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                                    <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
+                                </DockPanel>
+                            </HierarchicalDataTemplate>
+                            <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtImageLayerModel}" ItemsSource="{Binding Children}">
+                                <DockPanel>
+                                    <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
+                                    <TextBlock Margin="5 0" FontStyle="Italic" FontWeight="Bold" Text="{Binding DisplayName}" />
+                                </DockPanel>
+                            </HierarchicalDataTemplate>
+                        </TreeView.Resources>
+                    </TreeView>
+                </TabItem>
+
+                <TabItem Header="Palette">
+                    <DockPanel>
+                        <colorpicker:StandardColorPicker DockPanel.Dock="Bottom" ShowAlpha="False">
+                            <colorpicker:StandardColorPicker.Style>
+                                <Style TargetType="{x:Type colorpicker:StandardColorPicker}">
+                                    <Setter Property="SelectedColor" Value="{Binding SelectedItem.Color, ElementName=paletteList, Mode=TwoWay}" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Visible}" Value="False">
-                                            <Setter Property="Opacity" Value="0.5" />
+                                        <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                            <Setter Property="SelectedColor" Value="{Binding SelectedItem.Color, ElementName=paletteList, Mode=TwoWay, Converter={StaticResource colorConversionConverter}}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </DockPanel.Style>
-                        </DockPanel>
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtGroupModel}" ItemsSource="{Binding Children}">
-                        <DockPanel>
-                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
-                            <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
-                        </DockPanel>
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtModel}" ItemsSource="{Binding Children}">
-                        <DockPanel>
-                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
-                            <TextBlock Margin="5 0" Text="{Binding DisplayName}" />
-                        </DockPanel>
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtImageLayerModel}" ItemsSource="{Binding Children}">
-                        <DockPanel>
-                            <CheckBox IsChecked="{Binding Visible}" IsTabStop="False" />
-                            <TextBlock Margin="5 0" FontStyle="Italic" FontWeight="Bold" Text="{Binding DisplayName}" />
-                        </DockPanel>
-                    </HierarchicalDataTemplate>
-                </TreeView.Resources>
-            </TreeView>
+                            </colorpicker:StandardColorPicker.Style>
+                        </colorpicker:StandardColorPicker>
+                        <ListBox ItemsSource="{Binding CurrentSymbolArt.Palette.Colors}" x:Name="paletteList">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle Height="48" Width="48">
+                                        <Rectangle.Style>
+                                            <Style TargetType="Rectangle">
+                                                <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorSolidBrushConverter}}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                                        <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorToneSolidBrushConverter}}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Rectangle.Style>
+                                        </Rectangle>
+                                    <TextBlock VerticalAlignment="Center" Margin="10 0 0 0">
+                                        Used by <Run Text="{Binding Layers.Count, Mode=OneWay}" /> symbol(s)
+                                    </TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    
+                    </DockPanel>
+                </TabItem>
+            </TabControl>
         </DockPanel>
 
         <!-- Splitter between layer tree and renderer -->
@@ -339,7 +378,6 @@
                 </ScrollViewer>
             </DockPanel>
         </Border>
-        
 
         <DockPanel Grid.Row="1" Grid.Column="2">
             <!-- Status bar with info/config for renderer -->
@@ -379,7 +417,7 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
-                
+
                 <!-- Symbol art renderer -->
                 <views:SymbolArtRenderer 
                     x:Name="renderer"

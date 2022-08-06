@@ -8,6 +8,8 @@ namespace OpenSAE.Models
 {
     public class SymbolArtGroupModel : SymbolArtItemModel
     {
+        private string _pendingSymbolText = string.Empty;
+
         public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
             : this()
         {
@@ -56,6 +58,16 @@ namespace OpenSAE.Models
         {
             get => null;
             set { }
+        }
+
+        public string PendingSymbolText
+        {
+            get => _pendingSymbolText;
+            set
+            {
+                AddTextAsSymbols(_pendingSymbolText, value);
+                SetProperty(ref _pendingSymbolText, value);
+            }
         }
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
@@ -423,6 +435,88 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(Position));
             OnPropertyChanged(nameof(Vertices));
             OnPropertyChanged(nameof(RawVertices));
+        }
+
+        public void AddTextAsSymbols(string previousText, string newText)
+        {
+            double x = -96, y = -48;
+            double sizeX = 13, sizeY = 14;
+
+            int nextLayerIndex = GetMaxLayerIndex() + 1;
+
+            if (previousText.Length > newText.Length)
+            {
+                var removed = previousText.Substring(newText.Length);
+
+                foreach (char c in removed.Reverse())
+                {
+                    var characterLayer = Children.OfType<SymbolArtLayerModel>().Where(x => x.Symbol?.Name == c.ToString()).LastOrDefault();
+
+                    if (characterLayer != null)
+                        characterLayer.Delete();
+                }
+            }
+            else
+            {
+                var addedText = newText.Substring(previousText.Length);
+
+                if (addedText.Trim().Length == 0)
+                {
+                    return;
+                }
+
+                if (previousText.Length > 0)
+                {
+                    string? lastChar = previousText.Where(x => x != ' ').LastOrDefault().ToString();
+
+                    var characterLayer = Children.OfType<SymbolArtLayerModel>().Where(x => x.Symbol?.Name == lastChar).LastOrDefault();
+
+                    if (characterLayer != null)
+                    {
+                        sizeX = characterLayer.Vertex3.X - characterLayer.Vertex1.X;
+                        sizeY = characterLayer.Vertex3.Y - characterLayer.Vertex1.Y;
+
+                        x = characterLayer.Vertex3.X - (characterLayer.Symbol!.KerningRight * sizeX);
+                        y = characterLayer.Vertex1.Y;
+                    }
+                }
+
+                if (previousText.EndsWith(" "))
+                {
+                    x += sizeX * 0.7;
+                }
+
+                foreach (string c in addedText.Split())
+                {
+                    if (c == " ")
+                    {
+                        x += sizeX * 0.7;
+                        continue;
+                    }
+
+                    // find symbol for character
+                    var symbol = SymbolUtil.List.FirstOrDefault(x => x.Name == c);
+
+                    if (symbol != null)
+                    {
+                        x -= symbol.KerningLeft * sizeX;
+
+                        var layer = new SymbolArtLayerModel(nextLayerIndex++, this)
+                        {
+                            Symbol = symbol,
+                            Color = Color,
+                            Vertex1 = new Point(x, y),
+                            Vertex2 = new Point(x, y + sizeY),
+                            Vertex3 = new Point(x + sizeX, y + sizeY),
+                            Vertex4 = new Point(x + sizeX, y)
+                        };
+
+                        Children.Add(layer);
+
+                        x += sizeX + -(layer.Symbol.KerningRight * sizeX);
+                    }
+                }
+            }
         }
     }
 }

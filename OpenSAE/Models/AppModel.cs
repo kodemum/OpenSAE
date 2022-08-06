@@ -35,6 +35,7 @@ namespace OpenSAE.Models
         private bool _showImageOverlays;
         private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
         private Point _viewPosition = new(0, 0);
+        private int _tabIndex = 0;
 
         public event EventHandler? ExitRequested;
 
@@ -100,6 +101,18 @@ namespace OpenSAE.Models
         {
             get => _applyToneCurve;
             set => SetProperty(ref _applyToneCurve, value);
+        }
+
+        public int TabIndex
+        {
+            get => _tabIndex;
+            set
+            {
+                if (SetProperty(ref _tabIndex, value) && value > 0)
+                {
+                    CurrentSymbolArt?.RaisePaletteChanged();
+                }
+            }
         }
 
         /// <summary>

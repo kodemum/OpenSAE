@@ -39,6 +39,12 @@ namespace OpenSAE
         {
             InitializeComponent();
 
+            if (!Settings.Default.SettingsUpgraded)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.SettingsUpgraded = true;
+            }
+
             _model = new AppModel(new DialogService(this));
             _model.ExitRequested += (_, __) => Close();
 

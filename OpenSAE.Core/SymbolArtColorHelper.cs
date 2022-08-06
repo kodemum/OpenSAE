@@ -30,6 +30,7 @@ namespace OpenSAE.Core
                 for (int j = i; j <= level; j++)
                 {
                     ReverseColorMap[j] = level;
+                    i++;
                 }
             }
         }
@@ -42,6 +43,15 @@ namespace OpenSAE.Core
         public static byte ApplyCurve(byte level)
         {
             return ColorMap[level / 4];
+        }
+
+        public static Color RemoveCurve(Color input)
+        {
+            return Color.FromRgb(
+                ReverseColorMap[input.R],
+                ReverseColorMap[input.G],
+                ReverseColorMap[input.B]
+                );
         }
 
         public static Color ConvertToColor(byte r, byte g, byte b)

@@ -162,6 +162,10 @@ namespace OpenSAE.Models
 
         public List<SymbolArtModel> RootItems => new() { this };
 
+        public SymbolArtPaletteModel Palette => new(this);
+
+        public void RaisePaletteChanged() => OnPropertyChanged(nameof(Palette));
+
         public void Save()
         {
             if (string.IsNullOrEmpty(FileName))

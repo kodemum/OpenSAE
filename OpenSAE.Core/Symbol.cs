@@ -15,11 +15,23 @@ namespace OpenSAE.Core
         }
 
         public Symbol(int id, string name, string description, SymbolGroup group)
+            : this(id, name, 0, 0, description, group)
+        {
+        }
+
+        public Symbol(int id, string name, double kerning, string description, SymbolGroup group)
+            : this(id, name, kerning / 2, kerning / 2, description, group)
+        {
+        }
+
+        public Symbol(int id, string name, double kerningRight, double kerningLeft, string description, SymbolGroup group)
         {
             Id = id;
             Name = name;
             Description = description;
             Group = group;
+            KerningRight = kerningRight;
+            KerningLeft = kerningLeft;
 
             Image = new BitmapImage();
             Image.BeginInit();
@@ -29,6 +41,10 @@ namespace OpenSAE.Core
         }
 
         public int Id { get; }
+
+        public double KerningLeft { get; }
+
+        public double KerningRight { get; }
 
         public string Name { get; }
 
