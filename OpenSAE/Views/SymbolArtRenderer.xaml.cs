@@ -374,7 +374,12 @@ namespace OpenSAE.Views
                     }
                 }
 
-                SelectedLayer.StartManipulation();
+                SelectedLayer.StartManipulation(operation switch
+                {
+                    ManipulationOperation.DragVertex => "Manipulate",
+                    ManipulationOperation.MoveItem => "Move",
+                    _ => operation.ToString()
+                });
             }
 
             CaptureMouse();

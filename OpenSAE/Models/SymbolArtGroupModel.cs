@@ -292,11 +292,11 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(Position));
         }
 
-        public override void StartManipulation()
+        public override void StartManipulation(string? operationName = null)
         {
             if (!_isManipulating)
             {
-                _undoModel.BeginAggregate("Manipulate group", null, null, OnVerticesChanged, OnVerticesChanged);
+                _undoModel.BeginAggregate($"{operationName ?? "Manipulate"} group", null, null, OnVerticesChanged, OnVerticesChanged);
 
                 foreach (var layer in GetAllLayers())
                 {

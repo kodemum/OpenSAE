@@ -314,7 +314,7 @@ namespace OpenSAE.Models
             if (SelectedItem == null || angle == null)
                 return;
 
-            SelectedItem.Manipulate(x => x.Rotate(double.Parse(angle) / 180 * Math.PI));
+            SelectedItem.Manipulate($"Rotate {angle}°", x => x.Rotate(double.Parse(angle) / 180 * Math.PI));
         }
 
         private void CurrentItemActionCommand_Implementation(string? operation)
@@ -342,11 +342,11 @@ namespace OpenSAE.Models
                     break;
 
                 case "flipX":
-                    SelectedItem.Manipulate(x => x.FlipX());
+                    SelectedItem.Manipulate("Horizontal flip", x => x.FlipX());
                     break;
 
                 case "flipY":
-                    SelectedItem.Manipulate(x => x.FlipY());
+                    SelectedItem.Manipulate("Vertical flip", x => x.FlipY());
                     break;
 
                 case "moveUp":

@@ -14,6 +14,7 @@ namespace OpenSAE.Models
         protected bool _isManipulating;
         protected bool _visible;
         protected string? _name;
+        protected string? _manipulationName;
         protected Point[] _temporaryVertices;
         protected IUndoModel _undoModel;
 
@@ -123,7 +124,7 @@ namespace OpenSAE.Models
                 var previousVertices = _temporaryVertices;
                 var newVertices = Vertices;
 
-                _undoModel.Add($"Manipulate {ItemTypeName}", () => Vertices = previousVertices, () => Vertices = newVertices);
+                _undoModel.Add($"{_manipulationName ?? "Manipulate"} {ItemTypeName}", () => Vertices = previousVertices, () => Vertices = newVertices);
             }
         }
 
@@ -145,18 +146,19 @@ namespace OpenSAE.Models
         /// on these rather than successively on the same vertices. This helps to avoid rounding errors
         /// if many operations are performed such as when drag-rotating an item.
         /// </summary>
-        public virtual void StartManipulation()
+        public virtual void StartManipulation(string? operationName = null)
         {
             if (!_isManipulating)
             {
                 _isManipulating = true;
+                _manipulationName = operationName;
                 _temporaryVertices = Vertices;
             }
         }
 
-        public void Manipulate(Action<SymbolArtItemModel> action)
+        public void Manipulate(string name, Action<SymbolArtItemModel> action)
         {
-            StartManipulation();
+            StartManipulation(name);
             action.Invoke(this);
             CommitManipulation();
         }
@@ -244,7 +246,7 @@ namespace OpenSAE.Models
                     int previousIndex = IndexInParent;
 
                     _undoModel.Do(
-                        $"Move {ItemTypeName}",
+                        $"Reorder {ItemTypeName}",
                         () => Parent.Children.Move(previousIndex, value),
                         () => Parent.Children.Move(value, previousIndex)
                     );
@@ -299,14 +301,14 @@ namespace OpenSAE.Models
             if (currentParent == targetGroup)
             {
                 // already in same group
-                _undoModel.Do($"Move {ItemTypeName}",
+                _undoModel.Do($"Reorder {ItemTypeName}",
                     () => IndexInParent = target.IndexInParent,
                     () => IndexInParent = currentIndex
                 );
             }
             else
             {
-                _undoModel.Do($"Move {ItemTypeName}", () =>
+                _undoModel.Do($"Reorder {ItemTypeName}", () =>
                     {
                         currentParent.Children.Remove(this);
                         targetGroup.Children.Insert(newIndex, this);
