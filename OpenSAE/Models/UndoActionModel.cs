@@ -9,20 +9,43 @@ namespace OpenSAE.Models
     public class UndoActionModel : ObservableObject
     {
         private bool _isPerformed;
+        private object? _source;
+        private string? _operation;
+        private string _name;
+        protected Action? _undoAction;
+        protected Action? _redoAction;
 
-        public UndoActionModel(string name, Action? undo, Action? redo, bool isPerformed)
+        public UndoActionModel(string name, object? source, string? operation, Action? undo, Action? redo, bool isPerformed)
         {
+            _name = name;
             _isPerformed = isPerformed;
-            Name = name;
-            UndoAction = undo;
-            RedoAction = redo;
+            _source = source;
+            _operation = operation;
+            _undoAction = undo;
+            _redoAction = redo;
         }
 
-        public string Name { get; }
+        public object? Source
+        {
+            get => _source;
+            set => SetProperty(ref _source, value);
+        }
 
-        public virtual Action? UndoAction { get; }
+        public string? Operation
+        {
+            get => _operation;
+            set => SetProperty(ref _operation, value);
+        }
 
-        public virtual Action? RedoAction { get; }
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
+        public virtual Action? UndoAction => _undoAction;
+
+        public virtual Action? RedoAction => _redoAction;
 
         public bool IsPerformed
         {
@@ -46,6 +69,20 @@ namespace OpenSAE.Models
                 UndoAction?.Invoke();
                 IsPerformed = false;
             }
+        }
+
+        /// <summary>
+        /// Updates all properties from the specified model except the undo action. This can be used when consecutive actions
+        /// modify the same source with the same operation, to only have one undo action.
+        /// </summary>
+        /// <param name="newModel"></param>
+        public void Update(UndoActionModel newModel)
+        {
+            Name = newModel.Name;
+            Source = newModel.Source;
+            Operation = newModel.Operation;
+            IsPerformed = newModel.IsPerformed;
+            _redoAction = newModel.RedoAction;
         }
     }
 }

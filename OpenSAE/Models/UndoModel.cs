@@ -93,7 +93,7 @@ namespace OpenSAE.Models
                 if (currentActiveAction.Source != null && currentActiveAction.Source == newAction.Source && currentActiveAction.Operation == newAction.Operation)
                 {
                     // in this case we'll overwrite everything but the undo action
-                    currentActiveAction.Overwrite(newAction);
+                    currentActiveAction.Update(newAction);
                     return;
                 }
             }

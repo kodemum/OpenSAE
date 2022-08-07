@@ -400,6 +400,8 @@ namespace OpenSAE.Views
                 {
                     if (layer.IsPointInside(ptMouse))
                     {
+                        // just in case
+                        SelectedLayer?.CommitManipulation();
                         SelectedLayer = layer;
                         break;
                     }

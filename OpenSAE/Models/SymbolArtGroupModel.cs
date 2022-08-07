@@ -155,18 +155,23 @@ namespace OpenSAE.Models
         {
             get
             {
-                var layers = GetAllLayers().ToArray();
-
-                return layers.Length > 0 ? layers.Average(x => x.Alpha) : 1;
+                return GetAllLayers().FirstOrDefault()?.Alpha ?? 1;
             }
             set
             {
-                foreach (var layer in GetAllLayers())
+                if (value != Alpha)
                 {
-                    layer.Alpha = value;
-                }
+                    _undoModel.BeginAggregate("Change group opacity", this, nameof(Alpha));
 
-                OnPropertyChanged();
+                    foreach (var layer in GetAllLayers())
+                    {
+                        layer.Alpha = value;
+                    }
+
+                    _undoModel.EndAggregate();
+
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -175,12 +180,19 @@ namespace OpenSAE.Models
             get => GetAllLayers().FirstOrDefault()?.Color ?? new Color();
             set
             {
-                foreach (var layer in GetAllLayers())
+                if (value != Color)
                 {
-                    layer.Color = value;
-                }
+                    _undoModel.BeginAggregate($"Change group color", this, nameof(Color));
 
-                OnPropertyChanged();
+                    foreach (var layer in GetAllLayers())
+                    {
+                        layer.Color = value;
+                    }
+
+                    _undoModel.EndAggregate();
+
+                    OnPropertyChanged();
+                }
             }
         }
 
@@ -287,7 +299,7 @@ namespace OpenSAE.Models
         {
             if (!_isManipulating)
             {
-                _undoModel.BeginAggregate("Manipulate group");
+                _undoModel.BeginAggregate("Manipulate group", null, null, OnVerticesChanged, OnVerticesChanged);
 
                 foreach (var layer in GetAllLayers())
                 {
@@ -325,6 +337,13 @@ namespace OpenSAE.Models
 
                 _undoModel.EndAggregate();
             }
+        }
+
+        private void OnVerticesChanged()
+        {
+            OnPropertyChanged(nameof(Vertices));
+            OnPropertyChanged(nameof(RawVertices));
+            OnPropertyChanged(nameof(Position));
         }
 
         /// <summary>

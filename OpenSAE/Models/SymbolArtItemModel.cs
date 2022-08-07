@@ -40,7 +40,7 @@ namespace OpenSAE.Models
                     {
                         OnPropertyChanged(nameof(DisplayName));
                     }
-                });
+                }, "Change item name");
             }
         }
 
@@ -54,14 +54,19 @@ namespace OpenSAE.Models
 
         public abstract bool IsVisible { get; }
 
-        protected void SetPropertyWithUndo<T>(T prop, T newValue, Action<T> setAction, string? actionMessage = null, [CallerMemberName]string? propertyName = null)
+        protected void SetPropertyWithUndo<T>(T prop, T newValue, Action<T> setAction, string actionMessage, [CallerMemberName]string? propertyName = null)
         {
             T currentValue = prop;
 
             if (!Equals(currentValue, newValue))
             {
                 setAction.Invoke(newValue);
-                _undoModel.Add(actionMessage ?? $"Change {propertyName} from {currentValue} to {newValue}", () => setAction(currentValue), () => setAction(newValue));
+                _undoModel.Set(
+                    actionMessage, 
+                    this,
+                    propertyName!,
+                    () => setAction(currentValue), 
+                    () => setAction(newValue));
             }
         }
 
@@ -110,7 +115,7 @@ namespace OpenSAE.Models
                 var previousVertices = _temporaryVertices;
                 var newVertices = Vertices;
 
-                _undoModel.Add("Manipulate layer", () => Vertices = previousVertices, () => Vertices = newVertices);
+                _undoModel.Add("Manipulate item", () => Vertices = previousVertices, () => Vertices = newVertices);
             }
         }
 

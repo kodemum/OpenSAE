@@ -86,16 +86,7 @@ namespace OpenSAE.Models
         public Symbol? Symbol
         {
             get => SymbolUtil.GetById(_symbol + 1)!;
-            set
-            {
-                if (SetProperty(ref _symbol, value?.Id - 1 ?? 0))
-                {
-                    if (string.IsNullOrEmpty(_name))
-                    {
-                        OnPropertyChanged(nameof(Name));
-                    }
-                };
-            }
+            set => SetPropertyWithUndo(_symbol, value?.Id - 1 ?? 0, (x) => SetProperty(ref _symbol, x), "Change symbol");
         }
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
@@ -105,7 +96,7 @@ namespace OpenSAE.Models
         public override double Alpha
         {
             get => _alpha;
-            set => SetProperty(ref _alpha, Math.Round(value * 7) / 7);
+            set => SetPropertyWithUndo(_alpha, Math.Round(value * 7) / 7, x => SetProperty(ref _alpha, x), "Change symbol opacity");
         }
 
         public Color ColorWithAlpha
@@ -129,7 +120,7 @@ namespace OpenSAE.Models
         public override Color Color
         {
             get => _color;
-            set => SetProperty(ref _color, value);
+            set => SetPropertyWithUndo(_color, value, (x) => SetProperty(ref _color, x), "Change symbol color");
         }
 
         /// <summary>

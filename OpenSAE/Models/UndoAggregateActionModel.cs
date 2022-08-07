@@ -8,14 +8,20 @@ namespace OpenSAE.Models
         public List<UndoActionModel> Actions { get; }
             = new();
 
-        public UndoAggregateActionModel(string name, bool isPerformed) 
-            : base(name, null, null, isPerformed)
+        public UndoAggregateActionModel(string name, object? source, string? operation, Action? afterUndo, Action? afterRedo, bool isPerformed) 
+            : base(name, source, operation, null, null, isPerformed)
         {
+            AfterUndoAction = afterUndo;
+            AfterRedoAction = afterRedo;
         }
 
-        public override Action? RedoAction => AggregateRedo;
+        public override Action? RedoAction => _redoAction ?? AggregateRedo;
 
-        public override Action? UndoAction => AggregateUndo;
+        public override Action? UndoAction => _undoAction ?? AggregateUndo;
+
+        public Action? AfterUndoAction { get; }
+
+        public Action? AfterRedoAction { get; }
 
         private void AggregateUndo()
         {
@@ -23,6 +29,8 @@ namespace OpenSAE.Models
             {
                 Actions[i].UndoAction?.Invoke();
             }
+
+            AfterUndoAction?.Invoke();
         }
 
         private void AggregateRedo()
@@ -31,6 +39,8 @@ namespace OpenSAE.Models
             {
                 action.RedoAction?.Invoke();
             }
+
+            AfterRedoAction?.Invoke();
         }
     }
 }
