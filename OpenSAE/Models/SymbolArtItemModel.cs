@@ -3,6 +3,7 @@ using OpenSAE.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
 
@@ -14,13 +15,16 @@ namespace OpenSAE.Models
         protected bool _visible;
         protected string? _name;
         protected Point[] _temporaryVertices;
+        protected IUndoModel _undoModel;
 
-        protected SymbolArtItemModel()
+        protected SymbolArtItemModel(IUndoModel undoModel)
         {
             Children.CollectionChanged += (_, __) =>
             {
                 OnChildrenChanged();
             };
+
+            _undoModel = undoModel;
         }
 
         public event EventHandler? ChildrenChanged;
@@ -30,10 +34,13 @@ namespace OpenSAE.Models
             get => _name;
             set
             {
-                if (SetProperty(ref _name, value))
+                SetPropertyWithUndo(_name, value, (x) =>
                 {
-                    OnPropertyChanged(nameof(DisplayName));
-                }
+                    if (SetProperty(ref _name, x))
+                    {
+                        OnPropertyChanged(nameof(DisplayName));
+                    }
+                });
             }
         }
 
@@ -42,10 +49,21 @@ namespace OpenSAE.Models
         public virtual bool Visible
         {
             get => _visible;
-            set => SetProperty(ref _visible, value);
+            set => SetPropertyWithUndo(_visible, value, (x) => SetProperty(ref _visible, x), value ? "Show item" : "Hide item");
         }
 
         public abstract bool IsVisible { get; }
+
+        protected void SetPropertyWithUndo<T>(T prop, T newValue, Action<T> setAction, string? actionMessage = null, [CallerMemberName]string? propertyName = null)
+        {
+            T currentValue = prop;
+
+            if (!Equals(currentValue, newValue))
+            {
+                setAction.Invoke(newValue);
+                _undoModel.Add(actionMessage ?? $"Change {propertyName} from {currentValue} to {newValue}", () => setAction(currentValue), () => setAction(newValue));
+            }
+        }
 
         /// <summary>
         /// Indicates if the vertices in this item should be enforced to the symbol art coordinate grid.
@@ -85,7 +103,15 @@ namespace OpenSAE.Models
         /// </summary>
         public virtual void CommitManipulation()
         {
-            _isManipulating = false;
+            if (_isManipulating)
+            {
+                _isManipulating = false;
+
+                var previousVertices = _temporaryVertices;
+                var newVertices = Vertices;
+
+                _undoModel.Add("Manipulate layer", () => Vertices = previousVertices, () => Vertices = newVertices);
+            }
         }
 
         /// <summary>
@@ -106,13 +132,20 @@ namespace OpenSAE.Models
         /// on these rather than successively on the same vertices. This helps to avoid rounding errors
         /// if many operations are performed such as when drag-rotating an item.
         /// </summary>
-        protected void StartManipulation()
+        public virtual void StartManipulation()
         {
             if (!_isManipulating)
             {
                 _isManipulating = true;
                 _temporaryVertices = Vertices;
             }
+        }
+
+        public void Manipulate(Action<SymbolArtItemModel> action)
+        {
+            StartManipulation();
+            action.Invoke(this);
+            CommitManipulation();
         }
 
         public IEnumerable<SymbolArtLayerModel> GetAllLayers()

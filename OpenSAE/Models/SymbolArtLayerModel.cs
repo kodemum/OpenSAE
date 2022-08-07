@@ -25,7 +25,8 @@ namespace OpenSAE.Models
         private bool _showBoundingVertices;
         private int _index;
 
-        public SymbolArtLayerModel(SymbolArtLayer layer, SymbolArtItemModel? parent)
+        public SymbolArtLayerModel(IUndoModel undoModel, SymbolArtLayer layer, SymbolArtItemModel? parent)
+            : base(undoModel)
         {
             _index = layer.Index;
             _name = layer.Name;
@@ -40,7 +41,8 @@ namespace OpenSAE.Models
             Parent = parent;
         }
 
-        public SymbolArtLayerModel(int index, SymbolArtItemModel parent)
+        public SymbolArtLayerModel(IUndoModel undoModel, int index, SymbolArtItemModel parent)
+            : base(undoModel)
         {
             _index = index;
             _alpha = 1;
@@ -59,10 +61,8 @@ namespace OpenSAE.Models
             get => _name;
             set
             {
-                if (SetProperty(ref _name, value))
-                {
-                    OnPropertyChanged(nameof(DisplayName));
-                }
+                base.Name = value;
+                OnPropertyChanged(nameof(DisplayName));
             }
         }
 
@@ -236,7 +236,7 @@ namespace OpenSAE.Models
             var duplicate = (SymbolArtLayer)ToSymbolArtItem();
             duplicate.Index = GetMaxLayerIndex() + 1;
 
-            return new SymbolArtLayerModel(duplicate, parent);
+            return new SymbolArtLayerModel(_undoModel, duplicate, parent);
         }
 
         public override SymbolArtItem ToSymbolArtItem()
@@ -258,8 +258,6 @@ namespace OpenSAE.Models
 
         public override void SetVertex(int vertexIndex, Point point)
         {
-            StartManipulation();
-
             switch (vertexIndex)
             {
                 case 0:
@@ -316,8 +314,6 @@ namespace OpenSAE.Models
 
         public override void ResizeFromVertex(int vertexIndex, Point point)
         {
-            StartManipulation();
-
             var boundVertices = BoundingVertices;
 
             // find the origin and opposite vertex - this is necessary

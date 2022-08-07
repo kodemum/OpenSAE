@@ -48,7 +48,7 @@
             <StackPanel>
                 <UniformGrid Columns="2" Margin="10 5">
                     <TextBlock Text="Group name" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
+                    <TextBox Text="{Binding Name}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable group" IsChecked="{Binding Visible}" />
                     <TextBlock Text="Color (all symbols)" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
@@ -74,7 +74,7 @@
             <StackPanel>
                 <UniformGrid Columns="2" Margin="10 5">
                     <TextBlock Text="Layer name" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
+                    <TextBox Text="{Binding Name}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable layer" IsChecked="{Binding Visible}" />
                 </UniformGrid>
@@ -417,6 +417,27 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
+
+                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Background="White" Panel.ZIndex="2">
+                    <CheckBox Content="Undo history" Margin="5" />
+                    <ListBox ItemsSource="{Binding Undo.UndoActions}" SelectedItem="{Binding Undo.CurrentAction}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPerformed}" Value="False">
+                                                    <Setter Property="Foreground" Value="Gray" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
 
                 <!-- Symbol art renderer -->
                 <views:SymbolArtRenderer 

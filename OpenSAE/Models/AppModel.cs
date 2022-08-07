@@ -187,6 +187,8 @@ namespace OpenSAE.Models
 
         public SymbolListModel SymbolsList { get; }
 
+        public UndoModel Undo { get; }
+
         public ICommand NewFileCommand { get; }
 
         public ICommand OpenFileCommand { get; }
@@ -215,6 +217,7 @@ namespace OpenSAE.Models
             SymbolsList = new SymbolListModel();
             RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
             ApplyToneCurve = Settings.Default.ApplyToneCurve;
+            Undo = new UndoModel();
 
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
             NewFileCommand = new RelayCommand(NewFile_Implementation);
@@ -269,7 +272,7 @@ namespace OpenSAE.Models
                 return;
             }
 
-            var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
+            var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
 
             SelectedItem = newLayer;
         }
@@ -312,7 +315,7 @@ namespace OpenSAE.Models
             if (SelectedItem == null || angle == null)
                 return;
 
-            SelectedItem.Rotate(double.Parse(angle) / 180 * Math.PI);
+            SelectedItem.Manipulate(x => x.Rotate(double.Parse(angle) / 180 * Math.PI));
         }
 
         private void CurrentItemActionCommand_Implementation(string? operation)
@@ -340,11 +343,11 @@ namespace OpenSAE.Models
                     break;
 
                 case "flipX":
-                    SelectedItem.FlipX();
+                    SelectedItem.Manipulate(x => x.FlipX());
                     break;
 
                 case "flipY":
-                    SelectedItem.FlipY();
+                    SelectedItem.Manipulate(x => x.FlipY());
                     break;
 
                 case "moveUp":
@@ -356,13 +359,13 @@ namespace OpenSAE.Models
                     break;
 
                 case "addLayer":
-                    var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(CurrentSymbolArt!.LayerCount + 1, group));
+                    var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(Undo, CurrentSymbolArt!.LayerCount + 1, group));
 
                     SelectedItem = newLayer;
                     break;
 
                 case "addGroup":
-                    var newGroup = AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel("Group", parentGroup));
+                    var newGroup = AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel(Undo, "Group", parentGroup));
 
                     SelectedItem = newGroup;
                     break;
@@ -382,7 +385,8 @@ namespace OpenSAE.Models
 
         private void NewFile_Implementation()
         {
-            CurrentSymbolArt = new SymbolArtModel();
+            CurrentSymbolArt = new SymbolArtModel(Undo);
+            Undo.ResetWith("Create new");
             SelectedItem = CurrentSymbolArt;
         }
 
@@ -434,7 +438,8 @@ namespace OpenSAE.Models
 
             try
             {
-                CurrentSymbolArt = new SymbolArtModel(filename);
+                CurrentSymbolArt = new SymbolArtModel(Undo, filename);
+                Undo.ResetWith("Open");
                 SelectedItem = CurrentSymbolArt;
             }
             catch (Exception ex)

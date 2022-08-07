@@ -23,7 +23,8 @@ namespace OpenSAE.Models
         private Point _vertex3;
         private Point _vertex4;
 
-        public SymbolArtImageLayerModel(string name, byte[] imageData, SymbolArtItemModel parent)
+        public SymbolArtImageLayerModel(IUndoModel undoModel, string name, byte[] imageData, SymbolArtItemModel parent)
+            : base(undoModel)
         {
             _name = name;
             ImageData = imageData ?? throw new ArgumentNullException(nameof(imageData));
@@ -35,7 +36,8 @@ namespace OpenSAE.Models
             Parent = parent;
         }
 
-        public SymbolArtImageLayerModel(SymbolArtBitmapImageLayer layer, SymbolArtItemModel parent)
+        public SymbolArtImageLayerModel(IUndoModel undoModel, SymbolArtBitmapImageLayer layer, SymbolArtItemModel parent)
+            : base(undoModel)
         {
             _name = layer.Name;
             ImageData = layer.ImageData;
@@ -191,8 +193,6 @@ namespace OpenSAE.Models
 
         public override void ResizeFromVertex(int vertexIndex, Point point)
         {
-            StartManipulation();
-
             var boundVertices = BoundingVertices;
 
             // find the origin and opposite vertex - this is necessary
@@ -230,8 +230,6 @@ namespace OpenSAE.Models
 
         public override void SetVertex(int vertexIndex, Point point)
         {
-            StartManipulation();
-
             switch (vertexIndex)
             {
                 case 0:

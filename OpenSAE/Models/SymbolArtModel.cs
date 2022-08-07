@@ -21,8 +21,8 @@ namespace OpenSAE.Models
         private SymbolArtSoundEffect _soundEffect;
         private SymbolArtFileFormat _fileFormat;
 
-        public SymbolArtModel(string filename)
-            : base()
+        public SymbolArtModel(IUndoModel undoModel, string filename)
+            : base(undoModel)
         {
             var sa = SymbolArt.LoadFromFile(filename);
             _name = sa.Name;
@@ -35,25 +35,7 @@ namespace OpenSAE.Models
 
             FileName = filename;
 
-            foreach (var item in sa.Children)
-            {
-                if (item is ISymbolArtGroup subGroup)
-                {
-                    Children.Add(new SymbolArtGroupModel(subGroup, this));
-                }
-                else if (item is SymbolArtLayer layer)
-                {
-                    Children.Add(new SymbolArtLayerModel(layer, this));
-                }
-                else if (item is SymbolArtBitmapImageLayer imageLayer)
-                {
-                    Children.Add(new SymbolArtImageLayerModel(imageLayer, this));
-                }
-                else
-                {
-                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art");
-                }
-            }
+            AddChildren(sa.Children);
 
             ChildrenChanged += SymbolArtModel_ChildrenChanged;
         }
@@ -63,7 +45,8 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(LayerCount));
         }
 
-        public SymbolArtModel()
+        public SymbolArtModel(UndoModel undoModel)
+            : base(undoModel)
         {
             _name = "NewSymbolArt";
             _authorId = 0;

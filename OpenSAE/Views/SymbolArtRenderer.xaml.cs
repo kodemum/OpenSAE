@@ -373,6 +373,8 @@ namespace OpenSAE.Views
                         SelectedLayer.ShowBoundingVertices = operation == ManipulationOperation.Resize;
                     }
                 }
+
+                SelectedLayer.StartManipulation();
             }
 
             CaptureMouse();

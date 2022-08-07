@@ -1,5 +1,6 @@
 ﻿using OpenSAE.Core;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -10,44 +11,26 @@ namespace OpenSAE.Models
     {
         private string _pendingSymbolText = string.Empty;
 
-        public SymbolArtGroupModel(ISymbolArtGroup group, SymbolArtItemModel? parent)
-            : this()
+        public SymbolArtGroupModel(IUndoModel undoModel, ISymbolArtGroup group, SymbolArtItemModel? parent)
+            : this(undoModel)
         {
             Parent = parent;
             _name = group.Name;
             _visible = group.Visible;
 
-            foreach (var item in group.Children)
-            {
-                if (item is ISymbolArtGroup subGroup)
-                {
-                    Children.Add(new SymbolArtGroupModel(subGroup, this));
-                }
-                else if (item is SymbolArtLayer layer)
-                {
-                    Children.Add(new SymbolArtLayerModel(layer, this));
-                }
-                else if (item is SymbolArtBitmapImageLayer imageLayer)
-                {
-                    Children.Add(new SymbolArtImageLayerModel(imageLayer, this));
-                }
-                else
-                {
-                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art group");
-                }
-            }
+            AddChildren(group.Children);
         }
 
-        public SymbolArtGroupModel(string name, SymbolArtItemModel parent)
-            : this()
+        public SymbolArtGroupModel(IUndoModel undoModel, string name, SymbolArtItemModel parent)
+            : this(undoModel)
         {
             _name = name;
             _visible = true;
             Parent = parent;
         }
 
-        protected SymbolArtGroupModel()
-            : base()
+        protected SymbolArtGroupModel(IUndoModel undoModel)
+            : base(undoModel)
         {
         }
 
@@ -212,9 +195,32 @@ namespace OpenSAE.Models
             }
         }
 
+        protected void AddChildren(IEnumerable<SymbolArtItem> items)
+        {
+            foreach (var item in items)
+            {
+                if (item is ISymbolArtGroup subGroup)
+                {
+                    Children.Add(new SymbolArtGroupModel(_undoModel, subGroup, this));
+                }
+                else if (item is SymbolArtLayer layer)
+                {
+                    Children.Add(new SymbolArtLayerModel(_undoModel, layer, this));
+                }
+                else if (item is SymbolArtBitmapImageLayer imageLayer)
+                {
+                    Children.Add(new SymbolArtImageLayerModel(_undoModel, imageLayer, this));
+                }
+                else
+                {
+                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art group");
+                }
+            }
+        }
+
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
-            var duplicateGroup = new SymbolArtGroupModel()
+            var duplicateGroup = new SymbolArtGroupModel(_undoModel)
             {
                 Name = Name,
                 Visible = Visible,
@@ -249,7 +255,7 @@ namespace OpenSAE.Models
             {
                 layer.Vertices = SymbolManipulationHelper.FlipX(layer.Vertices, originX);
             }
-        }
+         }
 
         public override void FlipY()
         {
@@ -277,10 +283,23 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(Position));
         }
 
+        public override void StartManipulation()
+        {
+            if (!_isManipulating)
+            {
+                _undoModel.BeginAggregate("Manipulate group");
+
+                foreach (var layer in GetAllLayers())
+                {
+                    layer.StartManipulation();
+                }
+            }
+
+            base.StartManipulation();
+        }
+
         public override void TemporaryRotate(double angle)
         {
-            StartManipulation();
-
             var origin = _temporaryVertices.GetCenter();
 
             foreach (var layer in GetAllLayers())
@@ -295,12 +314,17 @@ namespace OpenSAE.Models
 
         public override void CommitManipulation()
         {
-            foreach (var layer in GetAllLayers())
+            if (_isManipulating)
             {
-                layer.CommitManipulation();
-            }
+                foreach (var layer in GetAllLayers())
+                {
+                    layer.CommitManipulation();
+                }
 
-            base.CommitManipulation();
+                base.CommitManipulation();
+
+                _undoModel.EndAggregate();
+            }
         }
 
         /// <summary>
@@ -312,8 +336,6 @@ namespace OpenSAE.Models
         /// <exception cref="ArgumentException"></exception>
         public override void ResizeFromVertex(int vertexIndex, Point point)
         {
-            StartManipulation();
-
             // find the origin and opposite vertex - this is necessary
             // in order to calculate the vector for each vertex of each layer
             // in this group
@@ -386,8 +408,6 @@ namespace OpenSAE.Models
         /// <exception cref="ArgumentException"></exception>
         public override void SetVertex(int vertexIndex, Point point)
         {
-            StartManipulation();
-
             // find the origin and opposite vertex - this is necessary
             // in order to calculate the vector for each vertex of each layer
             // in this group
@@ -501,7 +521,7 @@ namespace OpenSAE.Models
                     {
                         x -= symbol.KerningLeft * sizeX;
 
-                        var layer = new SymbolArtLayerModel(nextLayerIndex++, this)
+                        var layer = new SymbolArtLayerModel(_undoModel, nextLayerIndex++, this)
                         {
                             Symbol = symbol,
                             Color = Color,
