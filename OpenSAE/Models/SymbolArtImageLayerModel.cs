@@ -76,6 +76,8 @@ namespace OpenSAE.Models
 
         public override bool IsVisible => Visible;
 
+        public override string ItemTypeName => "overlay image";
+
         public override bool EnforceGridPositioning => false;
 
         public byte[]? ImageData
@@ -175,7 +177,7 @@ namespace OpenSAE.Models
         public override double Alpha
         {
             get => _alpha;
-            set => SetProperty(ref _alpha, value);
+            set => SetPropertyWithUndo(_alpha, value, (x) => SetProperty(ref _alpha, x), "Change image layer opacity");
         }
 
         public override Color Color
@@ -188,7 +190,7 @@ namespace OpenSAE.Models
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
-            throw new NotImplementedException();
+            return new SymbolArtImageLayerModel(_undoModel, Name, ImageData, Parent);
         }
 
         public override void ResizeFromVertex(int vertexIndex, Point point)

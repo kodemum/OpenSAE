@@ -53,6 +53,8 @@ namespace OpenSAE.Models
             }
         }
 
+        public override string ItemTypeName => "group";
+
         public override bool IsVisible => Parent!.IsVisible && Visible;
 
         public override Point[] Vertices

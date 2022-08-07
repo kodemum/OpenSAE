@@ -40,16 +40,18 @@ namespace OpenSAE.Models
                     {
                         OnPropertyChanged(nameof(DisplayName));
                     }
-                }, "Change item name");
+                }, $"Change {ItemTypeName} name");
             }
         }
+
+        public abstract string ItemTypeName { get; }
 
         public virtual string DisplayName => Name ?? "[unnamed]";
 
         public virtual bool Visible
         {
             get => _visible;
-            set => SetPropertyWithUndo(_visible, value, (x) => SetProperty(ref _visible, x), value ? "Show item" : "Hide item");
+            set => SetPropertyWithUndo(_visible, value, (x) => SetProperty(ref _visible, x), value ? $"Show {ItemTypeName}" : $"Hide {ItemTypeName}");
         }
 
         public abstract bool IsVisible { get; }
@@ -99,7 +101,11 @@ namespace OpenSAE.Models
         {
             if (Parent != null)
             {
+                int indexInParent = IndexInParent;
+
                 Parent.Children.Remove(this);
+
+                _undoModel.Add($"Delete {ItemTypeName}", () => Parent.Children.Insert(indexInParent, this), () => Parent.Children.Remove(this));
             }
         }
 
@@ -115,7 +121,7 @@ namespace OpenSAE.Models
                 var previousVertices = _temporaryVertices;
                 var newVertices = Vertices;
 
-                _undoModel.Add("Manipulate item", () => Vertices = previousVertices, () => Vertices = newVertices);
+                _undoModel.Add($"Manipulate {ItemTypeName}", () => Vertices = previousVertices, () => Vertices = newVertices);
             }
         }
 

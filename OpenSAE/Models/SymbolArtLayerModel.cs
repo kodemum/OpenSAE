@@ -83,6 +83,8 @@ namespace OpenSAE.Models
             }
         }
 
+        public override string ItemTypeName => "symbol";
+
         public Symbol? Symbol
         {
             get => SymbolUtil.GetById(_symbol + 1)!;
