@@ -56,7 +56,7 @@ namespace OpenSAE.Models
 
         public abstract bool IsVisible { get; }
 
-        protected void SetPropertyWithUndo<T>(T prop, T newValue, Action<T> setAction, string actionMessage, [CallerMemberName]string? propertyName = null)
+        protected void SetPropertyWithUndo<T>(T prop, T newValue, Action<T> setAction, string actionMessage, [CallerMemberName] string? propertyName = null)
         {
             T currentValue = prop;
 
@@ -64,10 +64,10 @@ namespace OpenSAE.Models
             {
                 setAction.Invoke(newValue);
                 _undoModel.Set(
-                    actionMessage, 
+                    actionMessage,
                     this,
                     propertyName!,
-                    () => setAction(currentValue), 
+                    () => setAction(currentValue),
                     () => setAction(newValue));
             }
         }
@@ -103,9 +103,11 @@ namespace OpenSAE.Models
             {
                 int indexInParent = IndexInParent;
 
-                Parent.Children.Remove(this);
-
-                _undoModel.Add($"Delete {ItemTypeName}", () => Parent.Children.Insert(indexInParent, this), () => Parent.Children.Remove(this));
+                _undoModel.Do(
+                    $"Delete {ItemTypeName}",
+                    () => Parent.Children.Remove(this),
+                    () => Parent.Children.Insert(indexInParent, this)
+                );
             }
         }
 
@@ -235,11 +237,17 @@ namespace OpenSAE.Models
         public int IndexInParent
         {
             get => Parent?.Children.IndexOf(this) ?? 0;
-            set 
+            set
             {
                 if (Parent != null)
                 {
-                    Parent.Children.Move(IndexInParent, value);
+                    int previousIndex = IndexInParent;
+
+                    _undoModel.Do(
+                        $"Move {ItemTypeName}",
+                        () => Parent.Children.Move(previousIndex, value),
+                        () => Parent.Children.Move(value, previousIndex)
+                    );
                 }
             }
         }
@@ -265,23 +273,52 @@ namespace OpenSAE.Models
             if (Parent == null)
                 return;
 
+            int currentIndex = IndexInParent;
+            int newIndex;
+            SymbolArtItemModel targetGroup;
+
             if (target is SymbolArtGroupModel group)
             {
-                Parent.Children.Remove(this);
-                group.Children.Insert(0, this);
-                Parent = group;
-            }
-            else if (target.Parent == Parent)
-            {
-                // already in same group
-                IndexInParent = target.IndexInParent;
+                newIndex = 0;
+                targetGroup = group;
             }
             else if (target.Parent != null)
             {
                 // move to group at same index as target
-                Parent.Children.Remove(this);
-                target.Parent.Children.Insert(target.IndexInParent, this);
-                Parent = target.Parent;
+                targetGroup = target.Parent;
+                newIndex = target.IndexInParent;
+            }
+            else
+            {
+                throw new Exception("Invalid move target");
+            }
+
+            var currentParent = Parent;
+
+            // if already in the same group, we only need to change the index
+            if (currentParent == targetGroup)
+            {
+                // already in same group
+                _undoModel.Do($"Move {ItemTypeName}",
+                    () => IndexInParent = target.IndexInParent,
+                    () => IndexInParent = currentIndex
+                );
+            }
+            else
+            {
+                _undoModel.Do($"Move {ItemTypeName}", () =>
+                    {
+                        currentParent.Children.Remove(this);
+                        targetGroup.Children.Insert(newIndex, this);
+                        Parent = targetGroup;
+                    },
+                    () =>
+                    {
+                        targetGroup.Children.Remove(this);
+                        currentParent.Children.Insert(currentIndex, this);
+                        Parent = currentParent;
+                    }
+                );
             }
         }
 
@@ -290,15 +327,30 @@ namespace OpenSAE.Models
             if (Parent == null)
                 return;
 
-            if (target is SymbolArtGroupModel group)
+            SymbolArtItemModel group;
+            int targetIndex;
+
+            if (target is SymbolArtGroupModel targetGroup)
             {
-                group.Children.Insert(0, Duplicate(group));
+                group = targetGroup;
+                targetIndex = 0;
             }
             else if (target.Parent != null)
             {
-                // copy to group at same index as target
-                target.Parent.Children.Insert(target.IndexInParent, Duplicate(target.Parent));
+                group = target.Parent;
+                targetIndex = target.IndexInParent;
             }
+            else
+            {
+                throw new Exception("Invalid copy target");
+            }
+
+            var copy = Duplicate(group);
+
+            _undoModel.Do($"Copy {ItemTypeName}",
+                () => group.Children.Insert(targetIndex, copy),
+                () => group.Children.Remove(copy)
+            );
         }
 
         /// <summary>

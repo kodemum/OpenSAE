@@ -15,7 +15,7 @@ namespace OpenSAE.Models
 
         public ObservableCollection<SymbolArtPaletteColorModel> Colors { get; }
 
-        public SymbolArtPaletteModel(SymbolArtModel sa)
+        public SymbolArtPaletteModel(IUndoModel undoModel, SymbolArtModel sa)
         {
             _sa = sa;
 
@@ -29,7 +29,7 @@ namespace OpenSAE.Models
                 }
                 else
                 {
-                    colors.Add(layer.Color, new SymbolArtPaletteColorModel(layer));
+                    colors.Add(layer.Color, new SymbolArtPaletteColorModel(undoModel, layer));
                 }
             }
 

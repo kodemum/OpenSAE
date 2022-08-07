@@ -21,11 +21,11 @@ namespace OpenSAE.Models
             AddChildren(group.Children);
         }
 
-        public SymbolArtGroupModel(IUndoModel undoModel, string name, SymbolArtItemModel parent)
+        public SymbolArtGroupModel(IUndoModel undoModel, string name, bool visible, SymbolArtItemModel parent)
             : this(undoModel)
         {
             _name = name;
-            _visible = true;
+            _visible = visible;
             Parent = parent;
         }
 
@@ -234,12 +234,7 @@ namespace OpenSAE.Models
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
-            var duplicateGroup = new SymbolArtGroupModel(_undoModel)
-            {
-                Name = Name,
-                Visible = Visible,
-                Parent = parent
-            };
+            var duplicateGroup = new SymbolArtGroupModel(_undoModel, Name ?? string.Empty, Visible, parent);
 
             // this will be recursive since child groups will also be duplicated
             foreach (var child in Children)
@@ -480,6 +475,8 @@ namespace OpenSAE.Models
 
         public void AddTextAsSymbols(string previousText, string newText)
         {
+            _undoModel.BeginAggregate("Add text", this, nameof(PendingSymbolText), OnVerticesChanged, OnVerticesChanged);
+
             double x = -96, y = -48;
             double sizeX = 13, sizeY = 14;
 
@@ -558,6 +555,8 @@ namespace OpenSAE.Models
                     }
                 }
             }
+
+            _undoModel.EndAggregate();
         }
     }
 }

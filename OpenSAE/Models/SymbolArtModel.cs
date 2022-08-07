@@ -145,7 +145,7 @@ namespace OpenSAE.Models
 
         public List<SymbolArtModel> RootItems => new() { this };
 
-        public SymbolArtPaletteModel Palette => new(this);
+        public SymbolArtPaletteModel Palette => new(_undoModel, this);
 
         public void RaisePaletteChanged() => OnPropertyChanged(nameof(Palette));
 

@@ -53,6 +53,7 @@ namespace OpenSAE.Models
                     ZoomPercentage = 100;
                     ViewPosition = new(0, 0);
                     ShowHelpScreen = false;
+                    TabIndex = 0;
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                     AddImageLayerCommand.NotifyCanExecuteChanged();
@@ -272,9 +273,7 @@ namespace OpenSAE.Models
                 return;
             }
 
-            var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
-
-            SelectedItem = newLayer;
+            AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
         }
 
         private void Zoom_Implementation(string? obj)
@@ -359,15 +358,11 @@ namespace OpenSAE.Models
                     break;
 
                 case "addLayer":
-                    var newLayer = AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(Undo, CurrentSymbolArt!.LayerCount + 1, group));
-
-                    SelectedItem = newLayer;
+                    AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(Undo, CurrentSymbolArt!.LayerCount + 1, group));
                     break;
 
                 case "addGroup":
-                    var newGroup = AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel(Undo, "Group", parentGroup));
-
-                    SelectedItem = newGroup;
+                    AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel(Undo, "Group", true, parentGroup));
                     break;
 
                 case "duplicate":
@@ -375,10 +370,13 @@ namespace OpenSAE.Models
                         return;
 
                     var duplicate = SelectedItem.Duplicate(SelectedItem.Parent);
-
                     var currentIndex = SelectedItem.Parent.Children.IndexOf(SelectedItem);
+                    var targetItem = SelectedItem;
 
-                    SelectedItem.Parent.Children.Insert(currentIndex, duplicate);
+                    Undo.Do($"Duplicate {SelectedItem.ItemTypeName}",
+                        () => targetItem.Parent.Children.Insert(currentIndex, duplicate),
+                        () => targetItem.Parent.Children.Remove(duplicate)
+                    );
                     break;
             }
         }
@@ -390,7 +388,7 @@ namespace OpenSAE.Models
             SelectedItem = CurrentSymbolArt;
         }
 
-        private SymbolArtItemModel AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
+        private void AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
         {
             // find group to add layer to - may be current item, it's parent
             // or possibly the root symbol art
@@ -401,18 +399,19 @@ namespace OpenSAE.Models
 
             var item = itemCreationPredicate(targetGroup);
 
-            if (SelectedItem is SymbolArtLayerModel)
-            {
-                // if selected item is a layer, add the new layer before it
-                targetGroup.Children.Insert(targetGroup.Children.IndexOf(SelectedItem), item);
-            }
-            else
-            {
-                // and if it is a group, add the layer as the first
-                targetGroup.Children.Insert(0, item);
-            }
+            var selectedItem = SelectedItem;
 
-            return item;
+            // if selected item is a layer, add the new layer before it
+            // and if it is a group, add the layer as the first
+            var index = selectedItem is SymbolArtLayerModel ? targetGroup.Children.IndexOf(selectedItem) : 0;
+
+            Undo.Do($"Add {item.ItemTypeName}", () =>
+                {
+                    targetGroup.Children.Insert(index, item);
+                    SelectedItem = item;
+                },
+                () => targetGroup.Children.Remove(item)
+            );
         }
 
         public bool RequestExit()

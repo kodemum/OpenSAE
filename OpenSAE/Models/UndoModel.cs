@@ -58,6 +58,13 @@ namespace OpenSAE.Models
             Set(name, null, null, undo, redo);
         }
 
+        public void Do(string name, Action action, Action undoAction)
+        {
+            action.Invoke();
+
+            Add(name, undoAction, action);
+        }
+
         public void Set(string name, object? source, string? operation, Action undo, Action redo)
         {
             UndoActionModel newAction = new(name, source, operation, undo, redo, true);

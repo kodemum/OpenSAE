@@ -49,5 +49,13 @@ namespace OpenSAE.Models
         /// </summary>
         /// <param name="name">Name to use for the empty base action.</param>
         void ResetWith(string name);
+
+        /// <summary>
+        /// Performs the specified action immediately and registers an undo action for it.
+        /// </summary>
+        /// <param name="name">Name of the action to run</param>
+        /// <param name="action">Action to run immediately and if the action is redone</param>
+        /// <param name="undoAction">Action to run when undoing the action</param>
+        void Do(string name, Action action, Action undoAction);
     }
 }

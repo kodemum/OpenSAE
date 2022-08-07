@@ -6,9 +6,12 @@ namespace OpenSAE.Models
 {
     public class SymbolArtPaletteColorModel : ObservableObject
     {
-        public SymbolArtPaletteColorModel(SymbolArtLayerModel layer)
+        private readonly IUndoModel _undoModel;
+
+        public SymbolArtPaletteColorModel(IUndoModel undoModel, SymbolArtLayerModel layer)
         {
             Layers.Add(layer);
+            _undoModel = undoModel;
         }
 
         public List<SymbolArtLayerModel> Layers { get; } 
@@ -19,8 +22,16 @@ namespace OpenSAE.Models
             get => Layers[0].Color;
             set 
             {
-                Layers.ForEach(x => x.Color = value);
-                OnPropertyChanged();
+                if (value != Color)
+                {
+                    _undoModel.BeginAggregate("Change palette color", this, nameof(Color), () => OnPropertyChanged(nameof(Color)), () => OnPropertyChanged(nameof(Color)));
+
+                    Layers.ForEach(x => x.Color = value);
+
+                    _undoModel.EndAggregate();
+
+                    OnPropertyChanged();
+                }
             }
         }
     }
