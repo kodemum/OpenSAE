@@ -36,7 +36,7 @@ namespace OpenSAE.Models
                                 UndoActions[i].PerformUndo();
                             }
                         }
-                        else
+                        else if (currentIndex != -1)
                         {
                             // newer action selected, redo every action up to and including the selected
                             for (int i = currentIndex; i <= index; i++)
@@ -55,7 +55,12 @@ namespace OpenSAE.Models
 
         public void Add(string name, Action undo, Action redo)
         {
-            UndoActionModel newAction = new(name, undo, redo, true);
+            Set(name, null, null, undo, redo);
+        }
+
+        public void Set(string name, object? source, string? operation, Action undo, Action redo)
+        {
+            UndoActionModel newAction = new(name, source, operation, undo, redo, true);
 
             if (_aggregateStack.TryPeek(out var currentAggregate))
             {
@@ -81,14 +86,26 @@ namespace OpenSAE.Models
                 }
             }
 
+            // check if the last action is for the same source and operation
+            var currentActiveAction = CurrentAction ?? UndoActions.LastOrDefault();
+            if (currentActiveAction != null)
+            {
+                if (currentActiveAction.Source != null && currentActiveAction.Source == newAction.Source && currentActiveAction.Operation == newAction.Operation)
+                {
+                    // in this case we'll overwrite everything but the undo action
+                    currentActiveAction.Overwrite(newAction);
+                    return;
+                }
+            }
+
             UndoActions.Add(newAction);
             _currentAction = newAction;
             OnPropertyChanged(nameof(CurrentAction));
         }
 
-        public void BeginAggregate(string name)
+        public void BeginAggregate(string name, object? source, string? operation, Action? afterUndo, Action? afterRedo)
         {
-            UndoAggregateActionModel newAggregate = new(name, true);
+            UndoAggregateActionModel newAggregate = new(name, source, operation, afterUndo, afterRedo, true);
 
             if (_aggregateStack.TryPeek(out var existingAggregate))
             {
@@ -112,7 +129,7 @@ namespace OpenSAE.Models
         public void ResetWith(string name)
         {
             UndoActions.Clear();
-            UndoActions.Add(new UndoActionModel(name, null, null, true));
+            UndoActions.Add(new UndoActionModel(name, null, null, null, null, true));
         }
     }
 }

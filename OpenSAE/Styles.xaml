@@ -5,6 +5,7 @@
     <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
     <converters:ColorConversionConverter x:Key="colorConversionConverter" />
     <converters:ColorSolidBrushConverter x:Key="colorSolidBrushConverter" />
+    <converters:TransparencyAlphaConverter x:Key="alphaConverter" />
     <converters:ColorSolidBrushConverter x:Key="colorToneSolidBrushConverter" UseToneCurve="True" />
 
     <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="iconMenuItem">
