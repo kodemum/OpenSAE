@@ -12,6 +12,7 @@ namespace OpenSAE.Controls
         public ListBoxScroll() : base()
         {
             SelectionChanged += new SelectionChangedEventHandler(ListBoxScroll_SelectionChanged);
+            IsVisibleChanged += (_, __) => ScrollIntoView(SelectedItem);
         }
 
         void ListBoxScroll_SelectionChanged(object sender, SelectionChangedEventArgs e)

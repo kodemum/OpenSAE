@@ -6,7 +6,7 @@
         xmlns:models="clr-namespace:OpenSAE.Models"
         xmlns:views="clr-namespace:OpenSAE.Views"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
-        xmlns:local="clr-namespace:OpenSAE"
+        xmlns:controls="clr-namespace:OpenSAE.Controls"
         xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         mc:Ignorable="d"
@@ -50,7 +50,7 @@
                     <TextBlock Text="Group name" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     <TextBox Text="{Binding Name}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
-                    <CheckBox Margin="5" Content="Enable group" IsChecked="{Binding Visible}" />
+                    <CheckBox Margin="5" Content="Enable" IsChecked="{Binding Visible}" />
                     <TextBlock Text="Color (all symbols)" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <colorpicker:PortableColorPicker Height="20">
                         <colorpicker:PortableColorPicker.Style>
@@ -73,10 +73,10 @@
         <DataTemplate DataType="{x:Type models:SymbolArtLayerModel}">
             <StackPanel>
                 <UniformGrid Columns="2" Margin="10 5">
-                    <TextBlock Text="Layer name" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    <TextBlock Text="Symbol name" HorizontalAlignment="Right" VerticalAlignment="Center" />
                     <TextBox Text="{Binding Name}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
-                    <CheckBox Margin="5" Content="Enable layer" IsChecked="{Binding Visible}" />
+                    <CheckBox Margin="5" Content="Enable" IsChecked="{Binding Visible}" />
                 </UniformGrid>
                 <!--<views:LayerVertexEditor />-->
             </StackPanel>
@@ -121,7 +121,12 @@
         <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="-24" />
         <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="24" />
 
+        <KeyBinding Modifiers="Ctrl" Key="Z" Command="{Binding Undo.UndoCommand}" />
+        <KeyBinding Modifiers="Ctrl" Key="Y" Command="{Binding Undo.RedoCommand}" />
+
         <KeyBinding Key="F1" Command="{Binding HelpCommand}" />
+        <KeyBinding Key="F3" Command="{Binding Undo.UndoCommand}" />
+        <KeyBinding Key="F4" Command="{Binding Undo.RedoCommand}" />
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -161,16 +166,19 @@
                 <MenuItem Header="_Exit" Command="{Binding ExitCommand}" />
             </MenuItem>
             <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" Command="{Binding Undo.UndoCommand}" InputGestureText="Ctrl+Z / F3" Template="{StaticResource iconMenuItem}" Icon="{StaticResource undoIcon}" />
+                <MenuItem Header="_Redo" Command="{Binding Undo.RedoCommand}" InputGestureText="Ctrl+Y / F4" Template="{StaticResource iconMenuItem}" Icon="{StaticResource redoIcon}" />
+                <Separator />
                 <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
                 <MenuItem Header="Add new _group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
                 <MenuItem Header="Add new _overlay image" Command="{Binding AddImageLayerCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
                 <Separator />
-                <MenuItem Header="Move item _up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
+                <MenuItem Header="Move item u_p in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
                 <MenuItem Header="Move item _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
                 <Separator />
                 <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
-                <MenuItem Header="D_uplicate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
+                <MenuItem Header="Dupli_cate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
                 <MenuItem Header="_Delete item" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
             </MenuItem>
             <MenuItem Header="_Transform item">
@@ -287,29 +295,28 @@
                             </colorpicker:StandardColorPicker.Style>
                         </colorpicker:StandardColorPicker>
                         <ListBox ItemsSource="{Binding CurrentSymbolArt.Palette.Colors}" x:Name="paletteList">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <Rectangle Height="48" Width="48">
-                                        <Rectangle.Style>
-                                            <Style TargetType="Rectangle">
-                                                <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorSolidBrushConverter}}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
-                                                        <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorToneSolidBrushConverter}}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Rectangle.Style>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Rectangle Height="48" Width="48">
+                                            <Rectangle.Style>
+                                                <Style TargetType="Rectangle">
+                                                    <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorSolidBrushConverter}}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding ElementName=mainWindow, Path=DataContext.ApplyToneCurve}" Value="True">
+                                                            <Setter Property="Fill" Value="{Binding Color, Converter={StaticResource colorToneSolidBrushConverter}}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Rectangle.Style>
                                         </Rectangle>
-                                    <TextBlock VerticalAlignment="Center" Margin="10 0 0 0">
+                                        <TextBlock VerticalAlignment="Center" Margin="10 0 0 0">
                                         Used by <Run Text="{Binding Layers.Count, Mode=OneWay}" /> symbol(s)
-                                    </TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                    
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </DockPanel>
                 </TabItem>
             </TabControl>
@@ -414,30 +421,47 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
                         <Separator />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource undoIcon}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource redoIcon}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
+                        <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
 
-                <StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Background="White" Panel.ZIndex="2">
-                    <CheckBox Content="Undo history" Margin="5" />
-                    <ListBox ItemsSource="{Binding Undo.UndoActions}" SelectedItem="{Binding Undo.CurrentAction}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Name}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsPerformed}" Value="False">
-                                                    <Setter Property="Foreground" Value="Gray" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </StackPanel>
+                <!-- History / undo panel and list -->
+                <Expander
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Background="White"
+                    Panel.ZIndex="2"
+                    BorderThickness="1"
+                    BorderBrush="{x:Static SystemColors.ActiveBorderBrush}"
+                    MinWidth="150"
+                    Margin="2">
+                    <Expander.Header>
+                        <TextBlock Margin="18 0" FontWeight="Bold">History / undo</TextBlock>
+                    </Expander.Header>
+                    <StackPanel>
+                        <controls:ListBoxScroll ItemsSource="{Binding Undo.UndoActions}" SelectedItem="{Binding Undo.CurrentAction}" MinWidth="150" MaxHeight="200" BorderThickness="0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsPerformed}" Value="False">
+                                                        <Setter Property="Foreground" Value="{x:Static SystemColors.GrayTextBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </controls:ListBoxScroll>
+                    </StackPanel>
+                </Expander>
+
 
                 <!-- Symbol art renderer -->
                 <views:SymbolArtRenderer 

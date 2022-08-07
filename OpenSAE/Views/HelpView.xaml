@@ -8,7 +8,7 @@
              d:DesignHeight="800" d:DesignWidth="800">
     <StackPanel>
         <TextBlock Style="{StaticResource titleText}">
-            OpenSAE Symbol Art Editor help
+            OpenSAE Symbol Art Editor help (v1.3)
         </TextBlock>
         <TextBlock>
             There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree and palette</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.
@@ -95,6 +95,14 @@
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource downIcon}" VerticalAlignment="Center" />
                 <TextBlock Margin="5 2">Moves the current symbol or group down in the drawing order (Alt+Up)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource undoIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Undoes the last action performed (Ctrl+Z / F3)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource redoIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Redoes the last action performed (Ctrl+Y / F4)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" VerticalAlignment="Center" />

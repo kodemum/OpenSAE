@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,12 +16,16 @@ namespace OpenSAE.Models
         public ObservableCollection<UndoActionModel> UndoActions { get; }
             = new ObservableCollection<UndoActionModel>();
 
+        public RelayCommand UndoCommand { get; }
+
+        public RelayCommand RedoCommand { get; }
+
         public UndoActionModel? CurrentAction
         {
             get => _currentAction;
             set
             {
-                int currentIndex = _currentAction == null ? -1 : UndoActions.IndexOf(_currentAction);
+                int currentIndex = CurrentActionIndex;
 
                 if (SetProperty(ref _currentAction, value) && value != null)
                 {
@@ -45,13 +50,33 @@ namespace OpenSAE.Models
                             }
                         }
                     }
+
+                    UndoCommand.NotifyCanExecuteChanged();
+                    RedoCommand.NotifyCanExecuteChanged();
                 }
             }
         }
 
+        public int CurrentActionIndex
+        {
+            get => _currentAction == null ? -1 : UndoActions.IndexOf(_currentAction);
+            set => CurrentAction = value == -1 ? null : UndoActions[value];
+        }
+
         private readonly Stack<UndoAggregateActionModel> _aggregateStack = new();
 
-        public void Clear() => UndoActions.Clear();
+        public UndoModel()
+        {
+            UndoCommand = new RelayCommand(() => CurrentActionIndex--, () => CurrentActionIndex > 0);
+            RedoCommand = new RelayCommand(() => CurrentActionIndex++, () => CurrentActionIndex < UndoActions.Count - 1);
+        }
+
+        public void Clear()
+        {
+            UndoActions.Clear();
+            UndoCommand.NotifyCanExecuteChanged();
+            RedoCommand.NotifyCanExecuteChanged();
+        }
 
         public void Add(string name, Action undo, Action redo)
         {
@@ -108,6 +133,9 @@ namespace OpenSAE.Models
             UndoActions.Add(newAction);
             _currentAction = newAction;
             OnPropertyChanged(nameof(CurrentAction));
+
+            UndoCommand.NotifyCanExecuteChanged();
+            RedoCommand.NotifyCanExecuteChanged();
         }
 
         public void BeginAggregate(string name, object? source, string? operation, Action? afterUndo, Action? afterRedo)
@@ -135,7 +163,7 @@ namespace OpenSAE.Models
 
         public void ResetWith(string name)
         {
-            UndoActions.Clear();
+            Clear();
             UndoActions.Add(new UndoActionModel(name, null, null, null, null, true));
         }
     }
