@@ -57,11 +57,16 @@ namespace OpenSAE.Models
             }
         }
 
+        public UndoActionModel? CurrentActiveAction => CurrentAction ?? UndoActions.LastOrDefault();
+
         public int CurrentActionIndex
         {
             get => _currentAction == null ? -1 : UndoActions.IndexOf(_currentAction);
             set => CurrentAction = value == -1 ? null : UndoActions[value];
         }
+
+        public bool ContainsNonPersistedChanges 
+            => CurrentActiveAction != null && !CurrentActiveAction.RepresentsRecoverableState;
 
         private readonly Stack<UndoAggregateActionModel> _aggregateStack = new();
 
@@ -83,6 +88,19 @@ namespace OpenSAE.Models
             Set(name, null, null, undo, redo);
         }
 
+        public void Add(UndoActionModel action)
+        {
+            if (_aggregateStack.TryPeek(out var currentAggregate))
+            {
+                // if an aggregate action is in progress, add the action to it
+                currentAggregate.Actions.Add(action);
+            }
+            else
+            {
+                CommitAction(action);
+            }
+        }
+
         public void Do(string name, Action action, Action undoAction)
         {
             action.Invoke();
@@ -94,15 +112,7 @@ namespace OpenSAE.Models
         {
             UndoActionModel newAction = new(name, source, operation, undo, redo, true);
 
-            if (_aggregateStack.TryPeek(out var currentAggregate))
-            {
-                // if an aggregate action is in progress, add the action to it
-                currentAggregate.Actions.Add(newAction);
-            }
-            else
-            {
-                CommitAction(newAction);
-            }
+            Add(newAction);
         }
 
         private void CommitAction(UndoActionModel newAction)
@@ -119,7 +129,7 @@ namespace OpenSAE.Models
             }
 
             // check if the last action is for the same source and operation
-            var currentActiveAction = CurrentAction ?? UndoActions.LastOrDefault();
+            var currentActiveAction = CurrentActiveAction;
             if (currentActiveAction != null)
             {
                 if (currentActiveAction.Source != null && currentActiveAction.Source == newAction.Source && currentActiveAction.Operation == newAction.Operation)
@@ -164,7 +174,7 @@ namespace OpenSAE.Models
         public void ResetWith(string name)
         {
             Clear();
-            UndoActions.Add(new UndoActionModel(name, null, null, null, null, true));
+            UndoActions.Add(new UndoActionModel(name, true));
         }
     }
 }

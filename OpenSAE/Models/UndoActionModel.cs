@@ -25,6 +25,14 @@ namespace OpenSAE.Models
             _redoAction = redo;
         }
 
+        public UndoActionModel(string name, bool representsRecoverableState)
+            : this(name, null, null, null, null, true)
+        {
+            RepresentsRecoverableState = representsRecoverableState;
+        }
+
+        public bool RepresentsRecoverableState { get; }
+
         public object? Source
         {
             get => _source;

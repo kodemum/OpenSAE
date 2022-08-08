@@ -416,6 +416,27 @@ namespace OpenSAE.Models
 
         public bool RequestExit()
         {
+            if (Undo.ContainsNonPersistedChanges)
+            {
+                var result = _dialogService.ShowYesNoCancel("Save changes", "Would you like to save the changes made to the current symbol art?");
+
+                switch (result)
+                {
+                    case true:
+                        if (!SaveCurrent())
+                        {
+                            return false;
+                        }
+                        break;
+
+                    case false:
+                        break;
+
+                    default:
+                        return false;
+                }
+            }
+
             Settings.Default.RecentFiles = RecentFiles.ToStringCollection();
             Settings.Default.ApplyToneCurve = ApplyToneCurve;
             Settings.Default.GuideLinesEnabled = GuideLinesEnabled;
@@ -427,6 +448,27 @@ namespace OpenSAE.Models
 
         private void OpenFile_Implementation(string? filename)
         {
+            if (Undo.ContainsNonPersistedChanges)
+            {
+                var result = _dialogService.ShowYesNoCancel("Save changes", "Would you like to save the changes made to the current symbol art?");
+
+                switch (result)
+                {
+                    case true:
+                        if (!SaveCurrent())
+                        {
+                            return;
+                        }
+                        break;
+
+                    case false:
+                        break;
+
+                    default:
+                        return;
+                }
+            }
+
             if (filename == null)
             {
                 filename = _dialogService.BrowseOpenFile("Open existing symbol art file", FileFormatFilter);
@@ -446,8 +488,65 @@ namespace OpenSAE.Models
                 _dialogService.ShowErrorMessage("Error opening file", "Unable to open the selected symbol art file.", ex);
             }
 
-            int recentPos = RecentFiles.IndexOf(filename);
+            AddRecentFile(filename);
+        }
 
+        public bool SaveCurrent()
+        {
+            if (CurrentSymbolArt == null)
+                return false;
+
+            if (string.IsNullOrEmpty(CurrentSymbolArt.FileName))
+            {
+                return SaveCurrentAs();
+            }
+            else
+            {
+                try
+                {
+                    CurrentSymbolArt.Save();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
+                }
+            }
+
+            return false;
+        }
+
+        public bool SaveCurrentAs()
+        {
+            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", FileFormatFilter, CurrentSymbolArt.FileName);
+
+            if (filename == null)
+                return false;
+
+            try
+            {
+                CurrentSymbolArt.SaveAs(filename, System.IO.Path.GetExtension(filename).ToLower() switch
+                {
+                    ".saml" => Core.SymbolArtFileFormat.SAML,
+                    ".sar" => Core.SymbolArtFileFormat.SAR,
+                    _ => throw new Exception("Unsupported file extension")
+                });
+
+                AddRecentFile(filename);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
+            }
+
+            return false;
+        }
+
+        private void AddRecentFile(string filename)
+        {
+            int recentPos = RecentFiles.IndexOf(filename);
             if (recentPos != -1)
             {
                 RecentFiles.RemoveAt(recentPos);
@@ -463,49 +562,12 @@ namespace OpenSAE.Models
 
         private void Save_Implementation()
         {
-            if (CurrentSymbolArt == null)
-                return;
-
-            if (string.IsNullOrEmpty(CurrentSymbolArt.FileName))
-            {
-                SaveAs_Implementation();
-            }
-            else
-            {
-                try
-                {
-                    CurrentSymbolArt.Save();
-                }
-                catch (Exception ex)
-                {
-                    _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
-                }
-            }
+            SaveCurrent();
         }
 
         private void SaveAs_Implementation()
         {
-            if (CurrentSymbolArt == null)
-                return;
-
-            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", FileFormatFilter, CurrentSymbolArt.FileName);
-
-            if (filename == null)
-                return;
-
-            try
-            {
-                CurrentSymbolArt.SaveAs(filename, System.IO.Path.GetExtension(filename).ToLower() switch
-                {
-                    ".saml" => Core.SymbolArtFileFormat.SAML,
-                    ".sar" => Core.SymbolArtFileFormat.SAR,
-                    _ => throw new Exception("Unsupported file extension")
-                });
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
-            }
+            SaveCurrentAs();
         }
     }
 }

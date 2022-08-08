@@ -24,6 +24,12 @@ namespace OpenSAE.Models
         void Add(string name, Action undo, Action redo);
 
         /// <summary>
+        /// Adds the specified undo action.
+        /// </summary>
+        /// <param name="action">Action to add</param>
+        void Add(UndoActionModel action);
+
+        /// <summary>
         /// Begins an aggregate action in the undo queue. All actions performed until <see cref="EndAggregate"/> is called
         /// will be grouped into a single action that can undo/redo them all in one step.
         /// </summary>

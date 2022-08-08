@@ -84,5 +84,22 @@ namespace OpenSAE.Services
                 MessageBox.Show(_parentWindow, message, title, MessageBoxButton.OK, isError ? MessageBoxImage.Error : MessageBoxImage.Information);
             });
         }
+
+        public bool? ShowYesNoCancel(string title, string message)
+        {
+            MessageBoxResult result = MessageBoxResult.None;
+
+            _parentWindow.Dispatcher.Invoke(() =>
+            {
+                result = MessageBox.Show(_parentWindow, message, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Information);
+            });
+
+            return result switch
+            {
+                MessageBoxResult.Yes => true,
+                MessageBoxResult.No => false,
+                _ => null
+            };
+        }
     }
 }

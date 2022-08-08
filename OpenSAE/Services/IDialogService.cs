@@ -36,6 +36,14 @@ namespace OpenSAE.Services
         bool ShowConfirmation(string title, string message);
 
         /// <summary>
+        /// Shows a dialog allowing the user to select Yes, No and Cancel.
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        bool? ShowYesNoCancel(string title, string message);
+
+        /// <summary>
         /// Shows a dialog with the specified message.
         /// </summary>
         /// <param name="title"></param>

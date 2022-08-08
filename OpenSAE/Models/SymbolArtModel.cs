@@ -166,6 +166,10 @@ namespace OpenSAE.Models
             var symbolArt = (SymbolArt)ToSymbolArtItem();
 
             symbolArt.Save(fs, format);
+
+            FileName = filename;
+
+            _undoModel.Add(new UndoActionModel("Save", true));
         }
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
