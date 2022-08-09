@@ -48,8 +48,10 @@ namespace OpenSAE.Models
         public SymbolArtModel? CurrentSymbolArt
         {
             get => _currentSymbolArt;
-            set
+            private set
             {
+                var previous = _currentSymbolArt;
+
                 if (SetProperty(ref _currentSymbolArt, value))
                 {
                     OnPropertyChanged(nameof(AppTitle));
@@ -60,7 +62,25 @@ namespace OpenSAE.Models
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                     AddImageLayerCommand.NotifyCanExecuteChanged();
+
+                    if (previous != null)
+                    {
+                        previous.PropertyChanged -= CurrentSymbolArt_PropertyChanged;
+                    }
+
+                    if (value != null)
+                    {
+                        value.PropertyChanged += CurrentSymbolArt_PropertyChanged;
+                    }
                 }
+            }
+        }
+
+        private void CurrentSymbolArt_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SymbolArtModel.Name))
+            {
+                OnPropertyChanged(nameof(AppTitle));
             }
         }
 
@@ -178,14 +198,19 @@ namespace OpenSAE.Models
         {
             get
             {
+                string state = string.Empty;
+
                 if (CurrentSymbolArt != null)
                 {
-                    return $"{CurrentSymbolArt.Name} - OpenSAE Symbol Art Editor";
+                    if (CurrentSymbolArt.FileName != null)
+                    {
+                        state = $"{Path.GetFileName(CurrentSymbolArt.FileName)} - ";
+                    }
+
+                    state += $"{CurrentSymbolArt.Name} - ";
                 }
-                else
-                {
-                    return "OpenSAE Symbol Art Editor";
-                }
+
+                return state + "OpenSAE Symbol Art Editor";
             }
         }
 
