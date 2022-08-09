@@ -99,11 +99,11 @@ namespace OpenSAE.Core.SAR
         {
             foreach (var item in group.Children)
             {
-                if (item is SymbolArtLayer layer)
+                if (item is SymbolArtLayer layer && layer.Visible)
                 {
                     yield return layer;
                 }
-                else if (item is ISymbolArtGroup subGroup)
+                else if (item is ISymbolArtGroup subGroup && subGroup.Visible)
                 {
                     foreach (var subLayer in GetAllLayers(subGroup))
                     {
