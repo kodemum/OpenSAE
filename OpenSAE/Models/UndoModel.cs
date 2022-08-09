@@ -148,7 +148,7 @@ namespace OpenSAE.Models
             RedoCommand.NotifyCanExecuteChanged();
         }
 
-        public void BeginAggregate(string name, object? source, string? operation, Action? afterUndo, Action? afterRedo)
+        public void BeginAggregate(string name, object? source = null, string? operation = null, Action? afterUndo = null, Action? afterRedo = null)
         {
             UndoAggregateActionModel newAggregate = new(name, source, operation, afterUndo, afterRedo, true);
 
@@ -158,6 +158,13 @@ namespace OpenSAE.Models
             }
 
             _aggregateStack.Push(newAggregate);
+        }
+
+        public UndoAggregateScope StartAggregateScope(string name, object? source = null, string? operation = null, Action? afterUndo = null, Action? afterRedo = null)
+        {
+            BeginAggregate(name, source, operation, afterUndo, afterRedo);
+
+            return new UndoAggregateScope(this);
         }
 
         public void EndAggregate()

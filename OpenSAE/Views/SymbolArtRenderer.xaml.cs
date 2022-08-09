@@ -337,9 +337,40 @@ namespace OpenSAE.Views
 
                 if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
                 {
-                    operation = ManipulationOperation.Rotate;
-                    rotatingOrigin = SelectedLayer.Vertices.GetCenter();
-                    rotatingOriginAngle = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X);
+                    if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.LeftAlt))
+                    {
+                        var parent = SelectedLayer.Parent;
+
+                        if (parent == null)
+                            return;
+
+                        // make a copy of the currently selected item and drag it
+                        // this makes it very easy to duplicate symbols/groups
+                        operation = ManipulationOperation.DragDuplicate;
+                        draggingLayerOriginalPos = SelectedLayer.Position;
+                        var previousLayer = SelectedLayer;
+                        var duplicate = previousLayer.Duplicate(parent);
+                        int currentIndex = previousLayer.IndexInParent;
+
+                        duplicate.Undo.Do($"Duplicate {duplicate.ItemTypeName}",
+                            () =>
+                            {
+                                parent.Children.Insert(currentIndex, duplicate);
+                                SelectedLayer = duplicate;
+                            },
+                            () =>
+                            {
+                                parent.Children.Remove(duplicate);
+                                SelectedLayer = previousLayer;
+                            }
+                        );
+                    }
+                    else
+                    {
+                        operation = ManipulationOperation.Rotate;
+                        rotatingOrigin = SelectedLayer.Vertices.GetCenter();
+                        rotatingOriginAngle = Math.Atan2(draggingClickOrigin.Y - rotatingOrigin.Y, draggingClickOrigin.X - rotatingOrigin.X);
+                    }
                 }
                 else
                 {
@@ -374,12 +405,15 @@ namespace OpenSAE.Views
                     }
                 }
 
-                SelectedLayer.StartManipulation(operation switch
+                if (operation != ManipulationOperation.DragDuplicate)
                 {
-                    ManipulationOperation.DragVertex => "Manipulate",
-                    ManipulationOperation.MoveItem => "Move",
-                    _ => operation.ToString()
-                });
+                    SelectedLayer.StartManipulation(operation switch
+                    {
+                        ManipulationOperation.DragVertex => "Manipulate",
+                        ManipulationOperation.MoveItem => "Move",
+                        _ => operation.ToString()
+                    });
+                }
             }
 
             CaptureMouse();
@@ -447,6 +481,7 @@ namespace OpenSAE.Views
                     break;
 
                 case ManipulationOperation.MoveItem:
+                case ManipulationOperation.DragDuplicate:
                     var diff = ptMouse - draggingClickOrigin;
 
                     if (SelectedLayer.EnforceGridPositioning)
@@ -736,7 +771,8 @@ namespace OpenSAE.Views
             MoveItem,
             MoveView,
             Resize,
-            Rotate
+            Rotate,
+            DragDuplicate
         }
     }
 }

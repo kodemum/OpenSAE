@@ -24,11 +24,15 @@ namespace OpenSAE.Models
             {
                 if (value != Color)
                 {
-                    _undoModel.BeginAggregate("Change palette color", this, nameof(Color), () => OnPropertyChanged(nameof(Color)), () => OnPropertyChanged(nameof(Color)));
+                    using var scope = _undoModel.StartAggregateScope(
+                        "Change palette color", 
+                        this, 
+                        nameof(Color), 
+                        () => OnPropertyChanged(nameof(Color)), 
+                        () => OnPropertyChanged(nameof(Color))
+                    );
 
                     Layers.ForEach(x => x.Color = value);
-
-                    _undoModel.EndAggregate();
 
                     OnPropertyChanged();
                 }

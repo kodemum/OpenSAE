@@ -149,11 +149,11 @@ namespace OpenSAE
 
                     if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
                     {
-                        _treeViewDraggingItem.CopyTo(targetItem);
+                        _model.CopyItemTo(_treeViewDraggingItem, targetItem);
                     }
                     else
                     {
-                        _treeViewDraggingItem.MoveTo(targetItem);
+                        _model.MoveItemTo(_treeViewDraggingItem, targetItem);
                     }
                 }
             }

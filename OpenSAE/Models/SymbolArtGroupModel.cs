@@ -168,14 +168,12 @@ namespace OpenSAE.Models
                     if (layers.Count == 0)
                         return;
 
-                    _undoModel.BeginAggregate("Change group opacity", this, nameof(Alpha));
+                    using var scope = _undoModel.StartAggregateScope("Change group opacity", this, nameof(Alpha));
 
                     foreach (var layer in layers)
                     {
                         layer.Alpha = value;
                     }
-
-                    _undoModel.EndAggregate();
 
                     OnPropertyChanged();
                 }
@@ -194,14 +192,12 @@ namespace OpenSAE.Models
                     if (layers.Count == 0)
                         return;
 
-                    _undoModel.BeginAggregate($"Change group color", this, nameof(Color));
+                    using var scope = _undoModel.StartAggregateScope($"Change group color", this, nameof(Color));
 
                     foreach (var layer in layers)
                     {
                         layer.Color = value;
                     }
-
-                    _undoModel.EndAggregate();
 
                     OnPropertyChanged();
                 }
@@ -485,7 +481,7 @@ namespace OpenSAE.Models
 
         public void AddTextAsSymbols(string previousText, string newText)
         {
-            _undoModel.BeginAggregate("Add text", this, nameof(PendingSymbolText), OnVerticesChanged, OnVerticesChanged);
+            using var scope = _undoModel.StartAggregateScope("Add text", this, nameof(PendingSymbolText), OnVerticesChanged, OnVerticesChanged);
 
             double x = -96, y = -48;
             double sizeX = 13, sizeY = 14;
@@ -565,8 +561,6 @@ namespace OpenSAE.Models
                     }
                 }
             }
-
-            _undoModel.EndAggregate();
         }
     }
 }

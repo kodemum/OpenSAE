@@ -365,8 +365,7 @@ namespace OpenSAE.Models
                     break;
 
                 case "delete":
-                    SelectedItem.Delete();
-                    SelectedItem = null;
+                    DeleteItem(SelectedItem);
                     break;
 
                 case "flipX":
@@ -406,10 +405,143 @@ namespace OpenSAE.Models
                     var targetItem = SelectedItem;
 
                     Undo.Do($"Duplicate {SelectedItem.ItemTypeName}",
-                        () => targetItem.Parent.Children.Insert(currentIndex, duplicate),
-                        () => targetItem.Parent.Children.Remove(duplicate)
+                        () =>
+                        {
+                            targetItem.Parent.Children.Insert(currentIndex, duplicate);
+                            SelectedItem = duplicate;
+                        },
+                        () =>
+                        {
+                            targetItem.Parent.Children.Remove(duplicate);
+                            SelectedItem = targetItem;
+                        }
                     );
                     break;
+            }
+        }
+
+        public void DeleteItem(SymbolArtItemModel item)
+        {
+            var targetItem = item;
+            var targetParent = targetItem.Parent;
+            var currentIndex = item.IndexInParent;
+
+            using var scope = Undo.StartAggregateScope($"Delete {item.ItemTypeName}");
+
+            // deleting the item adds it to the undo scope
+            item.Delete();
+
+            // but we also want to handle selecting the appropriate item
+            Undo.Do("Change selection",
+                () =>
+                {
+                    // select the item at the same position as the one that was deleted
+                    // unless it was the last, in which case select the previous item
+                    // If there are no other items, select the parent
+                    if (targetParent?.Children.Count > currentIndex)
+                        SelectedItem = targetParent.Children[currentIndex];
+                    else if (targetParent?.Children.Count > currentIndex - 1 && currentIndex > 0)
+                        SelectedItem = targetParent.Children[currentIndex - 1];
+                    else
+                        SelectedItem = targetParent;
+                },
+                () => SelectedItem = targetItem
+            );
+        }
+
+        public void CopyItemTo(SymbolArtItemModel source, SymbolArtItemModel target)
+        {
+            if (source.Parent == null)
+                return;
+
+            SymbolArtItemModel group;
+            int targetIndex;
+
+            if (target is SymbolArtGroupModel targetGroup)
+            {
+                group = targetGroup;
+                targetIndex = 0;
+            }
+            else if (target.Parent != null)
+            {
+                group = target.Parent;
+                targetIndex = target.IndexInParent;
+            }
+            else
+            {
+                throw new Exception("Invalid copy target");
+            }
+
+            var copy = source.Duplicate(group);
+            var currentSelection = SelectedItem;
+
+            Undo.Do($"Copy {source.ItemTypeName}",
+                () =>
+                {
+                    group.Children.Insert(targetIndex, copy);
+                    SelectedItem = copy;
+                },
+                () =>
+                {
+                    group.Children.Remove(copy);
+                    SelectedItem = currentSelection;
+                }
+            );
+        }
+
+        public void MoveItemTo(SymbolArtItemModel source, SymbolArtItemModel target)
+        {
+            if (source.Parent == null)
+                return;
+
+            int currentIndex = source.IndexInParent;
+            int newIndex;
+            SymbolArtItemModel targetParent;
+
+            if (target is SymbolArtGroupModel group)
+            {
+                newIndex = 0;
+                targetParent = group;
+            }
+            else if (target.Parent != null)
+            {
+                // move to group at same index as target
+                targetParent = target.Parent;
+                newIndex = target.IndexInParent;
+            }
+            else
+            {
+                throw new Exception("Invalid move target");
+            }
+
+            var currentParent = source.Parent;
+            
+            // if already in the same group, we only need to change the index
+            if (currentParent == targetParent)
+            {
+                // already in same group
+                source.IndexInParent = target.IndexInParent;
+            }
+            else
+            {
+                var currentSelection = SelectedItem;
+
+                Undo.Do($"Reorder {source.ItemTypeName}", 
+                    () =>
+                    {
+                        currentParent.Children.Remove(source);
+                        targetParent.Children.Insert(newIndex, source);
+                        source.Parent = targetParent;
+                        SelectedItem = source;
+                    },
+                    () =>
+                    {
+                        targetParent.Children.Remove(source);
+                        currentParent.Children.Insert(currentIndex, source);
+                        source.Parent = currentParent;
+                        SelectedItem = source;
+                    }
+                );
             }
         }
 

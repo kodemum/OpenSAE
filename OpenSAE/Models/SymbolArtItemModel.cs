@@ -45,6 +45,8 @@ namespace OpenSAE.Models
             }
         }
 
+        public IUndoModel Undo => _undoModel;
+
         public abstract string ItemTypeName { get; }
 
         public virtual string DisplayName => Name ?? "[unnamed]";
@@ -268,91 +270,6 @@ namespace OpenSAE.Models
             {
                 IndexInParent++;
             }
-        }
-
-        public void MoveTo(SymbolArtItemModel target)
-        {
-            if (Parent == null)
-                return;
-
-            int currentIndex = IndexInParent;
-            int newIndex;
-            SymbolArtItemModel targetGroup;
-
-            if (target is SymbolArtGroupModel group)
-            {
-                newIndex = 0;
-                targetGroup = group;
-            }
-            else if (target.Parent != null)
-            {
-                // move to group at same index as target
-                targetGroup = target.Parent;
-                newIndex = target.IndexInParent;
-            }
-            else
-            {
-                throw new Exception("Invalid move target");
-            }
-
-            var currentParent = Parent;
-
-            // if already in the same group, we only need to change the index
-            if (currentParent == targetGroup)
-            {
-                // already in same group
-                _undoModel.Do($"Reorder {ItemTypeName}",
-                    () => IndexInParent = target.IndexInParent,
-                    () => IndexInParent = currentIndex
-                );
-            }
-            else
-            {
-                _undoModel.Do($"Reorder {ItemTypeName}", () =>
-                    {
-                        currentParent.Children.Remove(this);
-                        targetGroup.Children.Insert(newIndex, this);
-                        Parent = targetGroup;
-                    },
-                    () =>
-                    {
-                        targetGroup.Children.Remove(this);
-                        currentParent.Children.Insert(currentIndex, this);
-                        Parent = currentParent;
-                    }
-                );
-            }
-        }
-
-        public void CopyTo(SymbolArtItemModel target)
-        {
-            if (Parent == null)
-                return;
-
-            SymbolArtItemModel group;
-            int targetIndex;
-
-            if (target is SymbolArtGroupModel targetGroup)
-            {
-                group = targetGroup;
-                targetIndex = 0;
-            }
-            else if (target.Parent != null)
-            {
-                group = target.Parent;
-                targetIndex = target.IndexInParent;
-            }
-            else
-            {
-                throw new Exception("Invalid copy target");
-            }
-
-            var copy = Duplicate(group);
-
-            _undoModel.Do($"Copy {ItemTypeName}",
-                () => group.Children.Insert(targetIndex, copy),
-                () => group.Children.Remove(copy)
-            );
         }
 
         /// <summary>

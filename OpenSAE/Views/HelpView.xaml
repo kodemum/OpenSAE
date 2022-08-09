@@ -51,6 +51,9 @@
                 <TextBlock Margin="5 2">To rotate a symbol, hold down <Run FontWeight="Bold">Ctrl</Run> and drag</TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">To quickly duplicate a symbol, <Run FontWeight="Bold">Ctrl</Run> and <Run FontWeight="Bold">Alt</Run> and left-click and drag</TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">To move a symbol, left-click anywhere not a corner and drag</TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">

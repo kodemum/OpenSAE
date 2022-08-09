@@ -63,5 +63,16 @@ namespace OpenSAE.Models
         /// <param name="action">Action to run immediately and if the action is redone</param>
         /// <param name="undoAction">Action to run when undoing the action</param>
         void Do(string name, Action action, Action undoAction);
+
+        /// <summary>
+        /// Starts a new aggregate action and returns an object that should be disposed when the actions in the scope have been committed.
+        /// </summary>
+        /// <param name="name">Name of the aggregate action to set</param>
+        /// <param name="source">Source object for the action</param>
+        /// <param name="operation">Identifier determining what the action does</param>
+        /// <param name="afterRedo">Action to run after redoing the aggregate action</param>
+        /// <param name="afterUndo">Action to run after undoing the aggregate action</param>
+        /// <returns></returns>
+        UndoAggregateScope StartAggregateScope(string name, object? source = null, string? operation = null, Action? afterUndo = null, Action? afterRedo = null);
     }
 }
