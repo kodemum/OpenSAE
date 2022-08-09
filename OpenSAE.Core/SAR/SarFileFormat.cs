@@ -78,6 +78,7 @@ namespace OpenSAE.Core.SAR
                 Width = input.Width switch
                 {
                     32 => 64,
+                    192 => 193,
                     _ => (byte)input.Width
                 },
                 Height = input.Width switch
