@@ -19,6 +19,8 @@ namespace OpenSAE.Models
             _visible = group.Visible;
 
             AddChildren(group.Children);
+
+            _pendingSymbolText = string.Concat(Children.OfType<SymbolArtLayerModel>().Select(x => x.Symbol?.Name).Where(x => x?.Length == 1));
         }
 
         public SymbolArtGroupModel(IUndoModel undoModel, string name, bool visible, SymbolArtItemModel parent)
@@ -481,7 +483,7 @@ namespace OpenSAE.Models
 
         public void AddTextAsSymbols(string previousText, string newText)
         {
-            using var scope = _undoModel.StartAggregateScope("Add text", this, nameof(PendingSymbolText), OnVerticesChanged, OnVerticesChanged);
+            using var scope = _undoModel.StartAggregateScope("Add text", null, null, OnVerticesChanged, OnVerticesChanged);
 
             double x = -96, y = -48;
             double sizeX = 13, sizeY = 14;
@@ -555,7 +557,10 @@ namespace OpenSAE.Models
                             Vertex4 = new Point(x + sizeX, y)
                         };
 
-                        Children.Add(layer);
+                        Undo.Do("Add letter",
+                            () => Children.Add(layer),
+                            () => Children.Remove(layer)
+                        );
 
                         x += sizeX + -(layer.Symbol.KerningRight * sizeX);
                     }
