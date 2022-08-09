@@ -5,6 +5,7 @@ using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,7 +21,9 @@ namespace OpenSAE.Models
     /// </summary>
     public class AppModel : ObservableObject
     {
-        private const string FileFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
+        private const string OpenFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
+        private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
+        private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
         private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif";
         private const double DefaultSymbolUnitWidth = 240;
         private const double MinimumSymbolUnitWidth = 24;
@@ -365,6 +368,10 @@ namespace OpenSAE.Models
                     AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel(Undo, "Group", true, parentGroup));
                     break;
 
+                case "export":
+                    ExportCurrent();
+                    break;
+
                 case "duplicate":
                     if (SelectedItem.Parent == null)
                         return;
@@ -471,7 +478,7 @@ namespace OpenSAE.Models
 
             if (filename == null)
             {
-                filename = _dialogService.BrowseOpenFile("Open existing symbol art file", FileFormatFilter);
+                filename = _dialogService.BrowseOpenFile("Open existing symbol art file", OpenFormatFilter);
 
                 if (filename == null)
                     return;
@@ -496,7 +503,7 @@ namespace OpenSAE.Models
             if (CurrentSymbolArt == null)
                 return false;
 
-            if (string.IsNullOrEmpty(CurrentSymbolArt.FileName))
+            if (string.IsNullOrEmpty(CurrentSymbolArt.FileName) || Path.GetExtension(CurrentSymbolArt.FileName).ToLowerInvariant() == ".sar")
             {
                 return SaveCurrentAs();
             }
@@ -516,21 +523,40 @@ namespace OpenSAE.Models
             return false;
         }
 
-        public bool SaveCurrentAs()
+        public bool ExportCurrent()
         {
-            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", FileFormatFilter, CurrentSymbolArt.FileName);
+            if (CurrentSymbolArt == null)
+                return false;
+
+            string? filename = _dialogService.BrowseSaveFile("Export symbol art", ExportFormatFilter, Path.ChangeExtension(CurrentSymbolArt.FileName, ".sar"));
 
             if (filename == null)
                 return false;
 
             try
             {
-                CurrentSymbolArt.SaveAs(filename, System.IO.Path.GetExtension(filename).ToLower() switch
-                {
-                    ".saml" => Core.SymbolArtFileFormat.SAML,
-                    ".sar" => Core.SymbolArtFileFormat.SAR,
-                    _ => throw new Exception("Unsupported file extension")
-                });
+                CurrentSymbolArt.SaveAs(filename, Core.SymbolArtFileFormat.SAR, false);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Error saving file", "Unable to save the symbol art file.", ex);
+            }
+
+            return false;
+        }
+
+        public bool SaveCurrentAs()
+        {
+            string? filename = _dialogService.BrowseSaveFile("Save symbol art file", SaveFormatFilter, CurrentSymbolArt.FileName);
+
+            if (filename == null)
+                return false;
+
+            try
+            {
+                CurrentSymbolArt.SaveAs(filename, Core.SymbolArtFileFormat.SAML, true);
 
                 AddRecentFile(filename);
 

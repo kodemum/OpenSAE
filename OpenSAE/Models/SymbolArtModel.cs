@@ -156,10 +156,10 @@ namespace OpenSAE.Models
                 throw new InvalidOperationException("Cannot save in-place as Symbol Art was not created from a file");
             }
 
-            SaveAs(FileName, _fileFormat == SymbolArtFileFormat.None ? SymbolArtFileFormat.SAML : _fileFormat);
+            SaveAs(FileName, _fileFormat == SymbolArtFileFormat.None ? SymbolArtFileFormat.SAML : _fileFormat, true);
         }
 
-        public void SaveAs(string filename, SymbolArtFileFormat format)
+        public void SaveAs(string filename, SymbolArtFileFormat format, bool updateFilename)
         {
             using var fs = File.Create(filename);
 
@@ -167,7 +167,10 @@ namespace OpenSAE.Models
 
             symbolArt.Save(fs, format);
 
-            FileName = filename;
+            if (updateFilename)
+            {
+                FileName = filename;
+            }
 
             _undoModel.Add(new UndoActionModel("Save", true));
         }

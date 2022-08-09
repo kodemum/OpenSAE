@@ -33,7 +33,7 @@
             <StackPanel>
                 <UniformGrid Columns="2" Margin="10 5">
                     <TextBlock Text="Symbol Art name" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Name}" Margin="5" />
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
                     <TextBlock Text="Size" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <ComboBox ItemsSource="{Binding SizeOptions}" Margin="5" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Size}" />
                     <TextBlock Text="Sound effect" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
@@ -48,7 +48,7 @@
             <StackPanel>
                 <UniformGrid Columns="2" Margin="10 5">
                     <TextBlock Text="Group name" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Name}" Margin="5" />
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable" IsChecked="{Binding Visible}" />
                     <TextBlock Text="Color (all symbols)" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
@@ -74,7 +74,7 @@
             <StackPanel>
                 <UniformGrid Columns="2" Margin="10 5">
                     <TextBlock Text="Symbol name" HorizontalAlignment="Right" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Name}" Margin="5" />
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Margin="5" />
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable" IsChecked="{Binding Visible}" />
                 </UniformGrid>
@@ -99,6 +99,7 @@
         <KeyBinding Modifiers="Ctrl" Key="N" Command="{Binding NewFileCommand}" />
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding SaveCommand}" />
         <KeyBinding Modifiers="Ctrl+Alt" Key="S" Command="{Binding SaveAsCommand}" />
+        <KeyBinding Modifiers="Ctrl+Alt+Shift" Key="S" Command="{Binding CurrentItemCommand}" CommandParameter="export" />
 
         <KeyBinding Modifiers="Ctrl" Key="OemComma" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
         <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" />
@@ -148,6 +149,7 @@
                 <MenuItem Header="_Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" Template="{StaticResource iconMenuItem}" Icon="{StaticResource openFileIcon}" />
                 <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S" Template="{StaticResource iconMenuItem}" Icon="{StaticResource saveIcon}" />
                 <MenuItem Header="_Save as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Alt+S" />
+                <MenuItem Header="E_xport to game..." Command="{Binding CurrentItemCommand}" CommandParameter="export" InputGestureText="Ctrl+Alt+Shift+S" />
                 <Separator />
                 <MenuItem Header="_Recent files" ItemsSource="{Binding RecentFiles}">
                     <MenuItem.ItemTemplate>
