@@ -14,7 +14,7 @@ namespace OpenSAE.Core.SAR
             = new byte[] { 0x73, 0x61, 0x72 }; // 'sar'
 
         private static readonly byte[] _encryptionKey 
-            = new byte[] { 9, 7, 193, 43 }; //0x09, 0x07, 0xc1, 0x2b
+            = new byte[] { 0x09, 0x07, 0xC1, 0x2B };
 
         public string Name => "SAR";
 
