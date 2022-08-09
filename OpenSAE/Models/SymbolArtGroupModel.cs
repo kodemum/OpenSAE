@@ -163,9 +163,14 @@ namespace OpenSAE.Models
             {
                 if (value != Alpha)
                 {
+                    var layers = GetAllLayers().ToList();
+
+                    if (layers.Count == 0)
+                        return;
+
                     _undoModel.BeginAggregate("Change group opacity", this, nameof(Alpha));
 
-                    foreach (var layer in GetAllLayers())
+                    foreach (var layer in layers)
                     {
                         layer.Alpha = value;
                     }
@@ -184,9 +189,14 @@ namespace OpenSAE.Models
             {
                 if (value != Color)
                 {
+                    var layers = GetAllLayers().ToList();
+
+                    if (layers.Count == 0)
+                        return;
+
                     _undoModel.BeginAggregate($"Change group color", this, nameof(Color));
 
-                    foreach (var layer in GetAllLayers())
+                    foreach (var layer in layers)
                     {
                         layer.Color = value;
                     }
