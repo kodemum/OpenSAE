@@ -26,6 +26,7 @@ namespace OpenSAE.Models
             };
 
             _undoModel = undoModel;
+            _temporaryVertices = Vertices;
         }
 
         public event EventHandler? ChildrenChanged;
@@ -334,7 +335,7 @@ namespace OpenSAE.Models
         {
             StartManipulation();
 
-            Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices!, origin, angle);
+            Vertices = SymbolManipulationHelper.Rotate(_temporaryVertices, origin, angle);
         }
 
         public static bool IsChildOf(object childItem, object parentItem)

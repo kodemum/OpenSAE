@@ -190,7 +190,7 @@ namespace OpenSAE.Models
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
-            return new SymbolArtImageLayerModel(_undoModel, Name, ImageData, Parent);
+            return new SymbolArtImageLayerModel(_undoModel, Name!, ImageData!, Parent!);
         }
 
         public override void ResizeFromVertex(int vertexIndex, Point point)
