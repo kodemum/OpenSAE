@@ -402,6 +402,10 @@ namespace OpenSAE.Models
                     ExportCurrentAsBitmap();
                     break;
 
+                case "cleanupBounds":
+                    CleanupOutsideActiveArea();
+                    break;
+
                 case "duplicate":
                     if (SelectedItem.Parent == null)
                         return;
@@ -792,5 +796,27 @@ namespace OpenSAE.Models
                 RecentFiles.RemoveAt(RecentFiles.Count - 1);
             }
         }
+
+        private void CleanupOutsideActiveArea()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            double boundryY = CurrentSymbolArt.Height / 2;
+            double boundryX = CurrentSymbolArt.Width / 2;
+
+            var targetLayers = CurrentSymbolArt
+                .GetAllLayers()
+                .Where(layer => layer.Vertices.All(x => x.Y < -boundryY) || layer.Vertices.All(x => x.Y > boundryY) ||
+                                layer.Vertices.All(x => x.X < -boundryX) || layer.Vertices.All(x => x.X > boundryX))
+                .ToList();
+
+            if (targetLayers.Count > 0)
+            {
+                using var scope = Undo.StartAggregateScope("Clean up symbols");
+
+                targetLayers.ForEach(x => x.Delete());
+            }
+         }
     }
 }

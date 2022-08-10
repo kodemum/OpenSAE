@@ -180,6 +180,10 @@
                 <MenuItem Header="Move item u_p in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
                 <MenuItem Header="Move item _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
                 <Separator />
+                <MenuItem Header="Ad_vanced">
+                    <MenuItem Header="_Clean up symbols outside visible area" Command="{Binding CurrentItemCommand}" CommandParameter="cleanupBounds" />
+                </MenuItem>
+                <Separator />
                 <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
                 <MenuItem Header="Dupli_cate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
                 <MenuItem Header="_Delete item" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
