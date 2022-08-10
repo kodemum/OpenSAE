@@ -24,7 +24,7 @@ namespace OpenSAE.Models
         private const string OpenFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
         private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
-        private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif";
+        private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
         private const double DefaultSymbolUnitWidth = 240;
         private const double MinimumSymbolUnitWidth = 24;
         private const double MaximumSymbolUnitWidth = 320;
@@ -396,6 +396,10 @@ namespace OpenSAE.Models
                     ExportCurrent();
                     break;
 
+                case "exportBitmap":
+                    ExportCurrentAsBitmap();
+                    break;
+
                 case "duplicate":
                     if (SelectedItem.Parent == null)
                         return;
@@ -418,6 +422,56 @@ namespace OpenSAE.Models
                     );
                     break;
             }
+        }
+
+        public bool ExportCurrentAsBitmap()
+        {
+            if (CurrentSymbolArt == null)
+                return false;
+
+            string? filename = _dialogService.BrowseSaveFile("Export symbol art image", BitmapFormatFilter, Path.ChangeExtension(CurrentSymbolArt.FileName, ".png"));
+
+            if (filename == null)
+                return false;
+
+            try
+            {
+                BitmapEncoder encoder = Path.GetExtension(filename).ToLowerInvariant() switch
+                {
+                    ".png" => new PngBitmapEncoder(),
+                    ".jpg" => new JpegBitmapEncoder(),
+                    ".jpeg" => new JpegBitmapEncoder(),
+                    ".gif" => new GifBitmapEncoder(),
+                    ".bmp" => new BmpBitmapEncoder(),
+                    ".tif" => new TiffBitmapEncoder(),
+                    _ => throw new InvalidOperationException($"Unknown bitmap file format {Path.GetExtension(filename)}")
+                };
+
+                int height, width;
+
+                if (CurrentSymbolArt.Size == Core.SymbolArtSize.AllianceLogo)
+                {
+                    width = 512;
+                    height = 512; 
+                }
+                else
+                {
+                    width = 1920;
+                    height = 960;
+                }
+
+                using FileStream fs = File.Open(filename, FileMode.Create);
+
+                BitmapSymbolArtRenderer.RenderToStream(CurrentSymbolArt, encoder, width, height, fs);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Error saving file", "Unable to export the symbol art to a bitmap image.", ex);
+            }
+
+            return false;
         }
 
         public void DeleteItem(SymbolArtItemModel item)

@@ -134,8 +134,25 @@ namespace OpenSAE.Views
         /// </summary>
         private const int LayerVertexClickRadius = 15;
 
+        /// <summary>
+        /// Set if this instance of the renderer is static and does not respond to changes in the attached symbol art.
+        /// </summary>
+        private readonly bool _isStatic;
+
+        /// <summary>
+        /// Disables all interaction with the control
+        /// </summary>
+        private readonly bool _noInteraction;
+
         private Dictionary<SymbolArtItemModel, LayerModelReference> _layerDictionary
             = new();
+
+        public SymbolArtRenderer(bool isStatic, bool noInteraction)
+            : this()
+        {
+            _isStatic = isStatic;
+            _noInteraction = noInteraction;
+        }
 
         public SymbolArtRenderer()
         {
@@ -242,6 +259,12 @@ namespace OpenSAE.Views
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
+            if (_noInteraction)
+            {
+                base.OnPreviewKeyDown(e);
+                return;
+            }
+
             if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
             {
                 Cursor = Cursors.Hand;
@@ -290,6 +313,12 @@ namespace OpenSAE.Views
 
         protected override void OnPreviewKeyUp(KeyEventArgs e)
         {
+            if (_noInteraction)
+            {
+                base.OnPreviewKeyUp(e);
+                return;
+            }
+
             Cursor = null;
 
             if (SelectedLayer != null)
@@ -309,11 +338,20 @@ namespace OpenSAE.Views
         {
             base.OnMouseWheel(e);
 
-            SymbolUnitWidth -= e.Delta / 25;
+            if (!_noInteraction)
+            {
+                SymbolUnitWidth -= e.Delta / 25;
+            }
         }
 
         protected override void OnPreviewMouseDown(MouseButtonEventArgs args)
         {
+            if (_noInteraction)
+            {
+                base.OnPreviewMouseDown(args);
+                return;
+            }
+
             Focus();
             Keyboard.Focus(this);
 
@@ -424,6 +462,11 @@ namespace OpenSAE.Views
         {
             base.OnMouseMove(args);
 
+            if (_noInteraction)
+            {
+                return;
+            }
+
             Point ptMouse = CoordinatesToSymbolArt(args.GetPosition(viewport3d), true);
 
             MouseSymbolPosition = new Point(Math.Round(ptMouse.X), Math.Round(ptMouse.Y));
@@ -511,6 +554,11 @@ namespace OpenSAE.Views
         {
             base.OnMouseUp(args);
 
+            if (_noInteraction)
+            {
+                return;
+            }
+
             if (operation != ManipulationOperation.None)
             {
                 SelectedLayer?.CommitManipulation();
@@ -556,8 +604,11 @@ namespace OpenSAE.Views
                 }
             };
 
-            group.Children.CollectionChanged -= Children_CollectionChanged;
-            group.Children.CollectionChanged += Children_CollectionChanged;
+            if (!_isStatic)
+            {
+                group.Children.CollectionChanged -= Children_CollectionChanged;
+                group.Children.CollectionChanged += Children_CollectionChanged;
+            }
         }
 
         private void Children_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -660,8 +711,11 @@ namespace OpenSAE.Views
 
             _layerDictionary.Add(layer, new LayerModelReference(model, material, brush, geometry));
 
-            layer.PropertyChanged -= Layer_PropertyChanged;
-            layer.PropertyChanged += Layer_PropertyChanged;
+            if (!_isStatic)
+            {
+                layer.PropertyChanged -= Layer_PropertyChanged;
+                layer.PropertyChanged += Layer_PropertyChanged;
+            }
         }
 
         private static Point3DCollection GetLayer3DPoints(SymbolArtItemModel layer)
@@ -738,8 +792,11 @@ namespace OpenSAE.Views
 
         private void renderer_Loaded(object sender, RoutedEventArgs e)
         {
-            Focus();
-            Keyboard.Focus(this);
+            if (!_noInteraction)
+            {
+                Focus();
+                Keyboard.Focus(this);
+            }
         }
 
         /// <summary>

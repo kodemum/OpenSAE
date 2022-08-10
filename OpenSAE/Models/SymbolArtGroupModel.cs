@@ -487,6 +487,7 @@ namespace OpenSAE.Models
 
             double x = -96, y = -48;
             double sizeX = 13, sizeY = 14;
+            int insertIndex = Children.Count == 0 ? 0 : 1;
 
             int nextLayerIndex = GetMaxLayerIndex() + 1;
 
@@ -524,6 +525,7 @@ namespace OpenSAE.Models
 
                         x = characterLayer.Vertex3.X - (characterLayer.Symbol!.KerningRight * sizeX);
                         y = characterLayer.Vertex1.Y;
+                        insertIndex = characterLayer.IndexInParent + 1;
                     }
                 }
 
@@ -557,8 +559,10 @@ namespace OpenSAE.Models
                             Vertex4 = new Point(x + sizeX, y)
                         };
 
+                        int index = insertIndex++;
+
                         Undo.Do("Add letter",
-                            () => Children.Add(layer),
+                            () => Children.Insert(index, layer),
                             () => Children.Remove(layer)
                         );
 
