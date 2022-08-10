@@ -218,6 +218,8 @@ namespace OpenSAE.Models
 
         public UndoModel Undo { get; }
 
+        public ObservableCollection<string> RecentFiles { get; }
+
         public ICommand NewFileCommand { get; }
 
         public ICommand OpenFileCommand { get; }
@@ -251,8 +253,8 @@ namespace OpenSAE.Models
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
             NewFileCommand = new RelayCommand(NewFile_Implementation);
             ExitCommand = new RelayCommand(() => ExitRequested?.Invoke(this, EventArgs.Empty));
-            SaveCommand = new RelayCommand(Save_Implementation, () => CurrentSymbolArt != null);
-            SaveAsCommand = new RelayCommand(SaveAs_Implementation, () => CurrentSymbolArt != null);
+            SaveCommand = new RelayCommand(() => SaveCurrent(), () => CurrentSymbolArt != null);
+            SaveAsCommand = new RelayCommand(() => SaveCurrentAs(), () => CurrentSymbolArt != null);
             AddImageLayerCommand = new RelayCommand<string>(AddImageLayer_Implementation, (arg) => CurrentSymbolArt != null);
 
             CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
@@ -601,9 +603,38 @@ namespace OpenSAE.Models
 
         private void NewFile_Implementation()
         {
+            if (!ConfirmCloseOpenFile())
+                return;
+
             CurrentSymbolArt = new SymbolArtModel(Undo);
             Undo.ResetWith("Create new");
             SelectedItem = CurrentSymbolArt;
+        }
+
+        private bool ConfirmCloseOpenFile()
+        {
+            if (Undo.ContainsNonPersistedChanges)
+            {
+                var result = _dialogService.ShowYesNoCancel("Save changes", "Would you like to save the changes made to the current symbol art?");
+
+                switch (result)
+                {
+                    case true:
+                        if (!SaveCurrent())
+                        {
+                            return false;
+                        }
+                        break;
+
+                    case false:
+                        break;
+
+                    default:
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         private void AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
@@ -634,26 +665,8 @@ namespace OpenSAE.Models
 
         public bool RequestExit()
         {
-            if (Undo.ContainsNonPersistedChanges)
-            {
-                var result = _dialogService.ShowYesNoCancel("Save changes", "Would you like to save the changes made to the current symbol art?");
-
-                switch (result)
-                {
-                    case true:
-                        if (!SaveCurrent())
-                        {
-                            return false;
-                        }
-                        break;
-
-                    case false:
-                        break;
-
-                    default:
-                        return false;
-                }
-            }
+            if (!ConfirmCloseOpenFile())
+                return false;
 
             Settings.Default.RecentFiles = RecentFiles.ToStringCollection();
             Settings.Default.ApplyToneCurve = ApplyToneCurve;
@@ -662,30 +675,10 @@ namespace OpenSAE.Models
             return true;
         }
 
-        public ObservableCollection<string> RecentFiles { get; }
-
         private void OpenFile_Implementation(string? filename)
         {
-            if (Undo.ContainsNonPersistedChanges)
-            {
-                var result = _dialogService.ShowYesNoCancel("Save changes", "Would you like to save the changes made to the current symbol art?");
-
-                switch (result)
-                {
-                    case true:
-                        if (!SaveCurrent())
-                        {
-                            return;
-                        }
-                        break;
-
-                    case false:
-                        break;
-
-                    default:
-                        return;
-                }
-            }
+            if (!ConfirmCloseOpenFile())
+                return;
 
             if (filename == null)
             {
@@ -760,6 +753,9 @@ namespace OpenSAE.Models
 
         public bool SaveCurrentAs()
         {
+            if (CurrentSymbolArt == null)
+                return false;
+
             string? filename = _dialogService.BrowseSaveFile("Save symbol art file", SaveFormatFilter, CurrentSymbolArt.FileName);
 
             if (filename == null)
@@ -795,16 +791,6 @@ namespace OpenSAE.Models
             {
                 RecentFiles.RemoveAt(RecentFiles.Count - 1);
             }
-        }
-
-        private void Save_Implementation()
-        {
-            SaveCurrent();
-        }
-
-        private void SaveAs_Implementation()
-        {
-            SaveCurrentAs();
         }
     }
 }
