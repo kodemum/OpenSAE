@@ -7,10 +7,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="800">
     <StackPanel>
-        <TextBlock Style="{StaticResource titleText}">
-            OpenSAE Symbol Art Editor help (v1.3)
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Style="{StaticResource titleText}">
+                OpenSAE Symbol Art Editor help (v1.4)
+            </TextBlock>
+        </StackPanel>
+        <TextBlock VerticalAlignment="Center" Margin="5 0">
+            by Magus Magnus
         </TextBlock>
-        <TextBlock>
+        <TextBlock Margin="0 10 0 0">
             There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree and palette</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.
         </TextBlock>
 
