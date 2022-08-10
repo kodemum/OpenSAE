@@ -34,6 +34,7 @@ namespace OpenSAE
         private DependencyObject? _treeViewClickSource;
         private Point? _treeViewClickPoint;
         private SymbolArtItemModel? _treeViewDraggingItem;
+        private IngameExampleWindow? _exampleWindow;
 
         public MainWindow()
         {
@@ -66,6 +67,11 @@ namespace OpenSAE
             if (!_model.RequestExit())
             {
                 e.Cancel = true;
+            }
+
+            if (_exampleWindow?.IsLoaded == true)
+            {
+                _exampleWindow.Close();
             }
 
             Settings.Default.WindowWidth = Width;
@@ -185,6 +191,35 @@ namespace OpenSAE
             }
 
             return parentObject as T ?? FindParent<T>(parentObject);
+        }
+
+        private void ToggleExampleWindow()
+        {
+            if (_exampleWindow == null || !_exampleWindow.IsLoaded)
+            {
+                _exampleWindow = new IngameExampleWindow()
+                {
+                    DataContext = DataContext,
+                    Left = Left + (Width / 2) - 150,
+                    Top = Top
+                };
+
+                _exampleWindow.Show();
+            }
+            else
+            {
+                _exampleWindow.Close();
+            }
+        }
+
+        private void ToggleExampleWindow_MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            ToggleExampleWindow();
+        }
+
+        private void ToggleExampleWindow_Executed(object _, object __)
+        {
+            ToggleExampleWindow();
         }
     }
 }

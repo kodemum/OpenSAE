@@ -82,6 +82,14 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: false)
         );
 
+        public static readonly DependencyProperty ShowBoundingBoxProperty =
+            DependencyProperty.Register(
+              name: "ShowBoundingBox",
+              propertyType: typeof(bool),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: true)
+        );
+
         public static readonly DependencyProperty SymbolUnitWidthProperty =
             DependencyProperty.Register(
               name: "SymbolUnitWidth",
@@ -142,7 +150,7 @@ namespace OpenSAE.Views
         /// <summary>
         /// Disables all interaction with the control
         /// </summary>
-        private readonly bool _noInteraction;
+        private bool _noInteraction;
 
         private Dictionary<SymbolArtItemModel, LayerModelReference> _layerDictionary
             = new();
@@ -183,6 +191,18 @@ namespace OpenSAE.Views
         {
             get => (SymbolArtModel?)GetValue(SymbolArtProperty);
             set => SetValue(SymbolArtProperty, value);
+        }
+
+        public bool NoInteraction
+        {
+            get => _noInteraction;
+            set => _noInteraction = value;
+        }
+
+        public bool ShowBoundingBox
+        {
+            get => (bool)GetValue(ShowBoundingBoxProperty);
+            set => SetValue(ShowBoundingBoxProperty, value);
         }
 
         /// <summary>

@@ -10,7 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="assets\example-background.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="OpenSAE.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\example-background.png" />
   </ItemGroup>
 
   <ItemGroup>

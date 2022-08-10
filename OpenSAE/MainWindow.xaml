@@ -9,6 +9,7 @@
         xmlns:controls="clr-namespace:OpenSAE.Controls"
         xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:local="clr-namespace:OpenSAE"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
         Closing="Window_Closing"
@@ -128,6 +129,11 @@
         <KeyBinding Key="F1" Command="{Binding HelpCommand}" />
         <KeyBinding Key="F3" Command="{Binding Undo.UndoCommand}" />
         <KeyBinding Key="F4" Command="{Binding Undo.RedoCommand}" />
+        <KeyBinding Key="F10">
+            <KeyBinding.Command>
+                <local:SimpleCommand Executed="ToggleExampleWindow_Executed" />
+            </KeyBinding.Command>
+        </KeyBinding>
     </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -204,6 +210,8 @@
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
                 <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
+                <Separator />
+                <MenuItem Header="Show example of in-game appearance" Click="ToggleExampleWindow_MenuItem_Click" InputGestureText="F10" />
             </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="Show _help..." InputGestureText="F1" Command="{Binding HelpCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource helpIcon}" />
