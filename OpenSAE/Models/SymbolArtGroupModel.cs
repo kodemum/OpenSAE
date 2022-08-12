@@ -63,18 +63,18 @@ namespace OpenSAE.Models
         {
             get
             {
-                var layers = GetAllLayers().ToArray();
-
                 // we'll just assume the 4 points are the 4 extreme points of any in the group/subgroups
-                var allPoints = layers.SelectMany(x => x.Vertices).ToArray();
+                var allPoints = GetAllLayers().SelectMany(x => x.Vertices).ToArray();
 
                 if (allPoints.Length == 0)
                 {
-                    var none = new Point(0, 0);
-                    
+                    // for an empty group, set the bounds to the maximum possible values
                     return new Point[]
                     {
-                        none, none, none, none
+                        new(-128, -128),
+                        new(-128,  128),
+                        new(128,   128),
+                        new(128,  -128)
                     };
                 }
 
@@ -95,35 +95,6 @@ namespace OpenSAE.Models
         }
 
         public override Point[] RawVertices => Vertices;
-
-        public Point[] AbsoluteVertices
-        {
-            get
-            {
-                var layers = GetAllLayers().ToArray();
-
-                // we'll just assume the 4 points are the 4 extreme points of any in the group/subgroups
-                var allPoints = layers.SelectMany(x => x.Vertices).ToArray();
-
-                if (allPoints.Length == 0)
-                {
-                    var none = new Point(0, 0);
-
-                    return new Point[]
-                    {
-                        none, none, none, none
-                    };
-                }
-
-                return new[]
-                {
-                    allPoints.OrderBy(x => x.X).First(),
-                    allPoints.OrderByDescending(x => x.Y).First(),
-                    allPoints.OrderByDescending(x => x.X).First(),
-                    allPoints.OrderBy(x => x.Y).First(),
-                };
-            }
-        }
 
         /// <summary>
         /// Gets or sets the position of the entire symbol. The origin of the position
@@ -272,7 +243,7 @@ namespace OpenSAE.Models
             {
                 layer.Vertices = SymbolManipulationHelper.FlipX(layer.Vertices, originX);
             }
-         }
+        }
 
         public override void FlipY()
         {
@@ -288,7 +259,7 @@ namespace OpenSAE.Models
         public override void Rotate(double angle)
         {
             // find center origin
-            var origin = Vertices.GetCenter();
+            var origin = Vertices.GetCenter().Round();
 
             foreach (var layer in GetAllLayers())
             {
