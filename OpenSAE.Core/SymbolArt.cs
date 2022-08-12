@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenSAE.Core
 {
-    public class SymbolArt : SymbolArtItem, ISymbolArtGroup
+    public class SymbolArt : SymbolArtGroup, ISymbolArtGroup
     {
         public uint AuthorId { get; set; }
 
@@ -16,9 +16,6 @@ namespace OpenSAE.Core
         public int Height { get; set; }
 
         public SymbolArtSoundEffect Sound { get; set; }
-
-        public List<SymbolArtItem> Children { get; set; }
-            = new();
 
         public SymbolArtFileFormat FileFormat { get; set; }
 

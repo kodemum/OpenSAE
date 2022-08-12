@@ -102,6 +102,9 @@
         <KeyBinding Modifiers="Ctrl+Alt" Key="S" Command="{Binding SaveAsCommand}" />
         <KeyBinding Modifiers="Ctrl+Alt+Shift" Key="S" Command="{Binding CurrentItemCommand}" CommandParameter="export" />
 
+        <KeyBinding Modifiers="Ctrl" Key="C" Command="{Binding ClipboardCommand}" CommandParameter="copy" />
+        <KeyBinding Modifiers="Ctrl" Key="V" Command="{Binding ClipboardCommand}" CommandParameter="paste" />
+
         <KeyBinding Modifiers="Ctrl" Key="OemComma" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
         <KeyBinding Modifiers="Ctrl" Key="D" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" />
         <KeyBinding Modifiers="Shift" Key="Delete" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
@@ -178,12 +181,15 @@
                 <MenuItem Header="_Undo" Command="{Binding Undo.UndoCommand}" InputGestureText="Ctrl+Z / F3" Template="{StaticResource iconMenuItem}" Icon="{StaticResource undoIcon}" />
                 <MenuItem Header="_Redo" Command="{Binding Undo.RedoCommand}" InputGestureText="Ctrl+Y / F4" Template="{StaticResource iconMenuItem}" Icon="{StaticResource redoIcon}" />
                 <Separator />
+                <MenuItem Header="_Copy" Command="{Binding ClipboardCommand}" CommandParameter="copy" InputGestureText="Ctrl+C" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
+                <MenuItem Header="_Paste" Command="{Binding ClipboardCommand}" CommandParameter="paste" InputGestureText="Ctrl+V" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pasteIcon}" />
+                <Separator />
                 <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
                 <MenuItem Header="Add new _group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
                 <MenuItem Header="Add new _overlay image" Command="{Binding AddImageLayerCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
-                <MenuItem Header="_Clear selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
+                <MenuItem Header="Clear _selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
                 <Separator />
-                <MenuItem Header="Move item u_p in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
+                <MenuItem Header="_Move item up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
                 <MenuItem Header="Move item _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
                 <Separator />
                 <MenuItem Header="Ad_vanced">
@@ -436,7 +442,7 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipXIcon}" ToolTip="Horizontally flips the current symbol or group (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource rotateIcon}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Creates a copy of the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />

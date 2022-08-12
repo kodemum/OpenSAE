@@ -25,6 +25,7 @@ namespace OpenSAE.Models
         private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
         private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
+        private const string ClipboardItemFormat = "OpenSAE.Item";
         private const double DefaultSymbolUnitWidth = 240;
         public const double MinimumSymbolUnitWidth = 24;
         public const double MaximumSymbolUnitWidth = 960;
@@ -243,6 +244,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> AddImageLayerCommand { get; }
 
+        public RelayCommand<string> ClipboardCommand { get; }
+
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -263,6 +266,9 @@ namespace OpenSAE.Models
             ChangeSettingCommand = new RelayCommand<string>(ChangeSetting_Implementation);
             ZoomCommand = new RelayCommand<string>(Zoom_Implementation);
             HelpCommand = new RelayCommand(() => ShowHelpScreen = !ShowHelpScreen);
+            ClipboardCommand = new RelayCommand<string>(ClipboardCommand_Implementation, ClipboardCommand_CanRun);
+
+            CommandManager.RequerySuggested += (_, __) => ClipboardCommand.NotifyCanExecuteChanged();
 
             if (!Settings.Default.HelpShown)
             {
@@ -348,6 +354,94 @@ namespace OpenSAE.Models
                 return;
 
             SelectedItem.Manipulate($"Rotate {angle}°", x => x.Rotate(double.Parse(angle) / 180 * Math.PI));
+        }
+
+        private bool ClipboardCommand_CanRun(string? operation)
+        {
+            switch (operation)
+            {
+                case "copy":
+                    return SelectedItem != null;
+
+                case "paste":
+                    return CurrentSymbolArt != null && Clipboard.ContainsData(ClipboardItemFormat);
+
+                default:
+                    return true;
+            }
+        }
+
+        private void ClipboardCommand_Implementation(string? operation)
+        {
+            switch (operation)
+            {
+                case "copy":
+                    if (SelectedItem != null)
+                    {
+                        Clipboard.SetData(ClipboardItemFormat, SelectedItem.ToSymbolArtItem().Serialize());
+                    }
+                    break;
+
+                case "paste":
+                    int newIndex = 0;
+                    SymbolArtItemModel targetParent;
+
+                    if (SelectedItem is SymbolArtGroupModel selectedGroup)
+                    {
+                        targetParent = selectedGroup;
+                    }
+                    else if (SelectedItem?.Parent != null)
+                    {
+                        targetParent = SelectedItem.Parent;
+                        newIndex = SelectedItem.IndexInParent;
+                    }
+                    else
+                    {
+                        targetParent = CurrentSymbolArt ?? throw new InvalidOperationException("No symbol art loaded");
+                    }
+
+                    try
+                    {
+                        SymbolArtItemModel? newItem = null;
+
+                        if (Clipboard.GetData(ClipboardItemFormat) is string serializedItem)
+                        {
+                            var deserializedItem = Core.SymbolArtItem.Deserialize(serializedItem);
+
+                            if (deserializedItem is Core.SymbolArtLayer layer)
+                            {
+                                newItem = new SymbolArtLayerModel(Undo, layer, targetParent);
+                            }
+                            else if (deserializedItem is Core.SymbolArtGroup group)
+                            {
+                                newItem = new SymbolArtGroupModel(Undo, group, targetParent);
+                            }
+                        }
+
+                        if (newItem != null)
+                        {
+                            var currentSelection = SelectedItem;
+
+                            Undo.Do($"Paste {newItem.ItemTypeName}",
+                                () =>
+                                {
+                                    targetParent.Children.Insert(newIndex, newItem);
+                                    SelectedItem = newItem;
+                                },
+                                () =>
+                                {
+                                    targetParent.Children.Remove(newItem);
+                                    SelectedItem = currentSelection;
+                                }
+                            );
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _dialogService.ShowErrorMessage("Unable to paste item", "Unable to paste item from clipboard", ex);
+                    }
+                    break;
+            }
         }
 
         private void CurrentItemActionCommand_Implementation(string? operation)

@@ -11,6 +11,7 @@
     <clr:String x:Key="previewIcon">&#xE8FF;</clr:String>
     <clr:String x:Key="orientationIcon">&#xE8B4;</clr:String>
     <clr:String x:Key="copyIcon">&#xE8C8;</clr:String>
+    <clr:String x:Key="pasteIcon">&#xE77F;</clr:String>
     <clr:String x:Key="viewIcon">&#xE890;</clr:String>
     <clr:String x:Key="duplicateIcon">&#xE89A;</clr:String>
     <clr:String x:Key="upIcon">&#xE74A;</clr:String>

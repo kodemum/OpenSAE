@@ -94,7 +94,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource copyIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Creates a copy of the current symbol or group (Ctrl+Shift+D)</TextBlock>
+                <TextBlock Margin="5 2">Duplicates the current symbol or group (Ctrl+Shift+D)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource upIcon}" VerticalAlignment="Center" />
