@@ -35,7 +35,7 @@ namespace OpenSAE.Core.SAML
                 FileFormat = SymbolArtFileFormat.SAML,
                 Height = input.Height,
                 Width = input.Width,
-                Sound = input.Sound,
+                Sound = (SymbolArtSoundEffect)input.Sound,
                 Visible = input.Visible,
                 Children = input.Children.Select(ConvertItem).ToList()
             };
@@ -151,7 +151,7 @@ namespace OpenSAE.Core.SAML
                 AuthorId = item.AuthorId,
                 Height = item.Height,
                 Width = item.Width,
-                Sound = item.Sound,
+                Sound = (int)item.Sound,
                 Version = 4,
                 Visible = item.Visible,
                 Children = item.Children.Select(ConvertItemBack).ToList()

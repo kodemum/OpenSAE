@@ -140,7 +140,8 @@ namespace OpenSAE.Models
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Help, "Help"),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Whistle, "Whistle"),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Embarrassed, "Embarrassed"),
-            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.NailedIt, "Nailed it!")
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.NailedIt, "Nailed it!"),
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Texture, "Texture [JP only?]")
         };
 
         public List<SymbolArtModel> RootItems => new() { this };
