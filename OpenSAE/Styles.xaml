@@ -7,6 +7,7 @@
     <converters:ColorSolidBrushConverter x:Key="colorSolidBrushConverter" />
     <converters:TransparencyAlphaConverter x:Key="alphaConverter" />
     <converters:ColorSolidBrushConverter x:Key="colorToneSolidBrushConverter" UseToneCurve="True" />
+    <converters:UnitWidthZoomConverter ValueAtZero="960" ValueAtHalf="240" ValueAtFull="24" x:Key="symbolUnitWidthZoomConverter" />
 
     <ControlTemplate TargetType="{x:Type MenuItem}" x:Key="iconMenuItem">
         <MenuItem Header="{TemplateBinding Header}" InputGestureText="{TemplateBinding InputGestureText}" Command="{TemplateBinding Command}" CommandParameter="{TemplateBinding CommandParameter}">
@@ -41,6 +42,15 @@
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Margin" Value="0 10 0 5" />
+    </Style>
+
+    <Style TargetType="Button" x:Key="statusBarIconButton">
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Focusable" Value="False" />
     </Style>
 
     <ControlTemplate x:Key="BulletTemplate" TargetType="{x:Type ContentControl}">

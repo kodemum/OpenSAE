@@ -128,10 +128,10 @@ namespace OpenSAE.Views
         {
             if (baseValue is double newValue)
             {
-                if (newValue < 24)
-                    return 24d;
-                else if (newValue > 320)
-                    return 320d;
+                if (newValue < AppModel.MinimumSymbolUnitWidth)
+                    return AppModel.MinimumSymbolUnitWidth;
+                else if (newValue > AppModel.MaximumSymbolUnitWidth)
+                    return AppModel.MaximumSymbolUnitWidth;
             }
             return baseValue;
         }
@@ -360,7 +360,11 @@ namespace OpenSAE.Views
 
             if (!_noInteraction)
             {
-                SymbolUnitWidth -= e.Delta / 25;
+                // we want the zoom to increase non-linearly as otherwise it takes much longer to zoom
+                // out (increase the symbol unit width) compared to zooming in (decrease the symbol unit width)
+                double newWidth = SymbolUnitWidth - Math.Log(SymbolUnitWidth) * e.Delta / 100;
+
+                SymbolUnitWidth = Math.Clamp(newWidth, AppModel.MinimumSymbolUnitWidth, AppModel.MaximumSymbolUnitWidth);
             }
         }
 

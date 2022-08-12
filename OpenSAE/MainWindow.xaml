@@ -120,8 +120,8 @@
         <KeyBinding Modifiers="Ctrl+Shift" Key="T" Command="{Binding ChangeSettingCommand}" CommandParameter="toneCurve" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="G" Command="{Binding ChangeSettingCommand}" CommandParameter="guideLines" />
 
-        <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="-24" />
-        <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="24" />
+        <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="in" />
+        <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="out" />
 
         <KeyBinding Modifiers="Ctrl" Key="Z" Command="{Binding Undo.UndoCommand}" />
         <KeyBinding Modifiers="Ctrl" Key="Y" Command="{Binding Undo.RedoCommand}" />
@@ -203,8 +203,8 @@
                 <MenuItem Header="R_otate 180 degrees" Command="{Binding RotateCurrentItemCommand}" CommandParameter="180" />
             </MenuItem>
             <MenuItem Header="_View">
-                <MenuItem Header="_Zoom in" InputGestureText="Ctrl++" Command="{Binding ZoomCommand}" CommandParameter="-24" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomInIcon}" />
-                <MenuItem Header="Zoom _out" InputGestureText="Ctrl+-" Command="{Binding ZoomCommand}" CommandParameter="24" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomOutIcon}" />
+                <MenuItem Header="_Zoom in" InputGestureText="Ctrl++" Command="{Binding ZoomCommand}" CommandParameter="in" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomInIcon}" />
+                <MenuItem Header="Zoom _out" InputGestureText="Ctrl+-" Command="{Binding ZoomCommand}" CommandParameter="out" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomOutIcon}" />
                 <MenuItem Header="_Reset zoom" Command="{Binding ZoomCommand}" />
                 <Separator />
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
@@ -412,11 +412,12 @@
                 </TextBlock>
                 <StatusBarItem HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource iconText}" Text="{StaticResource zoomIcon}" Margin="0 0 5 0" />
-                        <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth}" Minimum="24" Maximum="320" IsDirectionReversed="True" SmallChange="10" IsMoveToPointEnabled="True" />
-                        <TextBlock TextAlignment="Center" Width="38">
+                        <TextBlock TextAlignment="Center">
                             <Run Text="{Binding ZoomPercentage, Mode=OneWay, StringFormat=N0}" />%
                         </TextBlock>
+                        <Button Style="{StaticResource statusBarIconButton}" Content="{StaticResource zoomOutIcon}" ToolTip="Zoom out" Command="{Binding ZoomCommand}" CommandParameter="out" Margin="5 0" />
+                        <Slider HorizontalAlignment="Right" Width="150" Value="{Binding DisplaySymbolUnitWidth, Converter={StaticResource symbolUnitWidthZoomConverter}}" Minimum="0" Maximum="1" TickFrequency="0.5" IsMoveToPointEnabled="True" />
+                        <Button Style="{StaticResource statusBarIconButton}" Content="{StaticResource zoomInIcon}" ToolTip="Zoom in" Command="{Binding ZoomCommand}" CommandParameter="in" Margin="5 0 0 0" />
                     </StackPanel>
                 </StatusBarItem>
             </StatusBar>

@@ -26,8 +26,9 @@ namespace OpenSAE.Models
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
         private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
         private const double DefaultSymbolUnitWidth = 240;
-        private const double MinimumSymbolUnitWidth = 24;
-        private const double MaximumSymbolUnitWidth = 320;
+        public const double MinimumSymbolUnitWidth = 24;
+        public const double MaximumSymbolUnitWidth = 960;
+        private static readonly double[] zoomLevels = new double[] { 25, 33, 50, 67, 100, 150, 200, 300, 400, 500, 600, 800, 1000 };
 
         private readonly IDialogService _dialogService;
         private SymbolArtModel? _currentSymbolArt;
@@ -169,7 +170,7 @@ namespace OpenSAE.Models
             get => DefaultSymbolUnitWidth / _displaySymbolUnitWidth * 100;
             set
             {
-                DisplaySymbolUnitWidth = DefaultSymbolUnitWidth * value / 100;
+                DisplaySymbolUnitWidth = DefaultSymbolUnitWidth / value * 100;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DisplaySymbolUnitWidth));
             }
@@ -314,14 +315,16 @@ namespace OpenSAE.Models
             }
             else
             {
-                var newValue = DisplaySymbolUnitWidth + double.Parse(obj);
+                bool zoomIn = obj == "in";
 
-                if (newValue < MinimumSymbolUnitWidth)
-                    DisplaySymbolUnitWidth = MinimumSymbolUnitWidth;
-                else if (newValue > MaximumSymbolUnitWidth)
-                    DisplaySymbolUnitWidth = MaximumSymbolUnitWidth;
-                else
-                    DisplaySymbolUnitWidth = newValue;
+                if (zoomIn && ZoomPercentage < zoomLevels[zoomLevels.Length - 1])
+                {
+                    ZoomPercentage = zoomLevels.FirstOrDefault(x => x > ZoomPercentage);
+                }
+                else if (!zoomIn && ZoomPercentage > zoomLevels[0])
+                {
+                    ZoomPercentage = zoomLevels.LastOrDefault(x => x < ZoomPercentage);
+                }
             }
         }
 
