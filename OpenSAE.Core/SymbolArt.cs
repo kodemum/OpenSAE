@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenSAE.Core
 {
-    public class SymbolArt : SymbolArtGroup, ISymbolArtGroup
+    public class SymbolArt : SymbolArtGroup
     {
         public uint AuthorId { get; set; }
 

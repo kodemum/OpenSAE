@@ -95,7 +95,7 @@ namespace OpenSAE.Core.SAR
             };
         }
 
-        private static IEnumerable<SymbolArtLayer> GetAllLayers(ISymbolArtGroup group)
+        private static IEnumerable<SymbolArtLayer> GetAllLayers(SymbolArtGroup group)
         {
             foreach (var item in group.Children)
             {
@@ -103,7 +103,7 @@ namespace OpenSAE.Core.SAR
                 {
                     yield return layer;
                 }
-                else if (item is ISymbolArtGroup subGroup && subGroup.Visible)
+                else if (item is SymbolArtGroup subGroup && subGroup.Visible)
                 {
                     foreach (var subLayer in GetAllLayers(subGroup))
                     {

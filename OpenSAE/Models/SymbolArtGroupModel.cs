@@ -11,7 +11,7 @@ namespace OpenSAE.Models
     {
         private string _pendingSymbolText = string.Empty;
 
-        public SymbolArtGroupModel(IUndoModel undoModel, ISymbolArtGroup group, SymbolArtItemModel? parent)
+        public SymbolArtGroupModel(IUndoModel undoModel, SymbolArtGroup group, SymbolArtItemModel? parent)
             : this(undoModel)
         {
             Parent = parent;
@@ -192,7 +192,7 @@ namespace OpenSAE.Models
         {
             foreach (var item in items)
             {
-                if (item is ISymbolArtGroup subGroup)
+                if (item is SymbolArtGroup subGroup)
                 {
                     Children.Add(new SymbolArtGroupModel(_undoModel, subGroup, this));
                 }

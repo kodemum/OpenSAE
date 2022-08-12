@@ -2,7 +2,7 @@
 
 namespace OpenSAE.Core
 {
-    public class SymbolArtGroup : SymbolArtItem, ISymbolArtGroup
+    public class SymbolArtGroup : SymbolArtItem
     {
         public List<SymbolArtItem> Children { get; set; }
             = new();
