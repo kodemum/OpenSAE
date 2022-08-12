@@ -32,7 +32,7 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(
                   defaultValue: null,
                   flags: FrameworkPropertyMetadataOptions.AffectsRender,
-                  SymbolArtPropertyChanged
+                  PropertyChangedRedrawNecessary
                   )
         );
 
@@ -71,7 +71,7 @@ namespace OpenSAE.Views
               name: "ApplyToneCurve",
               propertyType: typeof(bool),
               ownerType: typeof(SymbolArtRenderer),
-              typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, ApplyToneCurvePropertyChanged)
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, PropertyChangedRedrawNecessary)
         );
 
         public static readonly DependencyProperty ShowGuidesProperty =
@@ -90,6 +90,14 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: true)
         );
 
+        public static readonly DependencyProperty DisableGridPositioningProperty =
+            DependencyProperty.Register(
+              name: "DisableGridPositioning",
+              propertyType: typeof(bool),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, PropertyChangedRedrawNecessary)
+        );
+
         public static readonly DependencyProperty SymbolUnitWidthProperty =
             DependencyProperty.Register(
               name: "SymbolUnitWidth",
@@ -98,7 +106,7 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: 240d, SymbolUnitWidthPropertyChanged, OnSymbolUnitWidthCoerce)
         );
 
-        private static void ApplyToneCurvePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void PropertyChangedRedrawNecessary(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is SymbolArtRenderer renderer)
             {
@@ -111,16 +119,7 @@ namespace OpenSAE.Views
         {
             if (d is SymbolArtRenderer renderer)
             {
-                // changing if tone curve is enabled necessitates redrawing everything
                 renderer.OnPropertyChanged(nameof(SymbolScaleFactor));
-            }
-        }
-
-        private static void SymbolArtPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is SymbolArtRenderer renderer)
-            {
-                renderer.Redraw();
             }
         }
 
@@ -246,6 +245,12 @@ namespace OpenSAE.Views
         {
             get => (bool)GetValue(ShowGuidesProperty);
             set => SetValue(ShowGuidesProperty, value);
+        }
+
+        public bool DisableGridPositioning
+        {
+            get => (bool)GetValue(DisableGridPositioningProperty);
+            set => SetValue(DisableGridPositioningProperty, value);
         }
 
         /// <summary>
@@ -551,7 +556,7 @@ namespace OpenSAE.Views
                 case ManipulationOperation.DragDuplicate:
                     var diff = ptMouse - draggingClickOrigin;
 
-                    if (SelectedLayer.EnforceGridPositioning)
+                    if (SelectedLayer.EnforceGridPositioning && !DisableGridPositioning)
                     {
                         // When moving a layer, round of the vector so that items can only be moved on the 
                         // true symbol art grid
@@ -742,11 +747,11 @@ namespace OpenSAE.Views
             }
         }
 
-        private static Point3DCollection GetLayer3DPoints(SymbolArtItemModel layer)
+        private Point3DCollection GetLayer3DPoints(SymbolArtItemModel layer)
         {
             var vertices = layer.RawVertices;
 
-            if (layer.EnforceGridPositioning)
+            if (layer.EnforceGridPositioning && !DisableGridPositioning)
             {
                 return new Point3DCollection
                 {

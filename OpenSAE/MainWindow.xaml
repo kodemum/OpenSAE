@@ -211,6 +211,10 @@
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
                 <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
                 <Separator />
+                <MenuItem Header="_Testing">
+                    <MenuItem Header="Disable _grid rounding" IsCheckable="True" IsChecked="{Binding ElementName=renderer, Path=DisableGridPositioning}" />
+                </MenuItem>
+                <Separator />
                 <MenuItem Header="Show example of in-game appearance" Click="ToggleExampleWindow_MenuItem_Click" InputGestureText="F10" />
             </MenuItem>
             <MenuItem Header="_Help">
