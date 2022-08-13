@@ -386,6 +386,8 @@ namespace OpenSAE.Views
 
             operation = ManipulationOperation.None;
 
+            Point ptMouse = CoordinatesToSymbolArt(args.GetPosition(viewport3d), true);
+
             if (args.RightButton == MouseButtonState.Pressed)
             {
                 // drag viewport
@@ -394,13 +396,18 @@ namespace OpenSAE.Views
                 draggingClickOrigin = args.GetPosition(viewport3d);
                 Cursor = Cursors.ScrollAll;
             }
+            else if (args.MiddleButton == MouseButtonState.Pressed)
+            {
+                TrySelectItemUnderPoint(ptMouse);
+                return;
+            }
             else
             {
                 // if no layer is selected, there's nothing to manipulate
                 if (SelectedLayer == null)
                     return;
 
-                draggingClickOrigin = CoordinatesToSymbolArt(args.GetPosition(viewport3d), true);
+                draggingClickOrigin = ptMouse;
 
                 if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
                 {
@@ -487,6 +494,27 @@ namespace OpenSAE.Views
             args.Handled = true;
         }
 
+        private bool TrySelectItemUnderPoint(Point ptMouse)
+        {
+            if (SymbolArt != null)
+            {
+                // select layer under cursor by traversing all layers in the symbol art
+                // until we find one that is visible and where the mouse pointer is inside
+                foreach (var layer in SymbolArt.GetAllLayers().Where(x => x.IsVisible))
+                {
+                    if (layer.IsPointInside(ptMouse))
+                    {
+                        // just in case
+                        SelectedLayer?.CommitManipulation();
+                        SelectedLayer = layer;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
         protected override void OnMouseMove(MouseEventArgs args)
         {
             base.OnMouseMove(args);
@@ -502,22 +530,7 @@ namespace OpenSAE.Views
 
             if (operation == ManipulationOperation.None && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
             {
-                if (SymbolArt == null)
-                    return;
-
-                // select layer under cursor by traversing all layers in the symbol art
-                // until we find one that is visible and where the mouse pointer is inside
-                foreach (var layer in SymbolArt.GetAllLayers().Where(x => x.IsVisible))
-                {
-                    if (layer.IsPointInside(ptMouse))
-                    {
-                        // just in case
-                        SelectedLayer?.CommitManipulation();
-                        SelectedLayer = layer;
-                        break;
-                    }
-                }
-
+                TrySelectItemUnderPoint(ptMouse);
                 return;
             }
 
@@ -541,7 +554,14 @@ namespace OpenSAE.Views
                 case ManipulationOperation.Rotate:
                     var angleNow = Math.Atan2(ptMouse.Y - rotatingOrigin.Y, ptMouse.X - rotatingOrigin.X);
 
-                    SelectedLayer.TemporaryRotate(angleNow - rotatingOriginAngle);
+                    if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+                    {
+                        SelectedLayer.TemporaryRotate(Math.Round(angleNow / (Math.PI / 4)) * (Math.PI / 4));
+                    }
+                    else
+                    {
+                        SelectedLayer.TemporaryRotate(angleNow - rotatingOriginAngle);
+                    }
                     break;
 
                 case ManipulationOperation.DragVertex:
@@ -549,7 +569,7 @@ namespace OpenSAE.Views
                     break;
 
                 case ManipulationOperation.Resize:
-                    SelectedLayer.ResizeFromVertex(draggingVertexIndex, ptMouse);
+                    SelectedLayer.ResizeFromVertex(draggingVertexIndex, ptMouse, Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl));
                     break;
 
                 case ManipulationOperation.MoveItem:

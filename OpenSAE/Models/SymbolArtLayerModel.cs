@@ -222,6 +222,8 @@ namespace OpenSAE.Models
             }
         }
 
+        public Point[] PreManipulationVertices => _isManipulating ? _temporaryVertices : Vertices;
+
         public PointCollection PointCollection => new(Vertices);
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
@@ -274,24 +276,6 @@ namespace OpenSAE.Models
             }
         }
 
-        public Point[] BoundingVertices
-        {
-            get
-            {
-                var vertices = RawVertices;
-
-                double minX = vertices.MinBy(x => x.X).X, maxX = vertices.MaxBy(x => x.X).X;
-                double minY = vertices.MinBy(x => x.Y).Y, maxY = vertices.MaxBy(x => x.Y).Y;
-
-                return new[]
-                {
-                    new Point(minX, minY),
-                    new Point(minX, maxY),
-                    new Point(maxX, maxY),
-                    new Point(maxX, minY)
-                };
-            }
-        }
 
         public override bool ShowBoundingVertices
         {
@@ -302,43 +286,6 @@ namespace OpenSAE.Models
                 {
                     OnPropertyChanged(nameof(Vertices));
                 }
-            }
-        }
-
-        public override void ResizeFromVertex(int vertexIndex, Point point)
-        {
-            var boundVertices = BoundingVertices;
-
-            // find the origin and opposite vertex - this is necessary
-            // in order to calculate the vector for each vertex 
-            var originVertex = boundVertices[vertexIndex];
-            var oppositeVertex = boundVertices.GetOppositeVertex(vertexIndex);
-
-            Vector vector = point - originVertex;
-
-            if (vector.Length == 0)
-            {
-                return;
-            }
-
-            // get the bounds
-            var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
-            var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
-
-            for (int i = 0; i < 4; i++)
-            {
-                // for each vertex for the layer, calculate
-                var targetVertex = RawVertices[i];
-
-                // find the distance from the x and y origins of the group for the vertex
-                var distanceFromOriginX = Math.Max(originVertex.X, targetVertex.X) - Math.Min(originVertex.X, targetVertex.X);
-                var distanceFromOriginY = Math.Max(originVertex.Y, targetVertex.Y) - Math.Min(originVertex.Y, targetVertex.Y);
-
-                // and reduce the vector to add accordingly
-                var xScale = 1 - distanceFromOriginX / width;
-                var yScale = 1 - distanceFromOriginY / height;
-
-                SetVertex(i, targetVertex + new Vector(vector.X * xScale, vector.Y * yScale));
             }
         }
     }

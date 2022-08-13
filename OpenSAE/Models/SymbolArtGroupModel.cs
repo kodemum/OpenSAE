@@ -11,6 +11,14 @@ namespace OpenSAE.Models
     {
         private string _pendingSymbolText = string.Empty;
 
+        /// <summary>
+        /// Used to override the vertices of the group during manipulation.
+        /// The vertices of a group are considered the furthest extent of any points within it
+        /// so they're not real vertex positions. But while manipulating we want to be able to manipulate
+        /// the extent vertices so the bounding box of the group can be updated correctly.
+        /// </summary>
+        private Point[]? _currentManipulationVertices = null;
+
         public SymbolArtGroupModel(IUndoModel undoModel, SymbolArtGroup group, SymbolArtItemModel? parent)
             : this(undoModel)
         {
@@ -61,6 +69,15 @@ namespace OpenSAE.Models
 
         public override Point[] Vertices
         {
+            get => _currentManipulationVertices ?? RawVertices;
+            set { }
+        }
+
+        /// <summary>
+        /// Raw vertices for a group are always the maximum extent of all layers within it
+        /// </summary>
+        public override Point[] RawVertices
+        {
             get
             {
                 // we'll just assume the 4 points are the 4 extreme points of any in the group/subgroups
@@ -83,18 +100,13 @@ namespace OpenSAE.Models
 
                 return new[]
                 {
-                    new Point(minX, minY),
-                    new Point(minX, maxY),
-                    new Point(maxX, maxY),
-                    new Point(maxX, minY)
+                   new Point(minX, minY),
+                   new Point(minX, maxY),
+                   new Point(maxX, maxY),
+                   new Point(maxX, minY)
                 };
             }
-            set
-            {
-            }
         }
-
-        public override Point[] RawVertices => Vertices;
 
         /// <summary>
         /// Gets or sets the position of the entire symbol. The origin of the position
@@ -105,7 +117,7 @@ namespace OpenSAE.Models
             get => Vertices.GetMinBy(true);
             set
             {
-                var points = Vertices;
+                var points = RawVertices;
 
                 int minIndex = points.GetMinIndexBy(true);
 
@@ -118,6 +130,14 @@ namespace OpenSAE.Models
                 foreach (var layer in layers)
                 {
                     layer.Position += diff;
+                }
+
+                if (_currentManipulationVertices != null)
+                {
+                    for (int i = 0; i < _currentManipulationVertices.Length; i++)
+                    {
+                        _currentManipulationVertices[i] += diff;
+                    }
                 }
 
                 OnPropertyChanged();
@@ -183,9 +203,7 @@ namespace OpenSAE.Models
         public override bool ShowBoundingVertices
         {
             get => true;
-            set
-            {
-            }
+            set { }
         }
 
         protected void AddChildren(IEnumerable<SymbolArtItem> items)
@@ -281,6 +299,8 @@ namespace OpenSAE.Models
                 {
                     layer.StartManipulation();
                 }
+
+                _currentManipulationVertices = Vertices;
             }
 
             base.StartManipulation();
@@ -293,6 +313,13 @@ namespace OpenSAE.Models
             foreach (var layer in GetAllLayers())
             {
                 layer.TemporaryRotate(angle, origin);
+            }
+
+            // after rotating the child layer vertices, we should also rotate the manipulation vertices
+            // to allow bounding box update in UI
+            if (_currentManipulationVertices != null)
+            {
+                _currentManipulationVertices = SymbolManipulationHelper.Rotate(_temporaryVertices, angle);
             }
 
             OnPropertyChanged(nameof(Vertices));
@@ -312,6 +339,10 @@ namespace OpenSAE.Models
                 base.CommitManipulation();
 
                 _undoModel.EndAggregate();
+
+                _currentManipulationVertices = null;
+              
+                OnVerticesChanged();
             }
         }
 
@@ -329,13 +360,13 @@ namespace OpenSAE.Models
         /// <param name="vertexIndex">Index of vertex to change position for. (0-3)</param>
         /// <param name="point">New location for the vertex</param>
         /// <exception cref="ArgumentException"></exception>
-        public override void ResizeFromVertex(int vertexIndex, Point point)
+        public override void ResizeFromVertex(int vertexIndex, Point point, bool maintainAspectRatio)
         {
             // find the origin and opposite vertex - this is necessary
             // in order to calculate the vector for each vertex of each layer
             // in this group
-            var originVertex = Vertices[vertexIndex];
-            var oppositeVertex = Vertices.GetOppositeVertex(vertexIndex);
+            var originVertex = _temporaryVertices[vertexIndex];
+            var oppositeVertex = _temporaryVertices.GetOppositeVertex(vertexIndex);
 
             Vector vector = point - originVertex;
 
@@ -343,52 +374,55 @@ namespace OpenSAE.Models
             var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
             var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
 
-            // ensure it is not possible to resize the group below 1x1 by clearing the 
-            // x and or y axis of the vector according to the direction being resized
-            var absVectorX = vertexIndex == 0 || vertexIndex == 1 ? vector.X : -vector.X;
-            var absVectorY = vertexIndex == 0 || vertexIndex == 2 ? vector.Y : -vector.Y;
-
-            if (width - absVectorX < 1)
-                vector.X = 0;
-
-            if (height - absVectorY < 1)
-                vector.Y = 0;
+            if (maintainAspectRatio)
+            {
+                vector = SymbolManipulationHelper.AverageForAspectRatio(vector, width / height);
+            }
 
             if (vector.Length == 0)
                 return;
 
+            Point ScaleVertex(Point targetVertex)
+            {
+                // Explanation:
+                // Imagine that this vertex is at the absolute corner of the group (the coordinates are identical)
+                // This means that it should be moved exactly to the point specified as an argument to this function,
+                // thus the xScale and yScale are both 1.
+                //
+                // For another vertex in the group at _any other location_, it will need to be moved less in order to
+                // properly resize the group. Unless the distance to this vertex from the origin vertex is identical
+                // for X and Y, the scale factor will be different for X and Y.
+                //
+                // Imagine a vertex right in the center of the group. This vertex will have both an X and Y scale
+                // of 0.5. So it will move half as much as our imagined vertex at the corner as described above.
+                var distanceFromOriginX = Math.Max(originVertex.X, targetVertex.X) - Math.Min(originVertex.X, targetVertex.X);
+                var distanceFromOriginY = Math.Max(originVertex.Y, targetVertex.Y) - Math.Min(originVertex.Y, targetVertex.Y);
+
+                // and reduce the vector to add accordingly
+                double xScale = 1 - distanceFromOriginX / width;
+                double yScale = 1 - distanceFromOriginY / height;
+
+                return targetVertex + new Vector(vector.X * xScale, vector.Y * yScale);
+            }
+
+            // update vertices for all child layers
             foreach (var layer in GetAllLayers())
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    // for each vertex for the layer, calculate
-                    var targetVertex = layer.Vertices[i];
-
-                    // find the distance from the x and y origins of the group for the vertex
-                    var distanceFromOriginX = Math.Max(originVertex.X, targetVertex.X) - Math.Min(originVertex.X, targetVertex.X);
-                    var distanceFromOriginY = Math.Max(originVertex.Y, targetVertex.Y) - Math.Min(originVertex.Y, targetVertex.Y);
-
-                    // and reduce the vector to add accordingly
-                    var xScale = 1 - distanceFromOriginX / width;
-                    var yScale = 1 - distanceFromOriginY / height;
-
-                    // Explanation:
-                    // Imagine that this vertex is at the absolute corner of the group (the coordinates are identical)
-                    // This means that it should be moved exactly to the point specified as an argument to this function,
-                    // thus the xScale and yScale are both 1.
-                    //
-                    // For another vertex in the group at _any other location_, it will need to be moved less in order to
-                    // properly resize the group. Unless the distance to this vertex from the origin vertex is identical
-                    // for X and Y, the scale factor will be different for X and Y.
-                    //
-                    // Imagine a vertex right in the center of the group. This vertex will have both an X and Y scale
-                    // of 0.5. So it will move half as much as our imagined vertex at the corner as described above.
-
-                    layer.SetVertex(i, targetVertex + new Vector(vector.X * xScale, vector.Y * yScale));
+                    layer.SetVertex(i, ScaleVertex(layer.PreManipulationVertices[i]));
                 }
             }
 
-            OnPropertyChanged();
+            // after updating the vertices of child layers we should also update the virtual bounding vertices for the group
+            if (_currentManipulationVertices != null)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    _currentManipulationVertices[i] = ScaleVertex(_temporaryVertices[i]);
+                }
+            }
+
             OnPropertyChanged(nameof(Position));
             OnPropertyChanged(nameof(Vertices));
             OnPropertyChanged(nameof(RawVertices));
@@ -411,12 +445,18 @@ namespace OpenSAE.Models
 
             Vector vector = point - originVertex;
 
+            if (_currentManipulationVertices != null)
+            {
+                _currentManipulationVertices[vertexIndex] = point;
+            }
+
             if (vector.Length == 0)
             {
                 return;
             }
 
-            var diff = (originVertex - oppositeVertex).Length;
+            var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
+            var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
 
             foreach (var layer in GetAllLayers())
             {
@@ -426,22 +466,11 @@ namespace OpenSAE.Models
                     var targetVertex = layer.OriginalVertices[i];
 
                     // find the distance from the x and y origins of the group for the vertex
-                    var distanceFromOrigin = (originVertex - targetVertex).Length;
+                    var distanceFromOpposite = (targetVertex - oppositeVertex);
 
                     // and reduce the vector to add accordingly
-                    var scale = 1 - distanceFromOrigin / diff * 1.2;
+                    var scale = Math.Abs(distanceFromOpposite.X / height) * Math.Abs(distanceFromOpposite.Y / width);
 
-                    // Explanation:
-                    // Imagine that this vertex is at the absolute corner of the group (the coordinates are identical)
-                    // This means that it should be moved exactly to the point specified as an argument to this function,
-                    // thus the xScale and yScale are both 1.
-                    //
-                    // For another vertex in the group at _any other location_, it will need to be moved less in order to
-                    // properly resize the group. Unless the distance to this vertex from the origin vertex is identical
-                    // for X and Y, the scale factor will be different for X and Y.
-                    //
-                    // Imagine a vertex right in the center of the group. This vertex will have both an X and Y scale
-                    // of 0.5. So it will move half as much as our imagined vertex at the corner as described above.
                     layer.SetVertex(i, targetVertex + new Vector(vector.X * scale, vector.Y * scale));
                 }
             }

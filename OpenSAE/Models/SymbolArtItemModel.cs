@@ -3,6 +3,7 @@ using OpenSAE.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Media;
@@ -155,7 +156,7 @@ namespace OpenSAE.Models
             {
                 _isManipulating = true;
                 _manipulationName = operationName;
-                _temporaryVertices = Vertices;
+                _temporaryVertices = RawVertices;
             }
         }
 
@@ -232,6 +233,8 @@ namespace OpenSAE.Models
                 OnPropertyChanged();
             }
         }
+
+        public virtual Point[] BoundingVertices => GetBounding(RawVertices);
 
         public abstract bool ShowBoundingVertices { get; set; }
 
@@ -348,7 +351,7 @@ namespace OpenSAE.Models
             if (parentItem == null)
                 return false;
 
-            return childModel.Parent == parentItem;
+            return IsChildOfRecursive(childModel, (SymbolArtItemModel)parentItem);
         }
 
         public static bool IsChildOfRecursive(SymbolArtItemModel childItem, SymbolArtItemModel parentItem)
@@ -364,6 +367,60 @@ namespace OpenSAE.Models
 
         public abstract void SetVertex(int vertexIndex, Point point);
 
-        public abstract void ResizeFromVertex(int vertexIndex, Point point);
+        protected static Point[] GetBounding(Point[] vertices)
+        {
+            double minX = vertices.MinBy(x => x.X).X, maxX = vertices.MaxBy(x => x.X).X;
+            double minY = vertices.MinBy(x => x.Y).Y, maxY = vertices.MaxBy(x => x.Y).Y;
+
+            return new[]
+            {
+                new Point(minX, minY),
+                new Point(minX, maxY),
+                new Point(maxX, maxY),
+                new Point(maxX, minY)
+            };
+        }
+
+        public virtual void ResizeFromVertex(int vertexIndex, Point point, bool maintainAspectRatio)
+        {
+            var boundVertices = GetBounding(_temporaryVertices);
+
+            // find the origin and opposite vertex - this is necessary
+            // in order to calculate the vector for each vertex 
+            var originVertex = boundVertices[vertexIndex];
+            var oppositeVertex = boundVertices.GetOppositeVertex(vertexIndex);
+
+            Vector vector = point - originVertex;
+
+            if (vector.Length == 0)
+            {
+                return;
+            }
+
+            // get the bounds
+            var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
+            var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
+
+            if (maintainAspectRatio)
+            {
+                vector = SymbolManipulationHelper.AverageForAspectRatio(vector, width / height);
+            }
+
+            for (int i = 0; i < 4; i++)
+            {
+                // for each vertex for the layer, calculate
+                var targetVertex = _temporaryVertices[i];
+
+                // find the distance from the x and y origins of the group for the vertex
+                var distanceFromOriginX = Math.Max(originVertex.X, targetVertex.X) - Math.Min(originVertex.X, targetVertex.X);
+                var distanceFromOriginY = Math.Max(originVertex.Y, targetVertex.Y) - Math.Min(originVertex.Y, targetVertex.Y);
+
+                // and reduce the vector to add accordingly
+                var xScale = 1 - distanceFromOriginX / width;
+                var yScale = 1 - distanceFromOriginY / height;
+
+                SetVertex(i, targetVertex + new Vector(vector.X * xScale, vector.Y * yScale));
+            }
+        }
     }
 }

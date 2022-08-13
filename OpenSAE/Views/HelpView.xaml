@@ -9,7 +9,7 @@
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource titleText}">
-                OpenSAE Symbol Art Editor help (v1.4)
+                OpenSAE Symbol Art Editor help (v1.5)
             </TextBlock>
         </StackPanel>
         <TextBlock VerticalAlignment="Center" Margin="5 0">
@@ -44,16 +44,25 @@
         </TextBlock>
         <StackPanel Margin="5">
             <ContentControl Template="{StaticResource BulletTemplate}">
-                <TextBlock Margin="5 2">Select symbols by holding down <Run FontWeight="Bold">Shift</Run> and moving the mouse across the canvas</TextBlock>
+                <TextBlock Margin="5 2">
+                    Select symbols by holding down <Run FontWeight="Bold">Shift</Run> and moving the mouse across the canvas,
+                    or by clicking them with the <Run FontWeight="Bold">middle mouse button</Run>.
+                </TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">With a symbol selected, you can change the shape of it by clicking on each coner and dragging it</TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
-                <TextBlock Margin="5 2">To resize a symbol, hold down <Run FontWeight="Bold">Alt</Run> and drag the corner in the direction you wish to resize</TextBlock>
+                <TextBlock Margin="5 2">
+                    To resize a symbol, hold down <Run FontWeight="Bold">Alt</Run> and drag the corner in the direction you wish to resize. <LineBreak />
+                    Hold <Run FontWeight="Bold">Ctrl</Run> while doing this to keep aspect ratio.
+                </TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
-                <TextBlock Margin="5 2">To rotate a symbol, hold down <Run FontWeight="Bold">Ctrl</Run> and drag</TextBlock>
+                <TextBlock Margin="5 2">
+                    To rotate a symbol, hold down <Run FontWeight="Bold">Ctrl</Run> and drag.<LineBreak />
+                    Hold <Run FontWeight="Bold">Alt</Run> while doing this to restrict rotation to 45° increments
+                </TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">To quickly duplicate a symbol, <Run FontWeight="Bold">Ctrl</Run> and <Run FontWeight="Bold">Alt</Run> and left-click and drag</TextBlock>

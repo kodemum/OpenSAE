@@ -93,5 +93,17 @@ namespace OpenSAE.Core
                 new Point(offsetX + width, offsetY)
             };
         }
+
+        /// <summary>
+        /// Returns a new vector with the X and Y axes averaged relative to the specified aspect ratio.
+        /// </summary>
+        /// <param name="vector">Vector to average</param>
+        /// <param name="aspectRatio">Aspect ratio of the shape relative to the vector</param>
+        /// <returns></returns>
+        public static Vector AverageForAspectRatio(Vector vector, double aspectRatio)
+        {
+            double avgVector = (vector.X + vector.Y * aspectRatio) / 2;
+            return new Vector(avgVector, avgVector / aspectRatio);
+        }
     }
 }
