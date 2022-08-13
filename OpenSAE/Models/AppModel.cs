@@ -106,18 +106,7 @@ namespace OpenSAE.Models
         public bool ShowImageOverlays
         {
             get => _showImageOverlays;
-            set
-            {
-                SetProperty(ref _showImageOverlays, value);
-
-                if (CurrentSymbolArt != null)
-                {
-                    foreach (var imageLayer in CurrentSymbolArt.GetAllItems().OfType<SymbolArtImageLayerModel>())
-                    {
-                        imageLayer.Visible = value;
-                    }
-                }
-            }
+            set => SetProperty(ref _showImageOverlays, value);
         }
 
         /// <summary>
@@ -252,6 +241,7 @@ namespace OpenSAE.Models
             SymbolsList = new SymbolListModel();
             RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
             ApplyToneCurve = Settings.Default.ApplyToneCurve;
+            ShowImageOverlays = Settings.Default.ShowImageOverlays;
             Undo = new UndoModel();
 
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
@@ -772,6 +762,7 @@ namespace OpenSAE.Models
             Settings.Default.RecentFiles = RecentFiles.ToStringCollection();
             Settings.Default.ApplyToneCurve = ApplyToneCurve;
             Settings.Default.GuideLinesEnabled = GuideLinesEnabled;
+            Settings.Default.ShowImageOverlays = ShowImageOverlays;
 
             return true;
         }

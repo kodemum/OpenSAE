@@ -98,6 +98,14 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, PropertyChangedRedrawNecessary)
         );
 
+        public static readonly DependencyProperty ShowImageOverlayLayersProperty =
+            DependencyProperty.Register(
+              name: "ShowImageOverlayLayers",
+              propertyType: typeof(bool),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, PropertyChangedRedrawNecessary)
+        );
+
         public static readonly DependencyProperty SymbolUnitWidthProperty =
             DependencyProperty.Register(
               name: "SymbolUnitWidth",
@@ -202,6 +210,12 @@ namespace OpenSAE.Views
         {
             get => (bool)GetValue(ShowBoundingBoxProperty);
             set => SetValue(ShowBoundingBoxProperty, value);
+        }
+
+        public bool ShowImageOverlayLayers
+        {
+            get => (bool)GetValue(ShowImageOverlayLayersProperty);
+            set => SetValue(ShowImageOverlayLayersProperty, value);
         }
 
         /// <summary>
@@ -701,7 +715,7 @@ namespace OpenSAE.Views
             }
         }
 
-        private static BitmapImage? GetLayerImage(SymbolArtItemModel layer)
+        private BitmapImage? GetLayerImage(SymbolArtItemModel layer)
         {
             if (layer is SymbolArtLayerModel symbolLayer)
             {
@@ -709,7 +723,7 @@ namespace OpenSAE.Views
             }
             else if (layer is SymbolArtImageLayerModel imageLayer)
             {
-                return imageLayer.Image;
+                return ShowImageOverlayLayers ? imageLayer.Image : null;
             }
             else
             {

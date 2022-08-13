@@ -503,6 +503,7 @@
                     SelectedLayer="{Binding SelectedItem, Mode=TwoWay}"
                     ApplyToneCurve="{Binding ApplyToneCurve}"
                     ShowGuides="{Binding GuideLinesEnabled}"
+                    ShowImageOverlayLayers="{Binding ShowImageOverlays}"
                     >
                 </views:SymbolArtRenderer>
             </Grid>

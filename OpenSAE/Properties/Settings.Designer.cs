@@ -119,5 +119,17 @@ namespace OpenSAE.Properties {
                 this["SettingsUpgraded"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowImageOverlays {
+            get {
+                return ((bool)(this["ShowImageOverlays"]));
+            }
+            set {
+                this["ShowImageOverlays"] = value;
+            }
+        }
     }
 }
