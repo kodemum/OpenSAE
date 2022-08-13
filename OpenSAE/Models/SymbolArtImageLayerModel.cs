@@ -171,7 +171,9 @@ namespace OpenSAE.Models
 
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
-            return new SymbolArtImageLayerModel(_undoModel, Name!, ImageData!, Parent!);
+            var duplicate = (SymbolArtBitmapImageLayer)ToSymbolArtItem();
+
+            return new SymbolArtImageLayerModel(_undoModel, duplicate, parent);
         }
 
         public override void SetVertex(int vertexIndex, Point point)
