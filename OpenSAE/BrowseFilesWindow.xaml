@@ -13,6 +13,7 @@
         Width="800"
         MinHeight="250"
         Closing="Window_Closing"
+        ResizeMode="CanResizeWithGrip"
         MinWidth="500">
     <Grid>
         <Grid.RowDefinitions>
@@ -29,7 +30,7 @@
         <views:SymbolArtBrowser Grid.Row="1" />
 
         <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5">
-            <Button Command="{Binding OpenCommand}" Style="{StaticResource standardButton}">Open</Button>
+            <Button Width="100" Command="{Binding OpenCommand}" Style="{StaticResource standardButton}">Open</Button>
             <Button Command="{Binding OpenCommand}" CommandParameter="new" Margin="5 0" Style="{StaticResource standardButton}">Open in new window</Button>
         </StackPanel>
     </Grid>

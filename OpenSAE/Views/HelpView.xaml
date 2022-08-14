@@ -9,14 +9,15 @@
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource titleText}">
-                OpenSAE Symbol Art Editor help (v1.5)
+                OpenSAE Symbol Art Editor help (v1.6.1)
             </TextBlock>
         </StackPanel>
         <TextBlock VerticalAlignment="Center" Margin="5 0">
             by Magus Magnus
         </TextBlock>
         <TextBlock Margin="0 10 0 0">
-            There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree and palette</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.
+            There are three main sections to the editor; the <Run FontWeight="Bold">symbol tree and palette</Run>, the <Run FontWeight="Bold">canvas</Run> and the <Run FontWeight="Bold">item editor</Run>.<LineBreak />
+            In addition to the editor, the <Run FontWeight="Bold">Symbol art browser</Run> helps with managing many symbol arts.
         </TextBlock>
 
         <TextBlock Style="{StaticResource subtitleText}">
@@ -137,6 +138,16 @@
             The color and opacity of the current item can be changed here. When changing this for a group, <Run FontWeight="Bold">all items in it</Run> will be affected.
             <LineBreak />
             Additionally when a symbol is selected, the type of symbol can be changed.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Symbol art browser
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            Open the browser by clicking File -> Browse... in the menu.<LineBreak />
+            In the window that opens, click <Run FontWeight="Bold">Browse...</Run> to select a folder and the browser will display a list of all symbol arts in the folder.<LineBreak />
+            Symbol arts can be opened in the editor by selecting them and clicking <Run FontWeight="Bold">Open</Run> or by <Run FontWeight="Bold">double-clicking</Run> them.<LineBreak />
+            The <Run FontWeight="Bold">Open in new window...</Run> opens the symbol art in a new editor window.
         </TextBlock>
     </StackPanel>
 </UserControl>

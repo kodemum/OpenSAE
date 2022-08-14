@@ -12,7 +12,7 @@
             <EventSetter Event="MouseDoubleClick" Handler="ListView_MouseDoubleClick" />
         </Style>
     </UserControl.Resources>
-    <ListView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" ItemContainerStyle="{StaticResource itemstyle}">
+    <ListView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" ItemContainerStyle="{StaticResource itemstyle}" SelectionMode="Single">
         <ListView.View>
             <GridView>
                 <GridViewColumn Header="Preview" Width="200">

@@ -5,7 +5,7 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>OpenSAE.ico</ApplicationIcon>
-		<Version>1.6</Version>
+		<Version>1.6.1</Version>
 		<ProductName>OpenSAE Symbol Art Editor</ProductName>
 		<PublisherName>Magus Magnus</PublisherName>
 	</PropertyGroup>
