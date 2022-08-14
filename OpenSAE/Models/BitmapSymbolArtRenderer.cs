@@ -75,7 +75,7 @@ namespace OpenSAE.Models
         {
             _grid.Width = width * 2;
             _grid.Height = height * 2;
-            _renderer.SymbolUnitWidth = width;
+            _renderer.SymbolUnitWidth = sa.Width;
             _renderer.SymbolArt = sa;
 
             _grid.Background = backgroundBrush;
