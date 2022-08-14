@@ -7,13 +7,31 @@
              mc:Ignorable="d" 
              d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <ListView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" MouseDoubleClick="ListView_MouseDoubleClick">
+    <UserControl.Resources>
+        <Style x:Key="itemstyle" TargetType="{x:Type ListViewItem}">
+            <EventSetter Event="MouseDoubleClick" Handler="ListView_MouseDoubleClick" />
+        </Style>
+    </UserControl.Resources>
+    <ListView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" ItemContainerStyle="{StaticResource itemstyle}">
         <ListView.View>
             <GridView>
                 <GridViewColumn Header="Preview" Width="200">
                     <GridViewColumn.CellTemplate>
                         <DataTemplate>
-                            <Image Source="{Binding SymbolImage}" Width="{Binding SymbolArt.Width}" Height="{Binding SymbolArt.Height}" />
+                            <Canvas Width="{Binding SymbolArt.Width}" Height="{Binding SymbolArt.Height}">
+                                <views:SymbolArtRenderer 
+                                    SymbolArt="{Binding SymbolArt}"
+                                    SymbolUnitWidth="{Binding SymbolArt.Width}"
+                                    Width="{Binding SymbolArt.Width}"
+                                    Height="{Binding SymbolArt.Height}"
+                                    NoInteraction="True"
+                                    ApplyToneCurve="True"
+                                    ShowBoundingBox="False"
+                                    ShowGuides="False" />
+                                <Canvas.CacheMode>
+                                    <BitmapCache EnableClearType="False" RenderAtScale="1" SnapsToDevicePixels="False"  />
+                                </Canvas.CacheMode>
+                            </Canvas>
                         </DataTemplate>
                     </GridViewColumn.CellTemplate>
                 </GridViewColumn>

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.IO;
-using System.Windows.Media;
+using System.Threading.Tasks;
 
 namespace OpenSAE.Models.FileBrowser
 {
@@ -9,15 +9,13 @@ namespace OpenSAE.Models.FileBrowser
     {
         private string _path;
         private string? _loadError;
-        private bool _isLoaded;
         private SymbolArtModel? _sa;
-        private BitmapSymbolArtRenderer _renderer;
-        private ImageSource? _saImage;
 
-        public FileModel(string path, BitmapSymbolArtRenderer renderer)
+        public FileModel(string path)
         {
             _path = path;
-            _renderer = renderer;
+
+            Task.Run(TryLoad);
         }
 
         public string FileName => Path.GetFileName(_path);
@@ -32,42 +30,14 @@ namespace OpenSAE.Models.FileBrowser
 
         public SymbolArtModel? SymbolArt => _sa;
 
-        public string? Name
-        {
-            get
-            {
-                if (!_isLoaded)
-                {
-                    TryLoad();
-                }
-
-                return _sa?.Name;
-            }
-        }
-
-        public ImageSource? SymbolImage
-        {
-            get
-            {
-                if (!_isLoaded)
-                {
-                    TryLoad();
-                }
-
-                if (_saImage == null)
-                {
-                    _saImage = _sa != null ? _renderer.RenderToBitmapTarget(_sa, _sa.Width, _sa.Height) : null;
-                }
-
-                return _saImage;
-            }
-        }
+        public string? Name => _loadError != null ? "[load error]" : _sa?.Name;
 
         private void TryLoad()
         {
             try
             {
                 _sa = new SymbolArtModel(new DummyUndoModel(), _path);
+                OnPropertyChanged(nameof(SymbolArt));
             }
             catch (Exception ex)
             {
@@ -75,7 +45,7 @@ namespace OpenSAE.Models.FileBrowser
             }
             finally
             {
-                _isLoaded = true;
+                OnPropertyChanged(nameof(Name));
             }
         }
     }

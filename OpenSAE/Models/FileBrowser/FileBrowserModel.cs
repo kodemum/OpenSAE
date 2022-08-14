@@ -6,12 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 
 namespace OpenSAE.Models.FileBrowser
 {
@@ -20,7 +15,6 @@ namespace OpenSAE.Models.FileBrowser
         private readonly IDialogService _dialogService;
         private readonly Action<string> _openAction;
         private readonly Action<string> _openInNewWindowAction;
-        private readonly BitmapSymbolArtRenderer _renderer;
         
         private string? _rootPath;
         private ObservableCollection<FileModel>? _files;
@@ -64,7 +58,6 @@ namespace OpenSAE.Models.FileBrowser
 
         public FileBrowserModel(IDialogService dialogService, Action<string> openAction, Action<string> openInNewWindowAction)
         {
-            _renderer = new BitmapSymbolArtRenderer();
             _dialogService = dialogService;
             _openAction = openAction;
             _openInNewWindowAction = openInNewWindowAction;
@@ -106,7 +99,7 @@ namespace OpenSAE.Models.FileBrowser
                 {
                     Files = new ObservableCollection<FileModel>(Directory.GetFiles(_rootPath)
                         .Where(x => Path.GetExtension(x).ToLower() == ".sar" || Path.GetExtension(x).ToLower() == ".saml")
-                        .Select(x => new FileModel(x, _renderer)));
+                        .Select(x => new FileModel(x)));
                 }
                 else
                 {

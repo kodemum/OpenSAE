@@ -38,6 +38,7 @@ namespace OpenSAE.Core
             Image.CacheOption = BitmapCacheOption.OnLoad;
             Image.UriSource = new Uri(Uri);
             Image.EndInit();
+            Image.Freeze();
         }
 
         public int Id { get; }
