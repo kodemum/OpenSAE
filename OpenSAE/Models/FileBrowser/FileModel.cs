@@ -22,6 +22,8 @@ namespace OpenSAE.Models.FileBrowser
 
         public string FileName => Path.GetFileName(_path);
 
+        public string FullPath => _path;
+
         public string? LoadError
         {
             get => _loadError;

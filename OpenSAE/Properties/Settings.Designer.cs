@@ -131,5 +131,41 @@ namespace OpenSAE.Properties {
                 this["ShowImageOverlays"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double BrowseWindowHeight {
+            get {
+                return ((double)(this["BrowseWindowHeight"]));
+            }
+            set {
+                this["BrowseWindowHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double BrowseWindowWidth {
+            get {
+                return ((double)(this["BrowseWindowWidth"]));
+            }
+            set {
+                this["BrowseWindowWidth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BrowseWindowPath {
+            get {
+                return ((string)(this["BrowseWindowPath"]));
+            }
+            set {
+                this["BrowseWindowPath"] = value;
+            }
+        }
     }
 }

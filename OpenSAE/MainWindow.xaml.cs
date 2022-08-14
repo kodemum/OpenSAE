@@ -37,6 +37,11 @@ namespace OpenSAE
         private IngameExampleWindow? _exampleWindow;
 
         public MainWindow()
+            : this(null)
+        {
+        }
+
+        public MainWindow(string? filename)
         {
             InitializeComponent();
 
@@ -54,11 +59,18 @@ namespace OpenSAE
             Width = Settings.Default.WindowWidth;
             Height = Settings.Default.WindowHeight;
 
-            var args = Environment.GetCommandLineArgs();
-
-            if (args.Length > 1)
+            if (filename != null)
             {
-                _model.OpenFileCommand.Execute(args[1]);
+                _model.OpenFile_Implementation(filename);
+            }
+            else
+            {
+                var args = Environment.GetCommandLineArgs();
+
+                if (args.Length > 1)
+                {
+                    _model.OpenFile_Implementation(args[1]);
+                }
             }
         }
 
@@ -222,12 +234,35 @@ namespace OpenSAE
             ToggleExampleWindow();
         }
 
-        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        private void OpenBrowseWindow_Click(object sender, RoutedEventArgs e)
         {
-            new BrowseFilesWindow()
+            var window = new BrowseFilesWindow();
+
+            var dialogService = new DialogService(window);
+
+            window.DataContext = new Models.FileBrowser.FileBrowserModel(dialogService, OpenIfVisible, OpenFileInNewWindow)
             {
-                DataContext = new Models.FileBrowser.FileBrowserModel()
-            }.Show();
+                RootPath = Settings.Default.BrowseWindowPath
+            };
+
+            window.Show();
+        }
+
+        private void OpenIfVisible(string filename)
+        {
+            if (IsVisible)
+            {
+                _model.OpenFile_Implementation(filename);
+            }
+            else
+            {
+                OpenFileInNewWindow(filename);
+            }
+        }
+
+        private static void OpenFileInNewWindow(string filename)
+        {
+            new MainWindow(filename).Show();
         }
     }
 }

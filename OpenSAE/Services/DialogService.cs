@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using System.IO;
 using System.Windows;
 
@@ -29,6 +30,29 @@ namespace OpenSAE.Services
                 if (od.ShowDialog(_parentWindow) == true)
                 {
                     result = od.FileName;
+                }
+            });
+
+            return result;
+        }
+
+        /// <inheritdoc />
+        public string? BrowseOpenDirectory(string title, string? initialDirectory)
+        {
+            string? result = null;
+
+            _parentWindow.Dispatcher.Invoke(() =>
+            {
+                var dialog = new CommonOpenFileDialog
+                {
+                    Title = title,
+                    IsFolderPicker = true,
+                    InitialDirectory = initialDirectory
+                };
+
+                if (dialog.ShowDialog(_parentWindow) == CommonFileDialogResult.Ok)
+                {
+                    result = dialog.FileName;
                 }
             });
 

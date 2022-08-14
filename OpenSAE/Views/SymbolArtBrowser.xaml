@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:fb="clr-namespace:OpenSAE.Models.FileBrowser" xmlns:views="clr-namespace:OpenSAE.Views"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel, IsDesignTimeCreatable=True}"
+             d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <ListView ItemsSource="{Binding Files}">
+    <ListView ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" MouseDoubleClick="ListView_MouseDoubleClick">
         <ListView.View>
             <GridView>
                 <GridViewColumn Header="Preview" Width="200">

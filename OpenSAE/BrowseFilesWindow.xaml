@@ -7,8 +7,13 @@
         xmlns:fb="clr-namespace:OpenSAE.Models.FileBrowser"
         xmlns:views="clr-namespace:OpenSAE.Views"
         mc:Ignorable="d" 
-        d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel, IsDesignTimeCreatable=True}"
-        Title="Browse for symbol arts" Height="450" Width="800">
+        d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel}"
+        Title="Symbol art browser"
+        Height="450"
+        Width="800"
+        MinHeight="250"
+        Closing="Window_Closing"
+        MinWidth="500">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -17,15 +22,15 @@
         </Grid.RowDefinitions>
 
         <DockPanel Margin="5">
-            <Button DockPanel.Dock="Right" Style="{StaticResource standardButton}">Browse...</Button>
+            <Button DockPanel.Dock="Right" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Browse...</Button>
             <TextBox VerticalAlignment="Center" Text="{Binding RootPath}" Margin="5 0" />
         </DockPanel>
 
         <views:SymbolArtBrowser Grid.Row="1" />
 
         <StackPanel Orientation="Horizontal" Grid.Row="2" Margin="5">
-            <Button Style="{StaticResource standardButton}">Open</Button>
-            <Button Margin="5 0" Style="{StaticResource standardButton}">Open in new window</Button>
+            <Button Command="{Binding OpenCommand}" Style="{StaticResource standardButton}">Open</Button>
+            <Button Command="{Binding OpenCommand}" CommandParameter="new" Margin="5 0" Style="{StaticResource standardButton}">Open in new window</Button>
         </StackPanel>
     </Grid>
 </Window>

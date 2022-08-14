@@ -767,7 +767,7 @@ namespace OpenSAE.Models
             return true;
         }
 
-        private void OpenFile_Implementation(string? filename)
+        public void OpenFile_Implementation(string? filename)
         {
             if (!ConfirmCloseOpenFile())
                 return;

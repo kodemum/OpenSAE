@@ -20,6 +20,14 @@ namespace OpenSAE.Services
         string? BrowseOpenFile(string title, string filter);
 
         /// <summary>
+        /// Opens an open directory dialog with the specified arguments.
+        /// </summary>
+        /// <param name="title"></param>
+        /// <param name="initialDirectory">Initial directory to select in the dialog</param>
+        /// <returns></returns>
+        string? BrowseOpenDirectory(string title, string? initialDirectory);
+
+        /// <summary>
         /// Opens an save file dialog with the specified arguments.
         /// </summary>
         /// <param name="title"></param>

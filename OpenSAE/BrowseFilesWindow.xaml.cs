@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenSAE.Properties;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,15 @@ namespace OpenSAE
         public BrowseFilesWindow()
         {
             InitializeComponent();
+
+            Width = Settings.Default.BrowseWindowWidth;
+            Height = Settings.Default.BrowseWindowHeight;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Settings.Default.BrowseWindowWidth = Width;
+            Settings.Default.BrowseWindowHeight = Height;
         }
     }
 }
