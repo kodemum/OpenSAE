@@ -221,5 +221,13 @@ namespace OpenSAE
         {
             ToggleExampleWindow();
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            new BrowseFilesWindow()
+            {
+                DataContext = new Models.FileBrowser.FileBrowserModel()
+            }.Show();
+        }
     }
 }

@@ -8,11 +8,34 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 namespace OpenSAE.Models
 {
-    public static class BitmapSymbolArtRenderer
+    public class BitmapSymbolArtRenderer
     {
+        private readonly Grid _grid;
+        private readonly Views.SymbolArtRenderer _renderer;
+
+        public BitmapSymbolArtRenderer()
+        {
+            _grid = new()
+            {
+                Width = 192,
+                Height = 96
+            };
+
+            _renderer = new(true, true)
+            {
+                ApplyToneCurve = true,
+                ShowGuides = false,
+                ShowBoundingBox = false,
+                SymbolUnitWidth = 192,
+            };
+
+            _grid.Children.Add(_renderer);
+        }
+
         /// <summary>
         /// Renders the specified symbol art model as a bitmap by creating an instance of the specified <typeparamref name="TEncoder"/> and writes it
         /// to the specified stream.
@@ -39,36 +62,31 @@ namespace OpenSAE.Models
         /// <param name="outputStream">Stream to write bitmap to</param>
         public static void RenderToStream(SymbolArtModel sa, BitmapEncoder encoder, int width, int height, Stream outputStream)
         {
-            Grid grid = new()
-            { 
-                Width = width, 
-                Height = height 
-            };
+            SolidColorBrush? backgroundBrush = (encoder is JpegBitmapEncoder || encoder is BmpBitmapEncoder) ? new SolidColorBrush(Colors.White) : null;
 
-            Views.SymbolArtRenderer renderer = new(true, true)
-            {
-                SymbolArt = sa,
-                ApplyToneCurve = true,
-                ShowGuides = false,
-                SymbolUnitWidth = sa.Width,
-            };
-
-            grid.Children.Add(renderer);
-
-            if (encoder is JpegBitmapEncoder || encoder is BmpBitmapEncoder)
-            {
-                grid.Background = new SolidColorBrush(Colors.White);
-            }
-
-            grid.Measure(new Size(grid.Width, grid.Height));
-            grid.Arrange(new Rect(0, 0, grid.Width, grid.Height));
-
-            RenderTargetBitmap renderTarget = new((int)grid.Width, (int)grid.Height, 96, 96, PixelFormats.Pbgra32);
-            renderTarget.Render(grid);
+            var renderTarget = new BitmapSymbolArtRenderer().RenderToBitmapTarget(sa, width, height, backgroundBrush);
 
             encoder.Frames.Add(BitmapFrame.Create(renderTarget));
 
             encoder.Save(outputStream);
+        }
+
+        public RenderTargetBitmap RenderToBitmapTarget(SymbolArtModel sa, int width, int height, Brush? backgroundBrush = null)
+        {
+            _grid.Width = width * 2;
+            _grid.Height = height * 2;
+            _renderer.SymbolUnitWidth = width;
+            _renderer.SymbolArt = sa;
+
+            _grid.Background = backgroundBrush;
+
+            _grid.Measure(new Size(_grid.Width, _grid.Height));
+            _grid.Arrange(new Rect(0, 0, _grid.Width, _grid.Height));
+
+            RenderTargetBitmap renderTarget = new((int)_grid.Width, (int)_grid.Height, 96, 96, PixelFormats.Pbgra32);
+            renderTarget.Render(_grid);
+
+            return renderTarget;
         }
     }
 }

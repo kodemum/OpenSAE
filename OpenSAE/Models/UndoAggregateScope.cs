@@ -4,9 +4,9 @@ namespace OpenSAE.Models
 {
     public class UndoAggregateScope : IDisposable
     {
-        private readonly UndoModel _undoModel;
+        private readonly IUndoModel _undoModel;
 
-        public UndoAggregateScope(UndoModel undoModel)
+        public UndoAggregateScope(IUndoModel undoModel)
         {
             _undoModel = undoModel;
         }

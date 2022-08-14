@@ -156,6 +156,7 @@
             <MenuItem Header="_File">
                 <MenuItem Header="_New" Command="{Binding NewFileCommand}" InputGestureText="Ctrl+N" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFileIcon}" />
                 <MenuItem Header="_Open..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O" Template="{StaticResource iconMenuItem}" Icon="{StaticResource openFileIcon}" />
+                <MenuItem Header="_Browse..." Click="MenuItem_Click" />
                 <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S" Template="{StaticResource iconMenuItem}" Icon="{StaticResource saveIcon}" />
                 <MenuItem Header="_Save as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Alt+S" />
                 <MenuItem Header="E_xport to game..." Command="{Binding CurrentItemCommand}" CommandParameter="export" InputGestureText="Ctrl+Alt+Shift+S" />
