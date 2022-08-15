@@ -8,9 +8,11 @@ using System.Windows.Media;
 
 namespace OpenSAE.Core
 {
+    /// <summary>
+    /// Maps colors to color names
+    /// </summary>
     public class ColorNameMapper
     {
-        //create the dictionary with the elements you are interested in
         private static readonly Dictionary<int, string> colorMap = new();
 
         private static readonly HashSet<KnownColor> ignoredColors = new()
@@ -67,7 +69,6 @@ namespace OpenSAE.Core
 
         public static string? GetName(System.Windows.Media.Color color)
         {
-            //mask out the alpha channel
             int myRgb = ToArgb(color);
             if (colorMap.ContainsKey(myRgb))
             {
@@ -79,16 +80,13 @@ namespace OpenSAE.Core
 
         public static string? GetNearestName(System.Windows.Media.Color color)
         {
-            //check first for an exact match
             string? name = GetName(color);
             if (name != null)
             {
                 return name;
             }
 
-            //mask out the alpha channel
             int myRgb = ToArgb(color);
-            //retrieve the color from the dictionary with the closest measure
             int? closestColor = colorMap.Keys.Select(colorKey => new ColorDistance(colorKey, myRgb)).MinBy(d => d.Distance)?.ColorKey;
 
             if (closestColor == null)
@@ -102,8 +100,8 @@ namespace OpenSAE.Core
             return (color.R << 16) + (color.G << 8) + color.B;
         }
 
-        //Just a simple utility class to store our
-        //color values and the distance from the color of interest
+        // Just a simple utility class to store our
+        // color values and the distance from the color of interest
         private class ColorDistance
         {
             public int ColorKey { get; }
