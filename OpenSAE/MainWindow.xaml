@@ -195,6 +195,7 @@
                 <Separator />
                 <MenuItem Header="Ad_vanced">
                     <MenuItem Header="_Clean up symbols outside visible area" Command="{Binding CurrentItemCommand}" CommandParameter="cleanupBounds" />
+                    <MenuItem Header="_Group symbols by color" Command="{Binding CurrentItemCommand}" CommandParameter="groupByColor" />
                 </MenuItem>
                 <Separator />
                 <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />

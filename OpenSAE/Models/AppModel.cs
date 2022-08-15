@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using OpenSAE.Core;
 using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
@@ -493,6 +494,10 @@ namespace OpenSAE.Models
                     CleanupOutsideActiveArea();
                     break;
 
+                case "groupByColor":
+                    GroupLayersBasedOnColor();
+                    break;
+
                 case "duplicate":
                     if (SelectedItem.Parent == null)
                         return;
@@ -905,6 +910,64 @@ namespace OpenSAE.Models
 
                 targetLayers.ForEach(x => x.Delete());
             }
-         }
+        }
+
+        private void GroupLayersBasedOnColor()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            int groupCount = 1;
+
+            using var scope = Undo.StartAggregateScope("Group color symbols");
+
+            void AddColorGroup(System.Windows.Media.Color color, int index, SymbolArtItemModel parent, List<SymbolArtLayerModel> layers)
+            {
+                var colorGroup = new SymbolArtGroupModel(Undo, $"Color {groupCount++} - {ColorNameMapper.GetNearestName(color)}", true, parent);
+
+                parent.Children.Insert(index, colorGroup);
+
+                layers.ForEach(x => MoveItemTo(x, colorGroup));
+            }
+
+            void ProcessGroup(SymbolArtGroupModel group)
+            {
+                System.Windows.Media.Color? currentColor = null;
+                List<SymbolArtLayerModel> layers = new();
+
+                foreach (var item in group.Children.ToArray())
+                {
+                    if (item is SymbolArtLayerModel layer)
+                    {
+                        if (layer.Color == currentColor)
+                        {
+                            layers.Add(layer);
+                        }
+                        else
+                        {
+                            if (layers.Count > 1 && currentColor != null)
+                            {
+                                AddColorGroup(currentColor.Value, layer.IndexInParent, group, layers);
+                            }
+
+                            layers.Clear();
+                            layers.Add(layer);
+                            currentColor = layer.Color;
+                        }
+                    }
+                    else if (item is SymbolArtGroupModel subGroup)
+                    {
+                        ProcessGroup(subGroup);
+                    }
+                }
+
+                if (layers.Count > 1 && currentColor != null)
+                {
+                    AddColorGroup(currentColor.Value, group.Children.Count - 1, group, layers);
+                }
+            }
+
+            ProcessGroup(CurrentSymbolArt);
+        }
     }
 }
