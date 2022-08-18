@@ -24,15 +24,33 @@ namespace OpenSAE.Core
         {
             ReverseColorMap = new byte[256];
 
-            int i = 0;
-            foreach (byte level in ColorMap)
+            for (int i = 0; i < ReverseColorMap.Length; i++)
             {
-                for (int j = i; j <= level; j++)
-                {
-                    ReverseColorMap[j] = level;
-                    i++;
-                }
+                ReverseColorMap[i] = (byte)(FindIndexWithClosestValue(ColorMap, i) * 4);
             }
+
+            // exception to preserve white
+            ReverseColorMap[255] = 255;
+        }
+
+        private static int FindIndexWithClosestValue(byte[] array, int target)
+        {
+            int minDistance = 255;
+            int minIndex = 0;
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                int distance = Math.Abs(target - array[i]);
+                if (distance > minDistance && minDistance != -1)
+                {
+                    return minIndex;
+                }
+
+                minDistance = distance;
+                minIndex = i;
+            }
+
+            return minIndex;
         }
 
         public static Color ApplyCurve(Color input)
