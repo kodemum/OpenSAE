@@ -783,7 +783,7 @@ namespace OpenSAE.Views
 
         private Point3DCollection GetLayer3DPoints(SymbolArtItemModel layer)
         {
-            var vertices = layer.RawVertices;
+            var vertices = layer.RenderVertices;
 
             if (layer.EnforceGridPositioning && !DisableGridPositioning)
             {

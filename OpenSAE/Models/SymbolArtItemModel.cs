@@ -89,12 +89,16 @@ namespace OpenSAE.Models
 
         public abstract Point[] RawVertices { get; }
 
+        public virtual Point[] RenderVertices => RawVertices;
+
         /// <summary>
         /// Gets the currently committed vertices for the item. If the item is in manipulation mode
         /// will return the vertices before the manipulation begin. If not in manipulation mode
         /// returns the current vertices.
         /// </summary>
         public Point[] OriginalVertices => _isManipulating ? _temporaryVertices : Vertices;
+
+        protected virtual Vector[]? Vectors => null;
 
         protected void OnChildrenChanged()
         {

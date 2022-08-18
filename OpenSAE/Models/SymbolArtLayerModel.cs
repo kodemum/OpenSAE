@@ -130,9 +130,24 @@ namespace OpenSAE.Models
         /// </summary>
         public Point Vertex1
         {
-            get => _vertex1;
+            get
+            {
+                if (Symbol?.Vectors != null)
+                {
+                    return _vertex1 - Symbol.Vectors[0];
+                }
+                else
+                {
+                    return _vertex1;
+                }
+            }
             set
             {
+                if (Symbol?.Vectors != null)
+                {
+                    value += Symbol.Vectors[0];
+                }
+
                 if (SetProperty(ref _vertex1, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
@@ -141,14 +156,31 @@ namespace OpenSAE.Models
             }
         }
 
+        protected override Vector[]? Vectors => Symbol?.Vectors;
+
         /// <summary>
         /// Represents the left bottom vertex of the symbol
         /// </summary>
         public Point Vertex2
         {
-            get => _vertex2;
+            get
+            {
+                if (Symbol?.Vectors != null)
+                {
+                    return _vertex2 - Symbol.Vectors[1];
+                }
+                else
+                {
+                    return _vertex2;
+                }
+            }
             set
             {
+                if (Symbol?.Vectors != null)
+                {
+                    value += Symbol.Vectors[1];
+                }
+
                 if (SetProperty(ref _vertex2, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
@@ -162,9 +194,25 @@ namespace OpenSAE.Models
         /// </summary>
         public Point Vertex3
         {
-            get => _vertex3;
+            get
+            {
+                if (Symbol?.Vectors != null)
+                {
+                    return _vertex3 - Symbol.Vectors[2];
+                }
+                else
+                {
+                    return _vertex3;
+                }
+            }
             set
             {
+                if (Symbol?.Vectors != null)
+                {
+                    value += Symbol.Vectors[2];
+                }
+
+
                 if (SetProperty(ref _vertex3, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
@@ -178,9 +226,24 @@ namespace OpenSAE.Models
         /// </summary>
         public Point Vertex4
         {
-            get => _vertex4;
+            get
+            {
+                if (Symbol?.Vectors != null)
+                {
+                    return _vertex4 - Symbol.Vectors[3];
+                }
+                else
+                {
+                    return _vertex4;
+                }
+            }
             set
             {
+                if (Symbol?.Vectors != null)
+                {
+                    value += Symbol.Vectors[3];
+                }
+
                 if (SetProperty(ref _vertex4, value))
                 {
                     OnPropertyChanged(nameof(Vertices));
@@ -196,6 +259,14 @@ namespace OpenSAE.Models
                 Vertex3,
                 Vertex4,
             };
+
+        public override Point[] RenderVertices => new[]
+        {
+            _vertex1,
+            _vertex2,
+            _vertex3,
+            _vertex4
+        };
 
         public override Point[] Vertices
         {

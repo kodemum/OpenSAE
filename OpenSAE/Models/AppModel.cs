@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -236,6 +238,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> ClipboardCommand { get; }
 
+        public IRelayCommand DebugCommand { get; }
+
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -258,6 +262,7 @@ namespace OpenSAE.Models
             ZoomCommand = new RelayCommand<string>(Zoom_Implementation);
             HelpCommand = new RelayCommand(() => ShowHelpScreen = !ShowHelpScreen);
             ClipboardCommand = new RelayCommand<string>(ClipboardCommand_Implementation, ClipboardCommand_CanRun);
+            DebugCommand = new RelayCommand<string>(Debug_Implementation);
 
             CommandManager.RequerySuggested += (_, __) => ClipboardCommand.NotifyCanExecuteChanged();
 
@@ -265,6 +270,46 @@ namespace OpenSAE.Models
             {
                 ShowHelpScreen = true;
                 Settings.Default.HelpShown = true;
+            }
+        }
+
+        private void Debug_Implementation(string? action)
+        {
+            SymbolArtLayerModel? reference = null;
+            SymbolArtLayerModel? toModify = null;
+
+            switch (action)
+            {
+                case "prepareBoundsEdit":
+                    if (!ConfirmCloseOpenFile())
+                        return;
+
+                    NewFile_Implementation();
+                    reference = AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(Undo, 1, group));
+                    toModify = AddItemToCurrentSymbolArt((group) => new SymbolArtLayerModel(Undo, 2, group));
+
+                    reference.Name = "Target symbol";
+                    reference.Symbol = SymbolUtil.GetById(243);
+                    toModify.Name = "Object used to set bounds";
+                    toModify.Alpha = 0;
+                    break;
+
+                case "saveSymbolBounds":
+                    reference = CurrentSymbolArt?.GetAllLayers().FirstOrDefault(x => x.Name == "Target symbol");
+                    toModify = CurrentSymbolArt?.GetAllLayers().FirstOrDefault(x => x.Name == "Object used to set bounds");
+
+                    if (reference == null || toModify == null)
+                    {
+                        _dialogService.ShowErrorMessage("Debug", "Reference and bounds symbols not found in current SA");
+                    }
+                    else
+                    {
+                        Vector[] vectors = reference.Vertices.Select((vertex, index) => vertex - toModify.Vertices[index]).ToArray();
+                        reference.Symbol!.Vectors = vectors;
+
+                        File.WriteAllText($"{reference.Symbol?.Id}.json", JsonSerializer.Serialize(vectors));
+                    }
+                    break;
             }
         }
 
@@ -733,7 +778,8 @@ namespace OpenSAE.Models
             return true;
         }
 
-        private void AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
+        private TItem AddItemToCurrentSymbolArt<TItem>(Func<SymbolArtGroupModel, TItem> itemCreationPredicate)
+            where TItem : SymbolArtItemModel
         {
             // find group to add layer to - may be current item, it's parent
             // or possibly the root symbol art
@@ -757,6 +803,8 @@ namespace OpenSAE.Models
                 },
                 () => targetGroup.Children.Remove(item)
             );
+
+            return item;
         }
 
         public bool RequestExit()
