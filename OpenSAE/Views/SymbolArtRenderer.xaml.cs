@@ -114,6 +114,17 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: 240d, SymbolUnitWidthPropertyChanged, OnSymbolUnitWidthCoerce)
         );
 
+        public static readonly DependencyProperty CanvasEditModeProperty =
+            DependencyProperty.Register(
+              name: "CanvasEditMode",
+              propertyType: typeof(CanvasEditMode),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(
+                  defaultValue: CanvasEditMode.Default,
+                  flags: FrameworkPropertyMetadataOptions.None
+                  )
+        );
+
         private static void PropertyChangedRedrawNecessary(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is SymbolArtRenderer renderer)
@@ -267,6 +278,12 @@ namespace OpenSAE.Views
             set => SetValue(DisableGridPositioningProperty, value);
         }
 
+        public CanvasEditMode CanvasEditMode
+        {
+            get => (CanvasEditMode)GetValue(CanvasEditModeProperty);
+            set => SetValue(CanvasEditModeProperty, value);
+        }
+
         /// <summary>
         /// Converts the coordinate system from relative to the view to the one used in the symbol art
         /// </summary>
@@ -391,6 +408,24 @@ namespace OpenSAE.Views
         {
             if (_noInteraction)
             {
+                base.OnPreviewMouseDown(args);
+                return;
+            }
+
+            if (CanvasEditMode != CanvasEditMode.Default)
+            {
+                switch (CanvasEditMode)
+                {
+                    case CanvasEditMode.ColorPicker:
+                        var color = Helpers.ScreenColorPicker.GetColorAt(PointToScreen(args.GetPosition(this)));
+
+                        if (SelectedLayer != null)
+                        {
+                            SelectedLayer.Color = ApplyToneCurve ? SymbolArtColorHelper.RemoveCurve(color) : color;
+                        }
+                        break;
+                }
+
                 base.OnPreviewMouseDown(args);
                 return;
             }

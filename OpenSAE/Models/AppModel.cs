@@ -42,6 +42,7 @@ namespace OpenSAE.Models
         private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
         private Point _viewPosition = new(0, 0);
         private int _tabIndex = 0;
+        private CanvasEditMode _canvasEditMode;
 
         public event EventHandler? ExitRequested;
 
@@ -182,6 +183,24 @@ namespace OpenSAE.Models
             set => SetProperty(ref _showHelpScreen, value);
         }
 
+        public CanvasEditMode CanvasEditMode
+        {
+            get => _canvasEditMode;
+            set
+            {
+                if (SetProperty(ref _canvasEditMode, value))
+                {
+                    OnPropertyChanged(nameof(ColorPickerEnabled));
+                }
+            }
+        }
+
+        public bool ColorPickerEnabled
+        {
+            get => _canvasEditMode == CanvasEditMode.ColorPicker;
+            set => CanvasEditMode = value ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
+        }
+
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
@@ -236,6 +255,8 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> ClipboardCommand { get; }
 
+        public IRelayCommand CanvasModeCommand { get; }
+
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;
@@ -258,6 +279,7 @@ namespace OpenSAE.Models
             ZoomCommand = new RelayCommand<string>(Zoom_Implementation);
             HelpCommand = new RelayCommand(() => ShowHelpScreen = !ShowHelpScreen);
             ClipboardCommand = new RelayCommand<string>(ClipboardCommand_Implementation, ClipboardCommand_CanRun);
+            CanvasModeCommand = new RelayCommand<string>(CanvasModeCommand_Implementation);
 
             CommandManager.RequerySuggested += (_, __) => ClipboardCommand.NotifyCanExecuteChanged();
 
@@ -265,6 +287,16 @@ namespace OpenSAE.Models
             {
                 ShowHelpScreen = true;
                 Settings.Default.HelpShown = true;
+            }
+        }
+
+        private void CanvasModeCommand_Implementation(string? option)
+        {
+            switch (option)
+            {
+                case "colorPicker":
+                    CanvasEditMode = CanvasEditMode == CanvasEditMode.ColorPicker ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
+                    break;
             }
         }
 

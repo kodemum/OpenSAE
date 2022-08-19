@@ -385,6 +385,7 @@
                     </Style>
                 </colorpicker:StandardColorPicker.Style>
             </colorpicker:StandardColorPicker>
+
             <DockPanel DockPanel.Dock="Top" Margin="5 0">
                 <TextBlock DockPanel.Dock="Left" Text="Opacity" />
                 <Slider Minimum="0" Maximum="7" Value="{Binding SelectedItem.Alpha, Converter={StaticResource alphaConverter}}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
@@ -445,6 +446,7 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource rotateIcon}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <ToggleButton IsChecked="{Binding ColorPickerEnabled}" FontFamily="Segoe MDL2 Assets" Content="{StaticResource colorIcon}" Foreground="Blue" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
@@ -452,7 +454,7 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource undoIcon}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource redoIcon}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
                         <Separator />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" Foreground="#cc0000" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
 
@@ -506,6 +508,7 @@
                     ApplyToneCurve="{Binding ApplyToneCurve}"
                     ShowGuides="{Binding GuideLinesEnabled}"
                     ShowImageOverlayLayers="{Binding ShowImageOverlays}"
+                    CanvasEditMode="{Binding CanvasEditMode}"
                     >
                 </views:SymbolArtRenderer>
             </Grid>
