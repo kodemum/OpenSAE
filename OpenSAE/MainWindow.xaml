@@ -218,6 +218,7 @@
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
                 <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
+                <MenuItem Header="Use _natural symbol selection" IsCheckable="True" IsChecked="{Binding NaturalSymbolSelectionEnabled}" />
                 <Separator />
                 <MenuItem Header="_Testing">
                     <MenuItem Header="Disable _grid rounding" IsCheckable="True" IsChecked="{Binding ElementName=renderer, Path=DisableGridPositioning}" />
@@ -509,6 +510,7 @@
                     ShowGuides="{Binding GuideLinesEnabled}"
                     ShowImageOverlayLayers="{Binding ShowImageOverlays}"
                     CanvasEditMode="{Binding CanvasEditMode}"
+                    DisplaySettingFlags="{Binding DisplaySettingFlags}"
                     >
                 </views:SymbolArtRenderer>
             </Grid>

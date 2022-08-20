@@ -43,6 +43,7 @@ namespace OpenSAE.Models
         private Point _viewPosition = new(0, 0);
         private int _tabIndex = 0;
         private CanvasEditMode _canvasEditMode;
+        private DisplaySettingFlags _displayFlags;
 
         public event EventHandler? ExitRequested;
 
@@ -201,6 +202,18 @@ namespace OpenSAE.Models
             set => CanvasEditMode = value ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
         }
 
+        public bool NaturalSymbolSelectionEnabled
+        {
+            get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.NaturalSymbolSelection);
+            set => SetDisplayFlag(DisplaySettingFlags.NaturalSymbolSelection, value);
+        }
+
+        public DisplaySettingFlags DisplaySettingFlags
+        {
+            get => _displayFlags;
+            set => SetProperty(ref _displayFlags, value);
+        }
+
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
@@ -264,6 +277,7 @@ namespace OpenSAE.Models
             RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
             ApplyToneCurve = Settings.Default.ApplyToneCurve;
             ShowImageOverlays = Settings.Default.ShowImageOverlays;
+            _displayFlags = (DisplaySettingFlags)Settings.Default.DisplayFlags;
             Undo = new UndoModel();
 
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
@@ -800,6 +814,7 @@ namespace OpenSAE.Models
             Settings.Default.ApplyToneCurve = ApplyToneCurve;
             Settings.Default.GuideLinesEnabled = GuideLinesEnabled;
             Settings.Default.ShowImageOverlays = ShowImageOverlays;
+            Settings.Default.DisplayFlags = (int)DisplaySettingFlags;
 
             return true;
         }
@@ -1000,6 +1015,18 @@ namespace OpenSAE.Models
             }
 
             ProcessGroup(CurrentSymbolArt);
+        }
+
+        private void SetDisplayFlag(DisplaySettingFlags flag, bool set)
+        {
+            if (set)
+            {
+                DisplaySettingFlags |= flag;
+            }
+            else
+            {
+                DisplaySettingFlags &= ~flag;
+            }
         }
     }
 }
