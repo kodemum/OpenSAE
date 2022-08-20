@@ -547,201 +547,21 @@ namespace OpenSAE.Views
         {
             if (SymbolArt != null)
             {
-                byte[] pixelValues = new byte[4];
-
                 // select layer under cursor by traversing all layers in the symbol art
                 // until we find one that is visible and where the mouse pointer is inside
                 foreach (var layer in SymbolArt.GetAllLayers().Where(x => x.IsVisible))
                 {
-                    if (layer.IsPointInside(ptMouse))
+                    if (layer.IsPointInsideAndNotTransparent(ptMouse))
                     {
-                        var topLength = (layer.Vertex1 - layer.Vertex4).Length;
-                        var leftHeight = (layer.Vertex1 - layer.Vertex2).Length;
-                        var bottomLength = (layer.Vertex2 - layer.Vertex3).Length;
-                        var rightHeight = (layer.Vertex4 - layer.Vertex3).Length;
-
-                        var origin = layer.Vertices.GetCenter();
-
-                        var angle = Math.Atan2(layer.Vertex4.Y - layer.Vertex1.Y, layer.Vertex4.X - layer.Vertex1.X);
-                        var originVector = new Vector(origin.X, origin.Y);
-
-                        //var s = Math.Sin(angle);
-                        //var c = Math.Cos(angle);
-
-                        //var translated = new Point(layer.Vertex1.X + origin.X, layer.Vertex1.Y + origin.Y);
-                        //var n = new Point(translated.X * c - translated.Y * s, translated.X * s + translated.Y * c)
-                        //    - originVector;
-
-                        var newPoints = new Point[]
-                        {
-                            new(1, 1),
-                            new(1, 11),
-                            new(11, 11),
-                            new(11, 1)
-                        };
-
-                        //var distances = layer.Vertices.Select(point => 1 / Math.Pow((point - ptMouse).Length, 2)).ToArray();
-                        //var vectors = layer.Vertices.Select((point, index) => newPoints[index] - point).ToArray();
-
-                        //var x12d = (layer.Vertex1 - layer.Vertex2).Length;
-                        //var x13d = (layer.Vertex1 - layer.Vertex3).Length;
-                        //var x14d = (layer.Vertex1 - layer.Vertex4).Length;
-
-                        //var total = distances.Sum();
-
-                        //distances = distances.Select(x => x / total).ToArray();
-
-                        //var averagedVectors = vectors.Select((x, index) => x * distances[index]).ToList();
-                        //var vector = averagedVectors.Aggregate((a, b) => a + b);
-
-                        //System.Diagnostics.Debug.WriteLine($"v0d {distances[0]}, v1d {distances[1]}, v2d {distances[2]}, v3d {distances[3]}, vector {vector}");
-                        //System.Diagnostics.Debug.WriteLine($"vector {vector}, pos {vector + ptMouse}");
-
-                        //var sourceVectors = layer.Vertices.Select(v => ptMouse - v).ToArray();
-                        //var targetVectors = layer.Vertices.Select((point, index) => newPoints[index] - point).ToArray();
-
-                        //var top =    layer.Vertex4.X - layer.Vertex1.X;
-                        //var bottom = layer.Vertex3.X - layer.Vertex2.X;
-                        //var left =   layer.Vertex2.Y - layer.Vertex1.Y;
-                        //var right =  layer.Vertex3.Y - layer.Vertex4.Y;
-
-                        //var ptYleft = sourceVectors[0].Y / left;
-                        //var ptYright = -sourceVectors[2].Y / right;
-                        //var ptXtop = sourceVectors[0].X / top;
-                        //var ptXbottom = sourceVectors[1].X / bottom;
-
-                        //System.Diagnostics.Debug.WriteLine($"yleft = {ptYleft}, yright = {ptYright}, xtop = {ptXtop}, xbottom = {ptXbottom}");
-
-                        //var point = new Point(
-                        //    (10 * ptXtop + 10 * ptXbottom) / 2,
-                        //    (10 * ptYleft + 10 * ptYright) / 2
-                        //    );
-
-
-
-                        //var xdist = 1 - distances[0] / (layer.Vertex1 - layer.Vertex3).Length;
-                        //var ydist = 1 - distances[1] / (layer.Vertex2 - layer.Vertex4).Length;
-                        //var zdist = 1 - distances[2] / (layer.Vertex1 - layer.Vertex3).Length;
-                        //var wdist = 1 - distances[3] / (layer.Vertex2 - layer.Vertex4).Length;
-
-                        //var xvec = newPoints[2] - newPoints[0];
-                        //var yvec = newPoints[3] - newPoints[1];
-
-                        //var point = xvec * xdist;
-                        //var pointy = newPoints[3] - yvec * ydist;
-
-                        //System.Diagnostics.Debug.WriteLine($"point = {point}, {pointy}, xDist = {xdist}, yDist = {ydist}, zDist = {zdist}, wDist = {wdist}");
-
-                        //var v = layer.Vertex2 - layer.Vertex1;
-                        //var u = layer.Vertex3 - layer.Vertex2;
-                        //var w = new Point((v + u).X, (v + u).Y) - layer.Vertex4;
-
-                        var p0 = layer.Vertex2;
-                        var p1 = layer.Vertex3;
-                        var p2 = layer.Vertex4;
-                        var p3 = layer.Vertex1;
-
-                        var normals = new Vector[]
-                        {
-                            new Vector(-(p3.Y - p0.Y), -(p3.X - p0.X)),
-                            new Vector(-(p0.Y - p1.Y), -(p0.X - p1.X)),
-                            new Vector(-(p1.Y - p2.Y), -(p1.X - p2.X)),
-                            new Vector(-(p2.Y - p3.Y), -(p2.X - p3.X)),
-                        };
-
-
-
-                        var u = (ptMouse - p0) * normals[0] / ((ptMouse - p0) * normals[0] + (ptMouse - p2) * normals[2]);
-                        var v = (ptMouse - p0) * normals[1] / ((ptMouse - p0) * normals[1] + (ptMouse - p3) * normals[3]);
-
-                        System.Diagnostics.Debug.WriteLine($"u = {u}, v = {v}");
-
-                        var point = new Point(u * 10, (1-v) * 10);
-
-                        //MatrixEx C = MatrixEx.General2DProjection(layer.Vertices, newPoints);
-
-                        ////var distances = layer.Vertices.Select(point => (point - ptMouse).Length).ToArray();
-
-                        //var point = C.Transform(ptMouse);
-
-                        //System.Diagnostics.Debug.WriteLine($"point {point}");
-
-                        //foreach (var vertex in layer.Vertices)
-                        //{
-                        //    System.Diagnostics.Debug.WriteLine(C.Transform(vertex));
-                        //}
-
-                        var targetLayer = SymbolArt.GetAllLayers().FirstOrDefault(x => x.Name == "target");
-
-                        if (targetLayer != null)
-                        {
-                            targetLayer.SetVertex(0, point);
-                            targetLayer.SetVertex(1, point);
-                            targetLayer.SetVertex(2, point);
-                            targetLayer.SetVertex(3, point);
-                        }
-
-
-                        //var ns = SymbolManipulationHelper.Rotate(new[] { layer.Vertex1, ptMouse }, origin, -angle);
-                        //var n = ns[0];
-
-                        //var vector = ns[1] - ns[0];
-
-                        //var percentX = Math.Abs(vector.X) / topLength;
-                        //var percentY = Math.Abs(vector.Y) / leftHeight;
-                        //var percentX2 = Math.Abs(vector.X) / bottomLength;
-                        //var percentY2 = Math.Abs(vector.Y) / rightHeight;
-
-                        //int targetPixelX = (int)Math.Round(layer.Symbol.Image.PixelWidth * percentX);
-                        //int targetPixelY = (int)Math.Round(layer.Symbol.Image.PixelHeight * percentY);
-
-                        ////System.Diagnostics.Debug.WriteLine($"{targetPixelX}:{targetPixelY}, {percentX:0.00}, {percentY:0.00}, {percentX2:0.00}, {percentY2:0.00}");
-                        //System.Diagnostics.Debug.WriteLine($"C = {point}, v1 = {A.Transform(layer.Vertex1)}");
-
-                        //if (targetPixelX < layer.Symbol.Image.PixelWidth - 1 && targetPixelY < layer.Symbol.Image.PixelHeight - 1)
-                        //{
-                        //    layer.Symbol.Image.CopyPixels(new Int32Rect(targetPixelX, targetPixelY, 1, 1), pixelValues, 4, 0);
-
-                        //    if (pixelValues[3] > 10)
-                        //    {
-
-                        //        // just in case
-                        //        SelectedLayer?.CommitManipulation();
-                        //        SelectedLayer = layer;
-                        //        return true;
-                        //    }
-                        //}
+                        // just in case
+                        SelectedLayer?.CommitManipulation();
+                        SelectedLayer = layer;
+                        return true;
                     }
                 }
             }
 
             return false;
-        }
-
-        private static Point UpdatePointWithVertexMoved(Point[] vertices, int vertexIndex, Point newVertexLocation, Point pointToTranslate)
-        {
-            var originVertex = vertices[vertexIndex];
-            var oppositeVertex = vertices.GetOppositeVertex(vertexIndex);
-
-            Vector vector = newVertexLocation - originVertex;
-
-            if (vector.Length == 0)
-            {
-                return pointToTranslate;
-            }
-
-            vertices[vertexIndex] = newVertexLocation;
-
-            var width = Math.Max(originVertex.X, oppositeVertex.X) - Math.Min(originVertex.X, oppositeVertex.X);
-            var height = Math.Max(originVertex.Y, oppositeVertex.Y) - Math.Min(originVertex.Y, oppositeVertex.Y);
-
-            // find the distance from the x and y origins of the group for the vertex
-            var distanceFromOpposite = (pointToTranslate - oppositeVertex);
-
-            // and reduce the vector to add accordingly
-            var scale = Math.Abs(distanceFromOpposite.X / height) * Math.Abs(distanceFromOpposite.Y / width);
-
-            return pointToTranslate + new Vector(vector.X * scale, vector.Y * scale);
         }
 
         protected override void OnMouseMove(MouseEventArgs args)
