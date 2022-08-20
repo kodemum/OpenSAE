@@ -167,5 +167,17 @@ namespace OpenSAE.Properties {
                 this["BrowseWindowPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int DisplayFlags {
+            get {
+                return ((int)(this["DisplayFlags"]));
+            }
+            set {
+                this["DisplayFlags"] = value;
+            }
+        }
     }
 }

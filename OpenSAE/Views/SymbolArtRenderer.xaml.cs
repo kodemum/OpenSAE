@@ -90,6 +90,14 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: true)
         );
 
+        public static readonly DependencyProperty DisplaySettingFlagsProperty =
+            DependencyProperty.Register(
+              name: "DisplaySettingFlags",
+              propertyType: typeof(DisplaySettingFlags),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: DisplaySettingFlags.NaturalSymbolSelection)
+        );
+
         public static readonly DependencyProperty DisableGridPositioningProperty =
             DependencyProperty.Register(
               name: "DisableGridPositioning",
@@ -282,6 +290,12 @@ namespace OpenSAE.Views
         {
             get => (CanvasEditMode)GetValue(CanvasEditModeProperty);
             set => SetValue(CanvasEditModeProperty, value);
+        }
+
+        public DisplaySettingFlags DisplaySettingFlags
+        {
+            get => (DisplaySettingFlags)GetValue(DisplaySettingFlagsProperty);
+            set => SetValue(DisplaySettingFlagsProperty, value);
         }
 
         /// <summary>
@@ -547,11 +561,13 @@ namespace OpenSAE.Views
         {
             if (SymbolArt != null)
             {
+                var naturalSelect = DisplaySettingFlags.HasFlag(DisplaySettingFlags.NaturalSymbolSelection);
+
                 // select layer under cursor by traversing all layers in the symbol art
                 // until we find one that is visible and where the mouse pointer is inside
                 foreach (var layer in SymbolArt.GetAllLayers().Where(x => x.IsVisible))
                 {
-                    if (layer.IsPointInside(ptMouse))
+                    if (naturalSelect ? layer.IsPointInsideAndNotTransparent(ptMouse) : layer.IsPointInside(ptMouse))
                     {
                         // just in case
                         SelectedLayer?.CommitManipulation();

@@ -276,6 +276,38 @@ namespace OpenSAE.Models
             }
         }
 
+        public bool IsPointInsideAndNotTransparent(Point ptMouse)
+        {
+            var p0 = Vertex2;
+            var p1 = Vertex3;
+            var p2 = Vertex4;
+            var p3 = Vertex1;
+
+            var n0 = new Vector(-(p3.Y - p0.Y), (p3.X - p0.X));
+            var n1 = new Vector((p0.Y - p1.Y), -(p0.X - p1.X));
+            var n2 = new Vector(-(p1.Y - p2.Y), (p1.X - p2.X));
+            var n3 = new Vector((p2.Y - p3.Y), -(p2.X - p3.X));
+
+            n0.Normalize();
+            n1.Normalize();
+            n2.Normalize();
+            n3.Normalize();
+
+            var u = (ptMouse - p0) * n0 / ((ptMouse - p0) * n0 + (ptMouse - p2) * n2);
+            var v = (ptMouse - p0) * n1 / ((ptMouse - p0) * n1 + (ptMouse - p3) * n3);
+
+            if (Symbol == null || u < 0 || u > 1 || v < 0 || v > 1)
+                return false;
+
+            int targetPixelX = (int)Math.Round((Symbol.Image.PixelWidth - 1) * u);
+            int targetPixelY = (int)Math.Round((Symbol.Image.PixelHeight - 1) * (1 - v));
+
+            byte[] pixelValues = new byte[4];
+
+            Symbol.Image.CopyPixels(new Int32Rect(targetPixelX, targetPixelY, 1, 1), pixelValues, 4, 0);
+
+            return pixelValues[3] > 10;
+        }
 
         public override bool ShowBoundingVertices
         {
