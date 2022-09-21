@@ -162,6 +162,8 @@
                 <MenuItem Header="E_xport to game..." Command="{Binding CurrentItemCommand}" CommandParameter="export" InputGestureText="Ctrl+Alt+Shift+S" />
                 <MenuItem Header="Export as _bitmap image..." Command="{Binding CurrentItemCommand}" CommandParameter="exportBitmap" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <Separator />
+                <MenuItem Header="Open _backup manager..." Click="OpenBackupManagerWindow_Click" />
+                <Separator />
                 <MenuItem Header="_Recent files" ItemsSource="{Binding RecentFiles}">
                     <MenuItem.ItemTemplate>
                         <DataTemplate>
