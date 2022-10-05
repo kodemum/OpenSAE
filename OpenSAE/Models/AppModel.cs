@@ -973,6 +973,8 @@ namespace OpenSAE.Models
 
                 AddRecentFile(filename);
 
+                OnPropertyChanged(nameof(AppTitle));
+
                 return true;
             }
             catch (Exception ex)
