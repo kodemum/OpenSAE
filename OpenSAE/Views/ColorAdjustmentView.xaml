@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="OpenSAE.Views.ColorAdjustmentView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:OpenSAE.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <StackPanel>
+        <TextBlock Text="Hue" Margin="5" />
+        <DockPanel>
+            <TextBox DockPanel.Dock="Right" Width="30" Margin="5 0 0 0" Text="{Binding Hue, UpdateSourceTrigger=PropertyChanged}" />
+            <Slider Minimum="-180" Maximum="180" Value="{Binding Hue}" LargeChange="10" />
+        </DockPanel>
+        
+        <TextBlock Text="Saturation" Margin="5" />
+        <DockPanel>
+            <TextBox DockPanel.Dock="Right" Width="30" Margin="5 0 0 0" Text="{Binding Saturation, UpdateSourceTrigger=PropertyChanged}" />
+            <Slider Minimum="-100" Maximum="100" Value="{Binding Saturation}" LargeChange="10" />
+        </DockPanel>
+
+        <TextBlock Text="Brightness" Margin="5" />
+        <DockPanel>
+            <TextBox DockPanel.Dock="Right" Width="30" Margin="5 0 0 0" Text="{Binding Brightness, UpdateSourceTrigger=PropertyChanged}" />
+            <Slider Minimum="-100" Maximum="100" Value="{Binding Brightness}" LargeChange="10" />
+        </DockPanel>
+
+        <TextBlock Text="Contrast" Margin="5" />
+        <DockPanel>
+            <TextBox DockPanel.Dock="Right" Width="30" Margin="5 0 0 0" Text="{Binding Contrast, UpdateSourceTrigger=PropertyChanged}" />
+            <Slider Minimum="-100" Maximum="100" Value="{Binding Contrast}" LargeChange="10" />
+        </DockPanel>
+    </StackPanel>
+</UserControl>

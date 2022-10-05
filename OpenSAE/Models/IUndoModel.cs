@@ -74,5 +74,16 @@ namespace OpenSAE.Models
         /// <param name="afterUndo">Action to run after undoing the aggregate action</param>
         /// <returns></returns>
         UndoAggregateScope StartAggregateScope(string name, object? source = null, string? operation = null, Action? afterUndo = null, Action? afterRedo = null);
+
+        /// <summary>
+        /// Attempts to undo a specific action without undoing actions performed afterwards. This should be used with caution, as
+        /// this can potentially leave the undo action queue in a way that doesn't make sense.
+        /// After being undone the action is removed from the queue and cannot be redone.
+        /// Returns a value indicating if the action was found in the queue.
+        /// </summary>
+        /// <param name="source">Source object for the action</param>
+        /// <param name="operation">Identifier determining what the action does</param>
+        /// <returns>Value indicating if the action was found, undone and removed.</returns>
+        bool UndoAndRemoveSpecific(object source, string? operation);
     }
 }

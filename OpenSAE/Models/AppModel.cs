@@ -44,6 +44,7 @@ namespace OpenSAE.Models
         private int _tabIndex = 0;
         private CanvasEditMode _canvasEditMode;
         private DisplaySettingFlags _displayFlags;
+        private EditViewModel? _currentEditView;
 
         public event EventHandler? ExitRequested;
 
@@ -64,9 +65,11 @@ namespace OpenSAE.Models
                     ViewPosition = new(0, 0);
                     ShowHelpScreen = false;
                     TabIndex = 0;
+                    CurrentEditView = null;
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                     AddImageLayerCommand.NotifyCanExecuteChanged();
+                    OpenViewCurrentItemCommand.NotifyCanExecuteChanged();
 
                     if (previous != null)
                     {
@@ -79,6 +82,12 @@ namespace OpenSAE.Models
                     }
                 }
             }
+        }
+
+        public EditViewModel? CurrentEditView
+        {
+            get => _currentEditView;
+            set => SetProperty(ref _currentEditView, value);
         }
 
         private void CurrentSymbolArt_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -268,6 +277,10 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> ClipboardCommand { get; }
 
+        public RelayCommand<string> OpenViewCurrentItemCommand { get; }
+
+        public ICommand CurrentViewActionCommand { get; }
+
         public IRelayCommand CanvasModeCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -294,6 +307,8 @@ namespace OpenSAE.Models
             HelpCommand = new RelayCommand(() => ShowHelpScreen = !ShowHelpScreen);
             ClipboardCommand = new RelayCommand<string>(ClipboardCommand_Implementation, ClipboardCommand_CanRun);
             CanvasModeCommand = new RelayCommand<string>(CanvasModeCommand_Implementation);
+            OpenViewCurrentItemCommand = new RelayCommand<string>(OpenViewCurrentItemCommand_Implementation, (arg) => CurrentSymbolArt != null);
+            CurrentViewActionCommand = new RelayCommand<string>(CurrentViewActionCommand_Implementation);
 
             CommandManager.RequerySuggested += (_, __) => ClipboardCommand.NotifyCanExecuteChanged();
 
@@ -301,6 +316,53 @@ namespace OpenSAE.Models
             {
                 ShowHelpScreen = true;
                 Settings.Default.HelpShown = true;
+            }
+        }
+
+        private void CurrentViewActionCommand_Implementation(string? action)
+        {
+            if (CurrentEditView is null)
+            {
+                return;
+            }
+
+            try
+            {
+                switch (action)
+                {
+                    case "apply":
+                        CurrentEditView.ApplyChanges();
+                        CurrentEditView = null;
+                        break;
+
+                    case "cancel":
+                        CurrentEditView.Cancel();
+                        CurrentEditView = null;
+                        break;
+
+                    default:
+                        throw new Exception($"Unknown view action {action}");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Edit view action error", "An error occurred while trying to apply or cancel an edit view.", ex);
+            }
+        }
+
+        private void OpenViewCurrentItemCommand_Implementation(string? obj)
+        {
+            if (SelectedItem is null)
+            {
+                return;
+            }
+
+            switch (obj)
+            {
+                case "adjustColor":
+                    CurrentEditView = new SymbolArtColorAdjustmentModel(Undo, SelectedItem);
+                    break;
             }
         }
 

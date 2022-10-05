@@ -65,16 +65,13 @@ namespace OpenSAE.Models
         {
             T currentValue = prop;
 
-            if (!Equals(currentValue, newValue))
-            {
-                setAction.Invoke(newValue);
-                _undoModel.Set(
-                    actionMessage,
-                    this,
-                    propertyName!,
-                    () => setAction(currentValue),
-                    () => setAction(newValue));
-            }
+            setAction.Invoke(newValue);
+            _undoModel.Set(
+                actionMessage,
+                this,
+                propertyName!,
+                () => setAction(currentValue),
+                () => setAction(newValue));
         }
 
         /// <summary>

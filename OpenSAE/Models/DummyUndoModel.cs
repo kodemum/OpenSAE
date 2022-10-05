@@ -41,5 +41,10 @@ namespace OpenSAE.Models
         {
             return new UndoAggregateScope(this);
         }
+
+        public bool UndoAndRemoveSpecific(object source, string? operation)
+        {
+            return false;
+        }
     }
 }
