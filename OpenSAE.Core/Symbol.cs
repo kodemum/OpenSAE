@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 
 namespace OpenSAE.Core
@@ -74,5 +75,7 @@ namespace OpenSAE.Core
         }
 
         public SymbolGroup Group { get; }
+
+        public Vector[]? Vectors { get; set; }
     }
 }
