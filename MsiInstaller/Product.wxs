@@ -95,6 +95,9 @@
 				<File Source="$(var.OpenSAE.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll" KeyPath="yes" />
 			</Component>
 			<Component>
+				<File Source="$(var.OpenSAE.TargetDir)SixLabors.ImageSharp.dll" />
+			</Component>
+			<Component>
 				<File Id="OpenSAE.ico" Source="$(var.OpenSAE.ProjectDir)OpenSAE.ico" KeyPath="yes" />
 			</Component>
 		</ComponentGroup>

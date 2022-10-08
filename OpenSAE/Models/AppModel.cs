@@ -412,6 +412,29 @@ namespace OpenSAE.Models
             AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
         }
 
+        private void AddConvertBitmapLayer(string? filename)
+        {
+            if (filename == null)
+            {
+                filename = _dialogService.BrowseOpenFile("Open overlay image", BitmapFormatFilter);
+
+                if (filename == null)
+                    return;
+            }
+
+            try
+            {
+                var convertedGroup = Core.BitmapConverter.BitmapToSymbolArtConverter.BitmapToSymbolArt(filename);
+
+                AddItemToCurrentSymbolArt((parent) => new SymbolArtGroupModel(Undo, convertedGroup, parent));
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Unable to open image", "Unable to read the content of the specified file", ex);
+                return;
+            }
+        }
+
         private void Zoom_Implementation(string? obj)
         {
             if (obj == null)
@@ -564,6 +587,10 @@ namespace OpenSAE.Models
 
                 case "delete":
                     DeleteItem(SelectedItem);
+                    break;
+
+                case "importBitmapImage":
+                    AddConvertBitmapLayer(null);
                     break;
 
                 case "flipX":
