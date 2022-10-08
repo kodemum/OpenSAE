@@ -45,7 +45,7 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(LayerCount));
         }
 
-        public SymbolArtModel(UndoModel undoModel)
+        public SymbolArtModel(IUndoModel undoModel)
             : base(undoModel)
         {
             _name = "NewSymbolArt";

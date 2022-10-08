@@ -37,14 +37,19 @@ namespace OpenSAE.Core.BitmapConverter
             return colors.Values;
         }
 
-        public static SymbolArtGroup BitmapToSymbolArt(string filename)
+        public static SymbolArtGroup BitmapToSymbolArt(string filename, BitmapToSymbolArtConverterOptions? options = null)
         {
+            if (options == null)
+            {
+                options = new();
+            }
+
             using var image = Image.Load<Rgba32>(filename);
 
             image.Mutate(x => 
-                x.Resize(0, 24)
+                x.Resize(0, options.ResizeImageHeight)
                 .BackgroundColor(Color.White)
-                .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = 30, Dither = null }))
+                .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
             );
 
             var rootGroup = new SymbolArtGroup()
@@ -84,12 +89,12 @@ namespace OpenSAE.Core.BitmapConverter
                 if (expandBy > 0)
                 {
                     current.Width += expandBy;
+                }
 
-                    for (int x2 = 0; x2 < expandBy; x2++)
-                    for (int y2 = current.Y; y2 < Math.Min(current.Y + current.Height, image.Height); y2++)
-                    {
-                        filled[x + x2, y2] = true;
-                    }
+                for (int cx = current.X; cx < current.X + current.Width; cx++)
+                for (int cy = current.Y; cy < current.Y + current.Height; cy++)
+                {
+                    filled[cx, cy] = true;
                 }
             }
 
@@ -101,7 +106,6 @@ namespace OpenSAE.Core.BitmapConverter
                     {
                         // current color matches current square - see if it can be expanded
                         current.Height++;
-                        filled[x, y] = true;
                     }
                     
                     if (!filled[x, y])
@@ -121,8 +125,6 @@ namespace OpenSAE.Core.BitmapConverter
                         };
 
                         pss.Add(current);
-                        
-                        filled[x, y] = true;
                     }
                 }
 
@@ -133,22 +135,21 @@ namespace OpenSAE.Core.BitmapConverter
                 }
             }
 
-            double sizeOffset = 0.65;
-            double pixelSize = 96 / image.Height;
+            double pixelSize = 96.0 / image.Height;
 
             foreach (var ps in pss)
             {
                 // area is transparent - we consider white that since that is more or less the background
                 // for SA's in-game
-                if (ps.Color.R > 251 && ps.Color.G > 251 && ps.Color.B > 251)
+                if (options.RemoveWhite && ps.Color.R > 251 && ps.Color.G > 251 && ps.Color.B > 251)
                 {
                     continue;
                 }
 
                 // since symbols do not take up the entirety of the area defined by their vertices, we
                 // have to take this into account when trying to make a grid of them
-                double extraWidth = ps.Width * pixelSize * (1 - sizeOffset);
-                double extraHeight = ps.Height * pixelSize * (1 - sizeOffset);
+                double extraWidth = ps.Width * pixelSize * (1 - options.SizeOffset);
+                double extraHeight = ps.Height * pixelSize * (1 - options.SizeOffset);
 
                 double left = ps.X * pixelSize - (image.Width * pixelSize / 2) - extraWidth / 2;
                 double top = ps.Y * pixelSize - (image.Height * pixelSize / 2) - extraHeight / 2;
@@ -164,6 +165,7 @@ namespace OpenSAE.Core.BitmapConverter
                     Vertex3 = new System.Windows.Point(right, bottom),
                     Vertex4 = new System.Windows.Point(right, top),
                     Visible = true,
+                    Name = $"{ps.X}/{ps.Y} {ps.Width}x{ps.Height}",
                     Alpha = ps.Color.A / 255.0
                 });
             }

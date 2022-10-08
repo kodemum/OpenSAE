@@ -25,7 +25,7 @@ namespace OpenSAE.Models
         private const string OpenFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
         private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
-        private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
+        internal const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
         private const string ClipboardItemFormat = "OpenSAE.Item";
         private const double DefaultSymbolUnitWidth = 240;
         public const double MinimumSymbolUnitWidth = 24;
@@ -412,29 +412,6 @@ namespace OpenSAE.Models
             AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
         }
 
-        private void AddConvertBitmapLayer(string? filename)
-        {
-            if (filename == null)
-            {
-                filename = _dialogService.BrowseOpenFile("Open overlay image", BitmapFormatFilter);
-
-                if (filename == null)
-                    return;
-            }
-
-            try
-            {
-                var convertedGroup = Core.BitmapConverter.BitmapToSymbolArtConverter.BitmapToSymbolArt(filename);
-
-                AddItemToCurrentSymbolArt((parent) => new SymbolArtGroupModel(Undo, convertedGroup, parent));
-            }
-            catch (Exception ex)
-            {
-                _dialogService.ShowErrorMessage("Unable to open image", "Unable to read the content of the specified file", ex);
-                return;
-            }
-        }
-
         private void Zoom_Implementation(string? obj)
         {
             if (obj == null)
@@ -587,10 +564,6 @@ namespace OpenSAE.Models
 
                 case "delete":
                     DeleteItem(SelectedItem);
-                    break;
-
-                case "importBitmapImage":
-                    AddConvertBitmapLayer(null);
                     break;
 
                 case "flipX":
@@ -965,6 +938,17 @@ namespace OpenSAE.Models
             if (CurrentSymbolArt == null)
                 return false;
 
+            int layerCount = CurrentSymbolArt.GetAllLayers().Where(x => x.IsVisible).Count();
+
+            if (layerCount > 225)
+            {
+                if (!_dialogService.ShowConfirmation("Too many layers in symbol art", $"The current symbol art has more layers ({layerCount}) than PSO2 will accept (225). " +
+                    $"You can still save the file as SAR, but you will not be able to import it to the game. Continue anyway?"))
+                {
+                    return false;
+                }
+            }
+
             string? filename = _dialogService.BrowseSaveFile("Export symbol art", ExportFormatFilter, Path.ChangeExtension(CurrentSymbolArt.FileName, ".sar"));
 
             if (filename == null)
@@ -1010,6 +994,17 @@ namespace OpenSAE.Models
             }
 
             return false;
+        }
+
+        public void OpenConvertedGroup(SymbolArtGroup group)
+        {
+            if (CurrentSymbolArt == null)
+            {
+                CurrentSymbolArt = new SymbolArtModel(Undo);
+                SelectedItem = CurrentSymbolArt;
+            }
+
+            CurrentSymbolArt.Children.Add(new SymbolArtGroupModel(Undo, group, CurrentSymbolArt));
         }
 
         private void AddRecentFile(string filename)

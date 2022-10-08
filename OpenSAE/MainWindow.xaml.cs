@@ -276,5 +276,10 @@ namespace OpenSAE
         {
             new MainWindow(filename).Show();
         }
+
+        private void MenuItem_BitmapConverter_Click(object sender, RoutedEventArgs e)
+        {
+            new BitmapConverterWindow(_model.OpenConvertedGroup).Show();
+        }
     }
 }
