@@ -371,13 +371,6 @@ namespace OpenSAE.Models
             }
         }
 
-        private void CanvasModeCommand_Implementation(string? option)
-        {
-            switch (option)
-            {
-                case "colorPicker":
-                    CanvasEditMode = CanvasEditMode == CanvasEditMode.ColorPicker ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
-
         private void Debug_Implementation(string? action)
         {
             SymbolArtLayerModel? reference = null;
@@ -414,6 +407,16 @@ namespace OpenSAE.Models
 
                         File.WriteAllText($"{reference.Symbol?.Id}.json", JsonSerializer.Serialize(vectors));
                     }
+                    break;
+            }
+        }
+
+        private void CanvasModeCommand_Implementation(string? option)
+        {
+            switch (option)
+            {
+                case "colorPicker":
+                    CanvasEditMode = CanvasEditMode == CanvasEditMode.ColorPicker ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
                     break;
             }
         }
