@@ -171,6 +171,7 @@ namespace OpenSAE.Models
             if (updateFilename)
             {
                 FileName = filename;
+                _fileFormat = format;
             }
 
             _undoModel.Add(new UndoActionModel("Save", true));

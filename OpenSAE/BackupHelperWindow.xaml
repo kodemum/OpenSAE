@@ -1,0 +1,130 @@
+﻿<Window x:Class="OpenSAE.BackupHelperWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OpenSAE"
+        xmlns:fb="clr-namespace:OpenSAE.Models.FileBrowser"
+        xmlns:views="clr-namespace:OpenSAE.Views"
+        mc:Ignorable="d" 
+        d:DataContext="{d:DesignInstance Type=fb:BackupManagerModel}"
+        Closing="Window_Closing"
+        Title="Symbol art backup manager"
+        Height="650"
+        Width="1000"
+        MinHeight="250"
+        ResizeMode="CanResizeWithGrip"
+        MinWidth="1000">
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="headerText">
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="Margin" Value="10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock VerticalAlignment="Center">PSO2 directory</TextBlock>
+            <TextBox IsEnabled="False" Text="{Binding PsoPath}" Grid.Column="1" VerticalAlignment="Center" Margin="5 0" />
+            <Button Grid.Column="2" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Browse...</Button>
+
+            <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="5 5 0 0">
+                <RadioButton Content="Show all" IsChecked="{Binding ShowAll}" />
+                <RadioButton Content="Only show alliance flags" Margin="5 0" IsChecked="{Binding ShowOnlyAllianceFlags}" />
+                <RadioButton Content="Only show symbol arts" IsChecked="{Binding ShowOnlySymbolArts}" />
+            </StackPanel>
+        </Grid>
+
+        <UniformGrid Grid.Row="1" Columns="4">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource headerText}" Text="Saved in-game" />
+                <DockPanel DockPanel.Dock="Top" Margin="5 0 5 5">
+                    <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" Margin="0 0 5 0">User</TextBlock>
+                    <ComboBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" />
+                </DockPanel>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                    <Button Style="{StaticResource standardButton}" Command="{Binding BackupCommand}" CommandParameter="user">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource saveIcon}" />
+                            <TextBlock Text=" Backup" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <views:SymbolArtGrid DataContext="{Binding UserSymbolArts}" />
+            </DockPanel>
+
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource headerText}" Text="Import in-game" />
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                    <Button Style="{StaticResource standardButton}" Command="{Binding BackupCommand}" CommandParameter="import" Margin="0 0 5 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource saveIcon}" />
+                            <TextBlock Text=" Backup" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource standardButton}" Command="{Binding DeleteCommand}" CommandParameter="import">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" />
+                            <TextBlock Text=" Delete" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <views:SymbolArtGrid DataContext="{Binding ImportSymbolArts}" />
+            </DockPanel>
+
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource headerText}" Text="Backup" />
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                    <Button Style="{StaticResource standardButton}" Command="{Binding ImportCommand}" Margin="0 0 5 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource copyIcon}" />
+                            <TextBlock Text=" Import" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource standardButton}" Command="{Binding DeleteCommand}" CommandParameter="backup">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" />
+                            <TextBlock Text=" Delete" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <views:SymbolArtGrid DataContext="{Binding BackupSymbolArts}" />
+            </DockPanel>
+
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource headerText}" Text="Recently seen in-game" />
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
+                    <Button Style="{StaticResource standardButton}" Command="{Binding BackupCommand}" CommandParameter="cache" Margin="0 0 5 0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource saveIcon}" />
+                            <TextBlock Text=" Backup" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource standardButton}" Command="{Binding DeleteCommand}" CommandParameter="cache">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" />
+                            <TextBlock Text=" Delete" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                <views:SymbolArtGrid DataContext="{Binding CacheSymbolArts}" />
+            </DockPanel>
+        </UniformGrid>
+    </Grid>
+</Window>

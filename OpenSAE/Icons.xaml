@@ -28,4 +28,6 @@
     <clr:String x:Key="pictureIcon">&#xEB9F;</clr:String>
     <clr:String x:Key="redoIcon">&#xE7A6;</clr:String>
     <clr:String x:Key="undoIcon">&#xE7A7;</clr:String>
+    <clr:String x:Key="colorIcon">&#xE790;</clr:String>
+    <clr:String x:Key="colorPickerIcon">&#xE1C4;</clr:String>
 </ResourceDictionary>

@@ -92,7 +92,6 @@ namespace OpenSAE.Models
         {
             if (_aggregateStack.TryPeek(out var currentAggregate))
             {
-                // if an aggregate action is in progress, add the action to it
                 currentAggregate.Actions.Add(action);
             }
             else
@@ -182,6 +181,22 @@ namespace OpenSAE.Models
         {
             Clear();
             UndoActions.Add(new UndoActionModel(name, true));
+        }
+
+        public bool UndoAndRemoveSpecific(object source, string? operation)
+        {
+            var target = UndoActions.FirstOrDefault(x => x.Source == source && x.Operation == operation);
+
+            if (target is null)
+            {
+                return false;
+            }
+            else
+            {
+                target.PerformUndo();
+                UndoActions.Remove(target);
+                return true;
+            }
         }
     }
 }

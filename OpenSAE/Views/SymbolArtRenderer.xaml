@@ -20,6 +20,7 @@
         <converters:MultiplyNumberConverter x:Key="symbolArtScaleConverter" />
         <converters:LayerPointCollectionConverter x:Key="layerPointConverter" />
         <converters:Point3DConverter x:Key="point3dConverter" Z="1" />
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
         <Style TargetType="Ellipse" x:Key="vertexCornerCircle">
             <Setter Property="Height" Value="10" />
             <Setter Property="Width" Value="10" />

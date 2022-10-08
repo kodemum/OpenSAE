@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="OpenSAE.Views.SymbolArtGrid"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:fb="clr-namespace:OpenSAE.Models.FileBrowser"
+             xmlns:views="clr-namespace:OpenSAE.Views"
+             mc:Ignorable="d" 
+             d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel}"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <ListBox ItemsSource="{Binding Files}" SelectedItem="{Binding SelectedFile}" SelectionMode="Single">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <StackPanel>
+                    <Canvas Width="{Binding SymbolArt.Width}" Height="{Binding SymbolArt.Height}" HorizontalAlignment="Left">
+                        <views:SymbolArtRenderer 
+                            SymbolArt="{Binding SymbolArt}"
+                            SymbolUnitWidth="{Binding SymbolArt.Width}"
+                            Width="{Binding SymbolArt.Width}"
+                            Height="{Binding SymbolArt.Height}"
+                            NoInteraction="True"
+                            ApplyToneCurve="True"
+                            ShowBoundingBox="False"
+                            ShowGuides="False" />
+                        <Canvas.CacheMode>
+                            <BitmapCache EnableClearType="False" RenderAtScale="1" SnapsToDevicePixels="False"  />
+                        </Canvas.CacheMode>
+                    </Canvas>
+                    <TextBlock Text="{Binding Name}" />
+                </StackPanel>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>

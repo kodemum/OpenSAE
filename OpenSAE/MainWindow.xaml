@@ -42,6 +42,7 @@
                     <TextBlock Text="Author ID" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <TextBox Text="{Binding AuthorId}" Margin="5" />
                 </UniformGrid>
+                <Button Content="Color / brightness / contrast" Padding="20 5" Command="{Binding ElementName=mainWindow, Path=DataContext.OpenViewCurrentItemCommand}" HorizontalAlignment="Center" Margin="0 5" CommandParameter="adjustColor" />
             </StackPanel>
         </DataTemplate>
 
@@ -68,6 +69,7 @@
                     <TextBlock Text="Text to symbols" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <TextBox Text="{Binding PendingSymbolText, UpdateSourceTrigger=PropertyChanged}" Margin="5 5 5 0" />
                 </UniformGrid>
+                <Button Content="Color / brightness / contrast" Padding="20 5" Command="{Binding ElementName=mainWindow, Path=DataContext.OpenViewCurrentItemCommand}" HorizontalAlignment="Center" Margin="0 5" CommandParameter="adjustColor" />
             </StackPanel>
         </DataTemplate>
 
@@ -79,6 +81,7 @@
                     <TextBlock Text="" HorizontalAlignment="Right" Margin="5 0" VerticalAlignment="Center" />
                     <CheckBox Margin="5" Content="Enable" IsChecked="{Binding Visible}" />
                 </UniformGrid>
+
                 <!--<views:LayerVertexEditor />-->
             </StackPanel>
         </DataTemplate>
@@ -93,6 +96,9 @@
                 </UniformGrid>
                 <Image Source="{Binding Image}" />
             </StackPanel>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type models:SymbolArtColorAdjustmentModel}">
+            <views:ColorAdjustmentView />
         </DataTemplate>
     </Window.Resources>
     <Window.InputBindings>
@@ -125,6 +131,8 @@
 
         <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="in" />
         <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="out" />
+
+        <KeyBinding Modifiers="Ctrl+Shift" Key="I" Command="{Binding OpenViewCurrentItemCommand}" CommandParameter="adjustColor" />
 
         <KeyBinding Modifiers="Ctrl" Key="Z" Command="{Binding Undo.UndoCommand}" />
         <KeyBinding Modifiers="Ctrl" Key="Y" Command="{Binding Undo.RedoCommand}" />
@@ -161,6 +169,8 @@
                 <MenuItem Header="_Save as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Alt+S" />
                 <MenuItem Header="E_xport to game..." Command="{Binding CurrentItemCommand}" CommandParameter="export" InputGestureText="Ctrl+Alt+Shift+S" />
                 <MenuItem Header="Export as _bitmap image..." Command="{Binding CurrentItemCommand}" CommandParameter="exportBitmap" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
+                <Separator />
+                <MenuItem Header="Open _backup manager..." Click="OpenBackupManagerWindow_Click" />
                 <Separator />
                 <MenuItem Header="_Recent files" ItemsSource="{Binding RecentFiles}">
                     <MenuItem.ItemTemplate>
@@ -212,6 +222,9 @@
                 <MenuItem Header="Rotate 90 degrees _counter-clockwise" InputGestureText="Ctrl+Shift+R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" Template="{StaticResource mirroredIconMenuItem}" Icon="{StaticResource rotateIcon}" />
                 <MenuItem Header="R_otate 180 degrees" Command="{Binding RotateCurrentItemCommand}" CommandParameter="180" />
             </MenuItem>
+            <MenuItem Header="_Adjustments">
+                <MenuItem Header="Color / brightness / contrast" InputGestureText="Ctrl+Shift+U" Command="{Binding OpenViewCurrentItemCommand}" CommandParameter="adjustColor" Template="{StaticResource iconMenuItem}" Icon="{StaticResource colorIcon}" />
+            </MenuItem>
             <MenuItem Header="_View">
                 <MenuItem Header="_Zoom in" InputGestureText="Ctrl++" Command="{Binding ZoomCommand}" CommandParameter="in" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomInIcon}" />
                 <MenuItem Header="Zoom _out" InputGestureText="Ctrl+-" Command="{Binding ZoomCommand}" CommandParameter="out" Template="{StaticResource iconMenuItem}" Icon="{StaticResource zoomOutIcon}" />
@@ -220,6 +233,7 @@
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
                 <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
+                <MenuItem Header="Use _natural symbol selection" IsCheckable="True" IsChecked="{Binding NaturalSymbolSelectionEnabled}" />
                 <Separator />
                 <MenuItem Header="_Testing">
                     <MenuItem Header="Disable _grid rounding" IsCheckable="True" IsChecked="{Binding ElementName=renderer, Path=DisableGridPositioning}" />
@@ -387,6 +401,7 @@
                     </Style>
                 </colorpicker:StandardColorPicker.Style>
             </colorpicker:StandardColorPicker>
+
             <DockPanel DockPanel.Dock="Top" Margin="5 0">
                 <TextBlock DockPanel.Dock="Left" Text="Opacity" />
                 <Slider Minimum="0" Maximum="7" Value="{Binding SelectedItem.Alpha, Converter={StaticResource alphaConverter}}" DockPanel.Dock="Top" Margin="5 0 0 0" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
@@ -407,7 +422,7 @@
             </Border.Background>
             <DockPanel>
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="5">
-                    <Button Content="Close help" Padding="5" Command="{Binding HelpCommand}"/>
+                    <Button Content="Close help" Padding="20 5" Command="{Binding HelpCommand}"/>
                 </StackPanel>
                 <ScrollViewer>
                     <views:HelpView Margin="15" />
@@ -447,6 +462,7 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource rotateIcon}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <ToggleButton IsChecked="{Binding ColorPickerEnabled}" FontFamily="Segoe MDL2 Assets" Content="{StaticResource colorIcon}" Foreground="Blue" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
@@ -454,7 +470,7 @@
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource undoIcon}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource redoIcon}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
                         <Separator />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" Foreground="#cc0000" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
 
@@ -492,6 +508,28 @@
                     </StackPanel>
                 </Expander>
 
+                <Border Background="White" Panel.ZIndex="3" MinWidth="350" HorizontalAlignment="Center" MinHeight="200" VerticalAlignment="Top" Padding="10" BorderBrush="Black" BorderThickness="0.5 0 0.5 0.5">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentEditView.Title}" FontSize="18" TextAlignment="Center" Margin="5" />
+                        <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentEditView.Subtitle}" TextAlignment="Center" Margin="5" />
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="5">
+                            <Button Content="OK" Command="{Binding CurrentViewActionCommand}" CommandParameter="apply" Width="75" Margin="5" />
+                            <Button Content="Cancel" Command="{Binding CurrentViewActionCommand}" CommandParameter="cancel" Width="75" Margin="5" />
+                        </StackPanel>
+                        <ContentPresenter Margin="5" Content="{Binding CurrentEditView}" />
+                    </DockPanel>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CurrentEditView}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
 
                 <!-- Symbol art renderer -->
                 <views:SymbolArtRenderer 
@@ -508,6 +546,8 @@
                     ApplyToneCurve="{Binding ApplyToneCurve}"
                     ShowGuides="{Binding GuideLinesEnabled}"
                     ShowImageOverlayLayers="{Binding ShowImageOverlays}"
+                    CanvasEditMode="{Binding CanvasEditMode}"
+                    DisplaySettingFlags="{Binding DisplaySettingFlags}"
                     >
                 </views:SymbolArtRenderer>
             </Grid>

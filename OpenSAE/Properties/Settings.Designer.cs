@@ -167,5 +167,53 @@ namespace OpenSAE.Properties {
                 this["BrowseWindowPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int DisplayFlags {
+            get {
+                return ((int)(this["DisplayFlags"]));
+            }
+            set {
+                this["DisplayFlags"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PsoDirectory {
+            get {
+                return ((string)(this["PsoDirectory"]));
+            }
+            set {
+                this["PsoDirectory"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800")]
+        public double BackupManagerWindowHeight {
+            get {
+                return ((double)(this["BackupManagerWindowHeight"]));
+            }
+            set {
+                this["BackupManagerWindowHeight"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1000")]
+        public double BackupManagerWindowWidth {
+            get {
+                return ((double)(this["BackupManagerWindowWidth"]));
+            }
+            set {
+                this["BackupManagerWindowWidth"] = value;
+            }
+        }
     }
 }

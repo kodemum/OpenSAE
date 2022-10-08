@@ -10,6 +10,10 @@ namespace OpenSAE.Core
 {
     public class Symbol
     {
+        public static bool DisablePreloading { get; set; }
+
+        private BitmapImage _image;
+
         public Symbol(int id, string name, SymbolGroup group)
             : this(id, name, name, group)
         {
@@ -34,12 +38,10 @@ namespace OpenSAE.Core
             KerningRight = kerningRight;
             KerningLeft = kerningLeft;
 
-            Image = new BitmapImage();
-            Image.BeginInit();
-            Image.CacheOption = BitmapCacheOption.OnLoad;
-            Image.UriSource = new Uri(Uri);
-            Image.EndInit();
-            Image.Freeze();
+            if (!DisablePreloading)
+            {
+                _ = this.Image;
+            }
         }
 
         public int Id { get; }
@@ -54,7 +56,23 @@ namespace OpenSAE.Core
 
         public string Uri => $"pack://application:,,,/OpenSAE.Core;component/assets/{Id}.png";
 
-        public BitmapImage Image { get; }
+        public BitmapImage Image
+        {
+            get
+            {
+                if (_image == null)
+                {
+                    _image = new BitmapImage();
+                    _image.BeginInit();
+                    _image.CacheOption = BitmapCacheOption.OnLoad;
+                    _image.UriSource = new Uri(Uri);
+                    _image.EndInit();
+                    _image.Freeze();
+                }
+
+                return _image;
+            }
+        }
 
         public SymbolGroup Group { get; }
 

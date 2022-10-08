@@ -242,8 +242,20 @@ namespace OpenSAE
 
             window.DataContext = new Models.FileBrowser.FileBrowserModel(dialogService, OpenIfVisible, OpenFileInNewWindow)
             {
-                RootPath = Settings.Default.BrowseWindowPath
+                RootPath = Settings.Default.BrowseWindowPath,
+                OnPathChangeAction = (path) => Settings.Default.BrowseWindowPath = path
             };
+
+            window.Show();
+        }
+
+        private void OpenBackupManagerWindow_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new BackupHelperWindow();
+
+            var dialogService = new DialogService(window);
+
+            window.DataContext = new Models.FileBrowser.BackupManagerModel(dialogService);
 
             window.Show();
         }

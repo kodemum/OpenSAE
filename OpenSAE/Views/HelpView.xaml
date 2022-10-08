@@ -5,11 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:OpenSAE.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="800">
+             d:DesignHeight="1500" d:DesignWidth="800">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource titleText}">
-                OpenSAE Symbol Art Editor help (v1.6.1)
+                OpenSAE Symbol Art Editor help (v1.8)
             </TextBlock>
         </StackPanel>
         <TextBlock VerticalAlignment="Center" Margin="5 0">
@@ -141,6 +141,15 @@
         </TextBlock>
 
         <TextBlock Style="{StaticResource subtitleText}">
+            Color / brightness / contrast
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            Click the <Run FontWeight="Bold">Color / brightness / contrast</Run> button in the <Run FontWeight="Bold">item editor</Run> or in the menu to open a dialog that lets you
+            change the hue, saturation, brightness and contrast for all symbols in the selected group (or the entire symbol art if that is the selected item).<LineBreak />
+            This dialog works much the same way as in any image editor.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
             Symbol art browser
         </TextBlock>
         <TextBlock TextWrapping="Wrap">
@@ -148,6 +157,47 @@
             In the window that opens, click <Run FontWeight="Bold">Browse...</Run> to select a folder and the browser will display a list of all symbol arts in the folder.<LineBreak />
             Symbol arts can be opened in the editor by selecting them and clicking <Run FontWeight="Bold">Open</Run> or by <Run FontWeight="Bold">double-clicking</Run> them.<LineBreak />
             The <Run FontWeight="Bold">Open in new window...</Run> opens the symbol art in a new editor window.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Backup manager
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            The backup manager attempts to make it easy to save symbol arts you have encountered in-game and import them later. <LineBreak />
+            Open the backup manager by clicking File -> Open backup manager... in the menu.<LineBreak />
+            You may have to manually select the correct PSO2 folder under My Documents.
+            <LineBreak /><LineBreak />
+            The backup manager has four tabs that show:
+        </TextBlock>
+        <StackPanel Margin="5">
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">
+                    <Run FontWeight="Bold">Saved in-game:</Run>
+                    Symbol arts that have been saved to the available slots in-game. You can select between multiple user accounts.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">
+                    <Run FontWeight="Bold">Import in-game:</Run>
+                    Symbol arts in the import folder. These are what you can see and import from within the game.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">
+                    <Run FontWeight="Bold">Backup:</Run>
+                    Symbol arts that have been backed up using the backup manager. These are placed under My Documents\OpenSAE\Backup.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2">
+                    <Run FontWeight="Bold">Recently seen in-game:</Run>
+                    Symbol arts that have been recently loaded by the game - this generally corresponds to the recently seen list in game.
+                </TextBlock>
+            </ContentControl>
+        </StackPanel>
+        <TextBlock TextWrapping="Wrap">
+            You can use the Import, Backup and Delete buttons in the backup manager to backup symbol arts from the various locations, delete them, or
+            copy them to the import folder to be used in the game.
         </TextBlock>
     </StackPanel>
 </UserControl>

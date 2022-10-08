@@ -90,6 +90,14 @@ namespace OpenSAE.Views
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: true)
         );
 
+        public static readonly DependencyProperty DisplaySettingFlagsProperty =
+            DependencyProperty.Register(
+              name: "DisplaySettingFlags",
+              propertyType: typeof(DisplaySettingFlags),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: DisplaySettingFlags.NaturalSymbolSelection)
+        );
+
         public static readonly DependencyProperty DisableGridPositioningProperty =
             DependencyProperty.Register(
               name: "DisableGridPositioning",
@@ -112,6 +120,17 @@ namespace OpenSAE.Views
               propertyType: typeof(double),
               ownerType: typeof(SymbolArtRenderer),
               typeMetadata: new FrameworkPropertyMetadata(defaultValue: 240d, SymbolUnitWidthPropertyChanged, OnSymbolUnitWidthCoerce)
+        );
+
+        public static readonly DependencyProperty CanvasEditModeProperty =
+            DependencyProperty.Register(
+              name: "CanvasEditMode",
+              propertyType: typeof(CanvasEditMode),
+              ownerType: typeof(SymbolArtRenderer),
+              typeMetadata: new FrameworkPropertyMetadata(
+                  defaultValue: CanvasEditMode.Default,
+                  flags: FrameworkPropertyMetadataOptions.None
+                  )
         );
 
         private static void PropertyChangedRedrawNecessary(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -267,6 +286,18 @@ namespace OpenSAE.Views
             set => SetValue(DisableGridPositioningProperty, value);
         }
 
+        public CanvasEditMode CanvasEditMode
+        {
+            get => (CanvasEditMode)GetValue(CanvasEditModeProperty);
+            set => SetValue(CanvasEditModeProperty, value);
+        }
+
+        public DisplaySettingFlags DisplaySettingFlags
+        {
+            get => (DisplaySettingFlags)GetValue(DisplaySettingFlagsProperty);
+            set => SetValue(DisplaySettingFlagsProperty, value);
+        }
+
         /// <summary>
         /// Converts the coordinate system from relative to the view to the one used in the symbol art
         /// </summary>
@@ -395,6 +426,24 @@ namespace OpenSAE.Views
                 return;
             }
 
+            if (CanvasEditMode != CanvasEditMode.Default)
+            {
+                switch (CanvasEditMode)
+                {
+                    case CanvasEditMode.ColorPicker:
+                        var color = Helpers.ScreenColorPicker.GetColorAt(PointToScreen(args.GetPosition(this)));
+
+                        if (SelectedLayer != null)
+                        {
+                            SelectedLayer.Color = ApplyToneCurve ? SymbolArtColorHelper.RemoveCurve(color) : color;
+                        }
+                        break;
+                }
+
+                base.OnPreviewMouseDown(args);
+                return;
+            }
+
             Focus();
             Keyboard.Focus(this);
 
@@ -512,11 +561,13 @@ namespace OpenSAE.Views
         {
             if (SymbolArt != null)
             {
+                var naturalSelect = DisplaySettingFlags.HasFlag(DisplaySettingFlags.NaturalSymbolSelection);
+
                 // select layer under cursor by traversing all layers in the symbol art
                 // until we find one that is visible and where the mouse pointer is inside
                 foreach (var layer in SymbolArt.GetAllLayers().Where(x => x.IsVisible))
                 {
-                    if (layer.IsPointInside(ptMouse))
+                    if (naturalSelect ? layer.IsPointInsideAndNotTransparent(ptMouse) : layer.IsPointInside(ptMouse))
                     {
                         // just in case
                         SelectedLayer?.CommitManipulation();

@@ -4,8 +4,10 @@ using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace OpenSAE.Models.FileBrowser
@@ -19,6 +21,47 @@ namespace OpenSAE.Models.FileBrowser
         private string? _rootPath;
         private ObservableCollection<FileModel>? _files;
         private FileModel? _selectedFile;
+        private bool _showAll;
+        private bool _showOnlyAllianceFlags;
+        private bool _showOnlySymbolArts;
+
+        public bool ShowAll
+        {
+            get => _showAll;
+            set
+            {
+                if (SetProperty(ref _showAll, value))
+                {
+                    FilesView.Refresh();
+                }
+            }
+        }
+
+        public bool ShowOnlyAllianceFlags
+        {
+            get => _showOnlyAllianceFlags;
+            set
+            {
+                if (SetProperty(ref _showOnlyAllianceFlags, value))
+                {
+                    FilesView.Refresh();
+                }
+            }
+        }
+
+        public bool ShowOnlySymbolArts
+        {
+            get => _showOnlySymbolArts;
+            set
+            {
+                if (SetProperty(ref _showOnlySymbolArts, value))
+                {
+                    FilesView.Refresh();
+                }
+            }
+        }
+
+        public Action<string?> OnPathChangeAction { get; set; }
 
         public string? RootPath
         {
@@ -27,8 +70,7 @@ namespace OpenSAE.Models.FileBrowser
             {
                 if (SetProperty(ref _rootPath, value))
                 {
-                    Properties.Settings.Default.BrowseWindowPath = value;
-
+                    OnPathChangeAction?.Invoke(value);
                     LoadFiles();
                 }
             }
@@ -37,8 +79,42 @@ namespace OpenSAE.Models.FileBrowser
         public ObservableCollection<FileModel>? Files
         {
             get => _files;
-            set => SetProperty(ref _files, value);
+            set
+            {
+                if (SetProperty(ref _files, value))
+                {
+                    FilesView = CollectionViewSource.GetDefaultView(Files);
+                    FilesView.Filter = Filter;
+                    OnPropertyChanged(nameof(FilesView));
+                }
+            }
         }
+
+        private bool Filter(object obj)
+        {
+            if (obj is FileModel fileModel)
+            {
+                if (_showAll)
+                {
+                    return true;
+                }
+
+                if (fileModel.SymbolArt?.Size == Core.SymbolArtSize.AllianceLogo)
+                {
+                    return _showOnlyAllianceFlags;
+                }
+                else
+                {
+                    return _showOnlySymbolArts;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        public ICollectionView FilesView { get; private set; }
 
         public FileModel? SelectedFile
         {
@@ -56,14 +132,30 @@ namespace OpenSAE.Models.FileBrowser
 
         public IRelayCommand OpenCommand { get; }
 
+        public FileBrowserModel(IDialogService dialogService)
+            : this(dialogService, (_) => { }, (_) => { })
+        {
+        }
+
         public FileBrowserModel(IDialogService dialogService, Action<string> openAction, Action<string> openInNewWindowAction)
         {
             _dialogService = dialogService;
             _openAction = openAction;
             _openInNewWindowAction = openInNewWindowAction;
+            _showAll = true;
 
             BrowseCommand = new RelayCommand(BrowseCommand_Implementation);
             OpenCommand = new RelayCommand<string>(OpenCommand_Implementation, (_) => SelectedFile != null);
+        }
+
+        public void DeleteSelectedFile()
+        {
+            if (SelectedFile != null)
+            {
+                File.Delete(SelectedFile.FullPath);
+                Files?.Remove(SelectedFile);
+                SelectedFile = null;
+            }
         }
 
         private void OpenCommand_Implementation(string? obj)
@@ -91,7 +183,7 @@ namespace OpenSAE.Models.FileBrowser
             }
         }
 
-        private void LoadFiles()
+        public void LoadFiles()
         {
             try
             {

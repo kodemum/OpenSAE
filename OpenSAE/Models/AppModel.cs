@@ -44,6 +44,9 @@ namespace OpenSAE.Models
         private double _displaySymbolUnitWidth = DefaultSymbolUnitWidth;
         private Point _viewPosition = new(0, 0);
         private int _tabIndex = 0;
+        private CanvasEditMode _canvasEditMode;
+        private DisplaySettingFlags _displayFlags;
+        private EditViewModel? _currentEditView;
 
         public event EventHandler? ExitRequested;
 
@@ -64,9 +67,11 @@ namespace OpenSAE.Models
                     ViewPosition = new(0, 0);
                     ShowHelpScreen = false;
                     TabIndex = 0;
+                    CurrentEditView = null;
                     SaveCommand.NotifyCanExecuteChanged();
                     SaveAsCommand.NotifyCanExecuteChanged();
                     AddImageLayerCommand.NotifyCanExecuteChanged();
+                    OpenViewCurrentItemCommand.NotifyCanExecuteChanged();
 
                     if (previous != null)
                     {
@@ -79,6 +84,12 @@ namespace OpenSAE.Models
                     }
                 }
             }
+        }
+
+        public EditViewModel? CurrentEditView
+        {
+            get => _currentEditView;
+            set => SetProperty(ref _currentEditView, value);
         }
 
         private void CurrentSymbolArt_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -184,6 +195,36 @@ namespace OpenSAE.Models
             set => SetProperty(ref _showHelpScreen, value);
         }
 
+        public CanvasEditMode CanvasEditMode
+        {
+            get => _canvasEditMode;
+            set
+            {
+                if (SetProperty(ref _canvasEditMode, value))
+                {
+                    OnPropertyChanged(nameof(ColorPickerEnabled));
+                }
+            }
+        }
+
+        public bool ColorPickerEnabled
+        {
+            get => _canvasEditMode == CanvasEditMode.ColorPicker;
+            set => CanvasEditMode = value ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
+        }
+
+        public bool NaturalSymbolSelectionEnabled
+        {
+            get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.NaturalSymbolSelection);
+            set => SetDisplayFlag(DisplaySettingFlags.NaturalSymbolSelection, value);
+        }
+
+        public DisplaySettingFlags DisplaySettingFlags
+        {
+            get => _displayFlags;
+            set => SetProperty(ref _displayFlags, value);
+        }
+
         public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
@@ -238,6 +279,12 @@ namespace OpenSAE.Models
 
         public RelayCommand<string> ClipboardCommand { get; }
 
+        public RelayCommand<string> OpenViewCurrentItemCommand { get; }
+
+        public ICommand CurrentViewActionCommand { get; }
+
+        public IRelayCommand CanvasModeCommand { get; }
+
         public IRelayCommand DebugCommand { get; }
 
         public AppModel(IDialogService dialogService)
@@ -247,6 +294,7 @@ namespace OpenSAE.Models
             RecentFiles = Settings.Default.RecentFiles != null ? new ObservableCollection<string>(Settings.Default.RecentFiles.ToEnumerable()!) : new ObservableCollection<string>();
             ApplyToneCurve = Settings.Default.ApplyToneCurve;
             ShowImageOverlays = Settings.Default.ShowImageOverlays;
+            _displayFlags = (DisplaySettingFlags)Settings.Default.DisplayFlags;
             Undo = new UndoModel();
 
             OpenFileCommand = new RelayCommand<string>(OpenFile_Implementation);
@@ -262,6 +310,9 @@ namespace OpenSAE.Models
             ZoomCommand = new RelayCommand<string>(Zoom_Implementation);
             HelpCommand = new RelayCommand(() => ShowHelpScreen = !ShowHelpScreen);
             ClipboardCommand = new RelayCommand<string>(ClipboardCommand_Implementation, ClipboardCommand_CanRun);
+            CanvasModeCommand = new RelayCommand<string>(CanvasModeCommand_Implementation);
+            OpenViewCurrentItemCommand = new RelayCommand<string>(OpenViewCurrentItemCommand_Implementation, (arg) => CurrentSymbolArt != null);
+            CurrentViewActionCommand = new RelayCommand<string>(CurrentViewActionCommand_Implementation);
             DebugCommand = new RelayCommand<string>(Debug_Implementation);
 
             CommandManager.RequerySuggested += (_, __) => ClipboardCommand.NotifyCanExecuteChanged();
@@ -272,6 +323,60 @@ namespace OpenSAE.Models
                 Settings.Default.HelpShown = true;
             }
         }
+
+        private void CurrentViewActionCommand_Implementation(string? action)
+        {
+            if (CurrentEditView is null)
+            {
+                return;
+            }
+
+            try
+            {
+                switch (action)
+                {
+                    case "apply":
+                        CurrentEditView.ApplyChanges();
+                        CurrentEditView = null;
+                        break;
+
+                    case "cancel":
+                        CurrentEditView.Cancel();
+                        CurrentEditView = null;
+                        break;
+
+                    default:
+                        throw new Exception($"Unknown view action {action}");
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                _dialogService.ShowErrorMessage("Edit view action error", "An error occurred while trying to apply or cancel an edit view.", ex);
+            }
+        }
+
+        private void OpenViewCurrentItemCommand_Implementation(string? obj)
+        {
+            if (SelectedItem is null)
+            {
+                return;
+            }
+
+            switch (obj)
+            {
+                case "adjustColor":
+                    CurrentEditView = new SymbolArtColorAdjustmentModel(Undo, SelectedItem);
+                    break;
+            }
+        }
+
+        private void CanvasModeCommand_Implementation(string? option)
+        {
+            switch (option)
+            {
+                case "colorPicker":
+                    CanvasEditMode = CanvasEditMode == CanvasEditMode.ColorPicker ? CanvasEditMode.Default : CanvasEditMode.ColorPicker;
 
         private void Debug_Implementation(string? action)
         {
@@ -816,6 +921,7 @@ namespace OpenSAE.Models
             Settings.Default.ApplyToneCurve = ApplyToneCurve;
             Settings.Default.GuideLinesEnabled = GuideLinesEnabled;
             Settings.Default.ShowImageOverlays = ShowImageOverlays;
+            Settings.Default.DisplayFlags = (int)DisplaySettingFlags;
 
             return true;
         }
@@ -911,6 +1017,8 @@ namespace OpenSAE.Models
                 CurrentSymbolArt.SaveAs(filename, Core.SymbolArtFileFormat.SAML, true);
 
                 AddRecentFile(filename);
+
+                OnPropertyChanged(nameof(AppTitle));
 
                 return true;
             }
@@ -1016,6 +1124,18 @@ namespace OpenSAE.Models
             }
 
             ProcessGroup(CurrentSymbolArt);
+        }
+
+        private void SetDisplayFlag(DisplaySettingFlags flag, bool set)
+        {
+            if (set)
+            {
+                DisplaySettingFlags |= flag;
+            }
+            else
+            {
+                DisplaySettingFlags &= ~flag;
+            }
         }
     }
 }
