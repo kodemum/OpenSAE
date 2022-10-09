@@ -21,15 +21,17 @@ namespace OpenSAE.Models
         private SymbolArtGroup? _currentGroup;
         private string? _bitmapFilename;
         private string? _errorMessage;
-        private double _symbolSizeOffset;
-        private int _resizeImageHeight;
-        private int _maxColors;
-        private bool _removeWhite;
 
         public SymbolArtModel? CurrentSymbolArt
         {
             get => _currentSymbolArt;
-            set => SetProperty(ref _currentSymbolArt, value);
+            set
+            {
+                if (SetProperty(ref _currentSymbolArt, value))
+                {
+                    OnPropertyChanged(nameof(TooManyLayers));
+                }
+            }
         }
 
         public string? BitmapFilename
@@ -38,29 +40,9 @@ namespace OpenSAE.Models
             set => SetRefreshProperty(ref _bitmapFilename, value);
         }
 
-        public double SymbolSizeOffset
-        {
-            get => _symbolSizeOffset;
-            set => SetRefreshProperty(ref _symbolSizeOffset, value);
-        }
+        public bool TooManyLayers => CurrentSymbolArt?.LayerCount > 225;
 
-        public int ResizeImageHeight
-        {
-            get => _resizeImageHeight;
-            set => SetRefreshProperty(ref _resizeImageHeight, value);
-        }
-
-        public int MaxColors
-        {
-            get => _maxColors;
-            set => SetRefreshProperty(ref _maxColors, value);
-        }
-
-        public bool RemoveWhite
-        {
-            get => _removeWhite;
-            set => SetRefreshProperty(ref _removeWhite, value);
-        }
+        public BitmapToSymbolArtConverterOptionsViewModel Options { get; }
 
         public string? ErrorMessage
         {
@@ -79,11 +61,8 @@ namespace OpenSAE.Models
             BrowseCommand = new RelayCommand(BrowseCommand_Implementation);
             AcceptCommand = new RelayCommand(AcceptCommand_Implementation, () => CurrentSymbolArt != null);
 
-            var defaultOptions = new BitmapToSymbolArtConverterOptions();
-            _symbolSizeOffset = defaultOptions.SizeOffset;
-            _resizeImageHeight = defaultOptions.ResizeImageHeight;
-            _maxColors = defaultOptions.MaxColors;
-            _removeWhite = defaultOptions.RemoveWhite;
+            Options = new BitmapToSymbolArtConverterOptionsViewModel();
+            Options.PropertyChanged += (_, __) => Reload();
         }
 
         private void AcceptCommand_Implementation()
@@ -126,16 +105,12 @@ namespace OpenSAE.Models
             {
                 try
                 {
-                    _currentGroup = BitmapToSymbolArtConverter.BitmapToSymbolArt(BitmapFilename, new BitmapToSymbolArtConverterOptions()
-                    {
-                        ResizeImageHeight = _resizeImageHeight,
-                        MaxColors = _maxColors,
-                        SizeOffset = _symbolSizeOffset,
-                        RemoveWhite = _removeWhite
-                    });
+                    _currentGroup = BitmapToSymbolArtConverter.BitmapToSymbolArt(BitmapFilename, Options.GetOptions());
 
-                    CurrentSymbolArt = new SymbolArtModel(new DummyUndoModel());
-                    CurrentSymbolArt.Children.Add(new SymbolArtGroupModel(CurrentSymbolArt.Undo, _currentGroup, CurrentSymbolArt));
+                    var sa = new SymbolArtModel(new DummyUndoModel());
+                    sa.Children.Add(new SymbolArtGroupModel(sa.Undo, _currentGroup, sa));
+
+                    CurrentSymbolArt = sa;
                 }
                 catch (Exception ex)
                 {

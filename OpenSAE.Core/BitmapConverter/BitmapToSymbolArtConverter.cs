@@ -37,29 +37,8 @@ namespace OpenSAE.Core.BitmapConverter
             return colors.Values;
         }
 
-        public static SymbolArtGroup BitmapToSymbolArt(string filename, BitmapToSymbolArtConverterOptions? options = null)
+        public static SymbolArtGroup ConvertSimple(SymbolArtGroup rootGroup, Image<Rgba32> image, BitmapToSymbolArtConverterOptions options)
         {
-            if (options == null)
-            {
-                options = new();
-            }
-
-            using var image = Image.Load<Rgba32>(filename);
-
-            image.Mutate(x => 
-                x.Resize(0, options.ResizeImageHeight)
-                .BackgroundColor(Color.White)
-                .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
-            );
-
-            var rootGroup = new SymbolArtGroup()
-            {
-                Visible = true,
-                Name = $"{Path.GetFileName(filename)} converted"
-            };
-
-            var colors = SplitToColors(image).OrderByDescending(x => x.Pixels.Count).ToList();
-
             bool[,] filled = new bool[image.Width, image.Height];
 
             List<PseudoPixel> pss = new();
@@ -107,7 +86,7 @@ namespace OpenSAE.Core.BitmapConverter
                         // current color matches current square - see if it can be expanded
                         current.Height++;
                     }
-                    
+
                     if (!filled[x, y])
                     {
                         if (current != null)
@@ -171,6 +150,222 @@ namespace OpenSAE.Core.BitmapConverter
             }
 
             return rootGroup;
+        }
+
+        public static SymbolArtGroup BitmapToSymbolArt(string filename, BitmapToSymbolArtConverterOptions? options = null)
+        {
+            if (options == null)
+            {
+                options = new();
+            }
+
+            using var image = Image.Load<Rgba32>(filename);
+
+            image.Mutate(x =>
+                x.Resize(0, options.ResizeImageHeight)
+                .BackgroundColor(Color.White)
+                .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
+            );
+
+            var rootGroup = new SymbolArtGroup()
+            {
+                Visible = true,
+                Name = $"{Path.GetFileName(filename)} converted"
+            };
+
+            if (options.DisableLayering)
+            {
+                return ConvertSimple(rootGroup, image, options);
+            }
+            else
+            {
+                return ConvertLayered(rootGroup, image, options);
+            }
+        }
+
+        public static SymbolArtGroup ConvertLayered(SymbolArtGroup rootGroup, Image<Rgba32> image, BitmapToSymbolArtConverterOptions options)
+        { 
+            var colors = SplitToColors(image).OrderByDescending(x => x.Pixels.Count).ToList();
+
+            bool[,] globalUsed = new bool[image.Width, image.Height];
+
+            foreach (var colorItem in colors)
+            {
+                // area is transparent - we consider white that since that is more or less the background
+                // for SA's in-game
+                if (options.RemoveWhite && colorItem.Color.R > 251 && colorItem.Color.G > 251 && colorItem.Color.B > 251)
+                {
+                    continue;
+                }
+
+                var color = System.Windows.Media.Color.FromRgb(colorItem.Color.R, colorItem.Color.G, colorItem.Color.B);
+                var colorGroup = new SymbolArtGroup()
+                {
+                    Visible = true,
+                    Name = ColorNameMapper.GetNearestName(color)
+                };
+
+                rootGroup.Children.Add(colorGroup);
+
+                bool[,] available = new bool[image.Width, image.Height];
+
+                foreach (var (X, Y) in colorItem.Pixels)
+                {
+                    available[X, Y] = true;
+                }
+
+                List<PseudoPixel> pss = new();
+
+                foreach (var (x, y) in colorItem.Pixels)
+                {
+                    if (!available[x, y])
+                        continue;
+
+                    PseudoPixel current = new()
+                    {
+                        X = x,
+                        Y = y,
+                        Width = 1,
+                        Height = 1,
+                        Color = image[x, y]
+                    };
+
+                    pss.Add(current);
+
+                    bool isAvailable(int x, int y) => !globalUsed[x, y];
+
+                    var extendX = FindLargestExtent(image, x, y, true, isAvailable);
+                    var extendY = FindLargestExtent(image, x, y, false, isAvailable);
+                    var extend = (extendX.y * extendX.x > extendY.y * extendY.x) ? extendX : extendY;
+
+                    current.Width += extend.x;
+                    current.Height += extend.y;
+
+                    for (int cx = current.X; cx < current.X + current.Width; cx++)
+                    for (int cy = current.Y; cy < current.Y + current.Height; cy++)
+                    {
+                        available[cx, cy] = false;
+                    }
+                }
+
+                double pixelSize = 96.0 / image.Height;
+
+                foreach (var ps in pss)
+                {
+                    // since symbols do not take up the entirety of the area defined by their vertices, we
+                    // have to take this into account when trying to make a grid of them
+                    double extraWidth = ps.Width * pixelSize * (1 - options.SizeOffset);
+                    double extraHeight = ps.Height * pixelSize * (1 - options.SizeOffset);
+
+                    extraWidth *= Math.Pow(ps.Width, options.OffsetSizeXExponent) / ps.Width;
+                    extraHeight *= Math.Pow(ps.Height, options.OffsetSizeYExponent) / ps.Height;
+
+                    double left = ps.X * pixelSize - (image.Width * pixelSize / 2) - extraWidth / 2;
+                    double top = ps.Y * pixelSize - (image.Height * pixelSize / 2) - extraHeight / 2;
+                    double right = left + (ps.Width * pixelSize) + extraWidth;
+                    double bottom = top + (ps.Height * pixelSize) + extraHeight;
+
+                    if (ps.Width > 1 || ps.Height > 1)
+                    {
+                        double positionYOffset = options.CenterYOffset / 100 * (bottom - top) * Math.Pow(ps.Width, options.OffsetSizeXExponent) / ps.Width;
+                        double positionXOffset = options.CenterXOffset / 100 * (left - bottom) * Math.Pow(ps.Height, options.OffsetSizeYExponent) / ps.Height;
+
+                        top -= positionYOffset;
+                        bottom -= positionYOffset;
+                        left -= positionXOffset;
+                        right -= positionXOffset;
+                    }
+
+                    colorGroup.Children.Add(new SymbolArtLayer()
+                    {
+                        Color = SymbolArtColorHelper.RemoveCurve(color),
+                        SymbolId = 242,
+                        Vertex1 = new System.Windows.Point(left, top),
+                        Vertex2 = new System.Windows.Point(left, bottom),
+                        Vertex3 = new System.Windows.Point(right, bottom),
+                        Vertex4 = new System.Windows.Point(right, top),
+                        Visible = true,
+                        Name = $"{ps.X}/{ps.Y} {ps.Width}x{ps.Height}",
+                        Alpha = ps.Color.A / 255.0
+                    });
+                }
+
+                foreach (var (X, Y) in colorItem.Pixels)
+                {
+                    globalUsed[X, Y] = true;
+                }
+            }
+
+            rootGroup.Children.Reverse();
+
+            return rootGroup;
+        }
+
+        private static (int x, int y) FindLargestExtent(Image<Rgba32> image, int sourceX, int sourceY, bool xFirst, Func<int, int, bool> isAvailable)
+        {
+            int expandByX = 0, expandByY = 0;
+            bool atEnd = false;
+
+            if (xFirst)
+            {
+                for (int x = sourceX; x < image.Width - 1; x++)
+                {
+                    if (!isAvailable(x + 1, sourceY))
+                    {
+                        break;
+                    }
+
+                    expandByX++;
+                }
+
+                for (int y = sourceY; y < image.Height - 1; y++)
+                {
+                    for (int x = sourceX; x <= sourceX + expandByX; x++)
+                    {
+                        if (!isAvailable(x, y + 1))
+                        {
+                            atEnd = true;
+                            break;
+                        }
+                    }
+
+                    if (atEnd)
+                        break;
+                    else
+                        expandByY++;
+                }
+            }
+            else
+            {
+                for (int y = sourceY; y < image.Height - 1; y++)
+                {
+                    if (!isAvailable(sourceX, y + 1))
+                    {
+                        break;
+                    }
+
+                    expandByY++;
+                }
+
+                for (int x = sourceX; x < image.Width - 1; x++)
+                {
+                    for (int y = sourceY; y <= sourceY + expandByY; y++)
+                    {
+                        if (!isAvailable(x + 1, y))
+                        {
+                            atEnd = true;
+                            break;
+                        }
+                    }
+
+                    if (atEnd)
+                        break;
+                    else
+                        expandByX++;
+                }
+            }
+
+            return (expandByX, expandByY);
         }
 
         private class PseudoPixel

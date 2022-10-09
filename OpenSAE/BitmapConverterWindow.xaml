@@ -24,29 +24,52 @@
             <Button Grid.Column="2" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Browse...</Button>
         </Grid>
 
-        <StatusBar DockPanel.Dock="Bottom" Padding="3">
-            <TextBlock Style="{StaticResource iconText}" Text="{StaticResource layersIcon}" />
-            <TextBlock>
-                Uses <Run Text="{Binding CurrentSymbolArt.LayerCount, Mode=OneWay}" /> out of a maximum of 225 symbols
-            </TextBlock>
-        </StatusBar>
-        
-        <DockPanel DockPanel.Dock="Left" Margin="5 5 10 5">
-            <Button Content="Accept" Command="{Binding AcceptCommand}" DockPanel.Dock="Bottom" />
+        <DockPanel DockPanel.Dock="Left" Margin="5 5 10 5" Width="125">
+            <Button Content="Accept" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" DockPanel.Dock="Bottom" />
             <StackPanel>
                 <TextBlock Text="Max colors" Margin="10" />
-                <TextBox Text="{Binding MaxColors}" />
-                <Slider Value="{Binding MaxColors}" Minimum="5" Maximum="60" Margin="0 5 0 0" />
+                <TextBox Text="{Binding Options.MaxColors}" />
+                <Slider Value="{Binding Options.MaxColors}" Minimum="5" Maximum="60" Margin="0 5 0 0" />
             
                 <TextBlock Text="Resize height (px)" Margin="0 10 0 3" />
-                <TextBox Text="{Binding ResizeImageHeight}" />
-                <Slider Value="{Binding ResizeImageHeight}" Minimum="24" Maximum="96" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
+                <TextBox Text="{Binding Options.ResizeImageHeight}" />
+                <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="24" Maximum="96" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
             
                 <TextBlock Text="Symbol spacing" Margin="0 10 0 3" />
-                <TextBox Text="{Binding SymbolSizeOffset, StringFormat=0.00}" />
-                <Slider Value="{Binding SymbolSizeOffset}" Minimum="0.1" Maximum="1" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+                <TextBox Text="{Binding Options.SymbolSizeOffset, StringFormat=0.00}" />
+                <Slider Value="{Binding Options.SymbolSizeOffset}" Minimum="0.1" Maximum="1" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" />
 
-                <CheckBox IsChecked="{Binding RemoveWhite}" Content="Remove white" Margin="0 5" />
+                <CheckBox IsChecked="{Binding Options.RemoveWhite}" Content="Remove white" Margin="0 5" />
+                <CheckBox IsChecked="{Binding Options.DisableLayering}" Content="No layers" Margin="0 5" />
+
+                <GroupBox Header="Layer options">
+                    <StackPanel>
+                        <TextBlock Text="X size exponent" Margin="0 10 0 3" />
+                        <TextBox Text="{Binding Options.OffsetSizeXExponent, StringFormat=0.00}" />
+                        <Slider Value="{Binding Options.OffsetSizeXExponent}" Minimum="0.1" Maximum="1.2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+
+                        <TextBlock Text="X offset" Margin="0 10 0 3" />
+                        <TextBox Text="{Binding Options.CenterXOffset, StringFormat=0.00}" />
+                        <Slider Value="{Binding Options.CenterXOffset}" Minimum="-2" Maximum="2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+
+                        <TextBlock Text="Y size exponent" Margin="0 10 0 3" />
+                        <TextBox Text="{Binding Options.OffsetSizeYExponent, StringFormat=0.00}" />
+                        <Slider Value="{Binding Options.OffsetSizeYExponent}" Minimum="0.1" Maximum="1.2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+
+                        <TextBlock Text="Y offset" Margin="0 10 0 3" />
+                        <TextBox Text="{Binding Options.CenterYOffset, StringFormat=0.00}" />
+                        <Slider Value="{Binding Options.CenterYOffset}" Minimum="-2" Maximum="2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" />
+                    </StackPanel>
+                    <GroupBox.Style>
+                        <Style TargetType="GroupBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Options.DisableLayering}" Value="true">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </GroupBox.Style>
+                </GroupBox>
             </StackPanel>
         </DockPanel>
 
@@ -69,6 +92,26 @@
                 ShowBoundingBox="True"
                 ShowGuides="False"
                 />
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
+                <TextBlock FontSize="24" FontWeight="Bold" TextAlignment="Center">
+                    <Run Text="{Binding CurrentSymbolArt.LayerCount, Mode=OneWay}" /> / 225 symbols
+                </TextBlock>
+                <TextBlock TextAlignment="Center" FontWeight="Bold">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TooManyLayers}" Value="true">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                    These settings will generate more symbols than are allowed in a symbol art.<LineBreak />
+                    You will need to manually remove symbols to get below the limit of 225.
+                </TextBlock>
+            </StackPanel>
         </Grid>
     </DockPanel>
 </Window>

@@ -8,6 +8,16 @@
 
         public int MaxColors { get; set; } = 30;
 
-        public bool RemoveWhite { get; set; } = true;
+        public bool RemoveWhite { get; set; } = false;
+
+        public bool DisableLayering { get; set; } = false;
+
+        public double OffsetSizeYExponent { get; set; } = 0.9;
+
+        public double OffsetSizeXExponent { get; set; } = 1;
+
+        public double CenterYOffset { get; set; } = 0.25;
+
+        public double CenterXOffset { get; set; } = -0.20;
     }
 }
