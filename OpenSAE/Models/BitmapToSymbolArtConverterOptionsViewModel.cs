@@ -12,13 +12,16 @@ namespace OpenSAE.Models
         private double _centerXOffset;
         private double _offsetSizeYExponent;
         private double _offsetSizeXExponent;
-        private double _symbolSizeOffset;
+        private double _symbolSizeOffsetX;
+        private double _symbolSizeOffsetY;
         private bool _disableLayering;
+        private bool _smoothResizing;
 
         public BitmapToSymbolArtConverterOptionsViewModel()
         {
             var defaultOptions = new BitmapToSymbolArtConverterOptions();
-            _symbolSizeOffset = defaultOptions.SizeOffset;
+            _symbolSizeOffsetX = defaultOptions.SizeXOffset;
+            _symbolSizeOffsetY = defaultOptions.SizeYOffset;
             _resizeImageHeight = defaultOptions.ResizeImageHeight;
             _maxColors = defaultOptions.MaxColors;
             _removeWhite = defaultOptions.RemoveWhite;
@@ -27,12 +30,19 @@ namespace OpenSAE.Models
             _offsetSizeYExponent = defaultOptions.OffsetSizeYExponent;
             _offsetSizeXExponent = defaultOptions.OffsetSizeXExponent;
             _disableLayering = defaultOptions.DisableLayering;
+            _smoothResizing = defaultOptions.SmoothResizing;
         }
 
-        public double SymbolSizeOffset
+        public double SymbolSizeOffsetX
         {
-            get => _symbolSizeOffset;
-            set => SetProperty(ref _symbolSizeOffset, value);
+            get => _symbolSizeOffsetX;
+            set => SetProperty(ref _symbolSizeOffsetX, value);
+        }
+
+        public double SymbolSizeOffsetY
+        {
+            get => _symbolSizeOffsetY;
+            set => SetProperty(ref _symbolSizeOffsetY, value);
         }
 
         public double CenterYOffset
@@ -83,19 +93,27 @@ namespace OpenSAE.Models
             set => SetProperty(ref _disableLayering, value);
         }
 
+        public bool SmoothResizing
+        {
+            get => _smoothResizing;
+            set => SetProperty(ref _smoothResizing, value);
+        }
+
         public BitmapToSymbolArtConverterOptions GetOptions()
         {
             return new BitmapToSymbolArtConverterOptions()
             {
                 ResizeImageHeight = _resizeImageHeight,
                 MaxColors = _maxColors,
-                SizeOffset = _symbolSizeOffset,
+                SizeXOffset = _symbolSizeOffsetX,
+                SizeYOffset = _symbolSizeOffsetY,
                 RemoveWhite = _removeWhite,
                 CenterYOffset = _centerYOffset,
                 CenterXOffset = _centerXOffset,
                 OffsetSizeYExponent = _offsetSizeYExponent,
                 OffsetSizeXExponent = _offsetSizeXExponent,
-                DisableLayering = _disableLayering
+                DisableLayering = _disableLayering,
+                SmoothResizing = _smoothResizing
             };
         }
     }

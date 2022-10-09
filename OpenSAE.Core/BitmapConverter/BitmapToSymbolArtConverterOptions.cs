@@ -2,7 +2,9 @@
 {
     public class BitmapToSymbolArtConverterOptions
     {
-        public double SizeOffset { get; set; } = 0.65;
+        public double SizeXOffset { get; set; } = 0.65;
+
+        public double SizeYOffset { get; set; } = 0.5;
 
         public int ResizeImageHeight { get; set; } = 24;
 
@@ -19,5 +21,7 @@
         public double CenterYOffset { get; set; } = 0.25;
 
         public double CenterXOffset { get; set; } = -0.20;
+
+        public bool SmoothResizing { get; set; } = false;
     }
 }

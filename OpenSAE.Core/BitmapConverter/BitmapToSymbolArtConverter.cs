@@ -127,8 +127,8 @@ namespace OpenSAE.Core.BitmapConverter
 
                 // since symbols do not take up the entirety of the area defined by their vertices, we
                 // have to take this into account when trying to make a grid of them
-                double extraWidth = ps.Width * pixelSize * (1 - options.SizeOffset);
-                double extraHeight = ps.Height * pixelSize * (1 - options.SizeOffset);
+                double extraWidth = ps.Width * pixelSize * (1 - options.SizeXOffset);
+                double extraHeight = ps.Height * pixelSize * (1 - options.SizeYOffset);
 
                 double left = ps.X * pixelSize - (image.Width * pixelSize / 2) - extraWidth / 2;
                 double top = ps.Y * pixelSize - (image.Height * pixelSize / 2) - extraHeight / 2;
@@ -161,8 +161,8 @@ namespace OpenSAE.Core.BitmapConverter
 
             using var image = Image.Load<Rgba32>(filename);
 
-            image.Mutate(x =>
-                x.Resize(0, options.ResizeImageHeight)
+            image.Mutate(x => x
+                .Resize(0, options.ResizeImageHeight, options.SmoothResizing ? KnownResamplers.Lanczos8 : KnownResamplers.NearestNeighbor)
                 .BackgroundColor(Color.White)
                 .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
             );
@@ -234,9 +234,11 @@ namespace OpenSAE.Core.BitmapConverter
 
                     bool isAvailable(int x, int y) => !globalUsed[x, y];
 
-                    var extendX = FindLargestExtent(image, x, y, true, isAvailable);
-                    var extendY = FindLargestExtent(image, x, y, false, isAvailable);
-                    var extend = (extendX.y * extendX.x > extendY.y * extendY.x) ? extendX : extendY;
+                    // while we can use both X and Y extent and choose the one that fits best
+                    // the end results seem to look better when only using X, so this is disabled for now
+                    var extend = FindLargestExtent(image, x, y, true, isAvailable, (x, y) => image[x, y] == colorItem.Color);
+                    //var extendY = FindLargestExtent(image, x, y, false, isAvailable, (x, y) => image[x, y] == colorItem.Color);
+                    //var extend = (extendX.y * extendX.x > extendY.y * extendY.x) ? extendX : extendY;
 
                     current.Width += extend.x;
                     current.Height += extend.y;
@@ -254,8 +256,8 @@ namespace OpenSAE.Core.BitmapConverter
                 {
                     // since symbols do not take up the entirety of the area defined by their vertices, we
                     // have to take this into account when trying to make a grid of them
-                    double extraWidth = ps.Width * pixelSize * (1 - options.SizeOffset);
-                    double extraHeight = ps.Height * pixelSize * (1 - options.SizeOffset);
+                    double extraWidth = ps.Width * pixelSize * (1 - options.SizeXOffset);
+                    double extraHeight = ps.Height * pixelSize * (1 - options.SizeYOffset);
 
                     extraWidth *= Math.Pow(ps.Width, options.OffsetSizeXExponent) / ps.Width;
                     extraHeight *= Math.Pow(ps.Height, options.OffsetSizeYExponent) / ps.Height;
@@ -267,8 +269,8 @@ namespace OpenSAE.Core.BitmapConverter
 
                     if (ps.Width > 1 || ps.Height > 1)
                     {
-                        double positionYOffset = options.CenterYOffset / 100 * (bottom - top) * Math.Pow(ps.Width, options.OffsetSizeXExponent) / ps.Width;
-                        double positionXOffset = options.CenterXOffset / 100 * (left - bottom) * Math.Pow(ps.Height, options.OffsetSizeYExponent) / ps.Height;
+                        double positionYOffset = options.CenterYOffset * Math.Pow(ps.Height, options.OffsetSizeYExponent) / ps.Height;
+                        double positionXOffset = options.CenterXOffset * Math.Pow(ps.Width, options.OffsetSizeXExponent) / ps.Width;
 
                         top -= positionYOffset;
                         bottom -= positionYOffset;
@@ -301,9 +303,10 @@ namespace OpenSAE.Core.BitmapConverter
             return rootGroup;
         }
 
-        private static (int x, int y) FindLargestExtent(Image<Rgba32> image, int sourceX, int sourceY, bool xFirst, Func<int, int, bool> isAvailable)
+        private static (int x, int y) FindLargestExtent(Image<Rgba32> image, int sourceX, int sourceY, bool xFirst, Func<int, int, bool> isAvailable, Func<int, int, bool> isColor)
         {
             int expandByX = 0, expandByY = 0;
+            int lastColorX = -1, lastColorY = -1;
             bool atEnd = false;
 
             if (xFirst)
@@ -313,6 +316,12 @@ namespace OpenSAE.Core.BitmapConverter
                     if (!isAvailable(x + 1, sourceY))
                     {
                         break;
+                    }
+
+                    if (isColor(x + 1, sourceY))
+                    {
+                        lastColorX = x + 1;
+                        lastColorY = sourceY;
                     }
 
                     expandByX++;
@@ -327,12 +336,26 @@ namespace OpenSAE.Core.BitmapConverter
                             atEnd = true;
                             break;
                         }
+                        else if (isColor(x, y + 1))
+                        {
+                            lastColorX = x;
+                            lastColorY = y + 1;
+                        }
                     }
 
                     if (atEnd)
                         break;
                     else
                         expandByY++;
+                }
+
+                if (lastColorX > -1)
+                {
+                    return (lastColorX - sourceX, lastColorY - sourceY);
+                }
+                else
+                {
+                    return (0, 0);
                 }
             }
             else
