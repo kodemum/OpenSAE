@@ -27,5 +27,7 @@
         public int PixelSymbol { get; set; } = 680;
 
         public double SymbolSizeThreshold { get; set; } = 1.25;
+
+        public bool AutoChooseSymbols { get; set; }
     }
 }

@@ -19,6 +19,7 @@ namespace OpenSAE.Models
         private bool _smoothResizing;
         private Symbol _pixelSymbol;
         private double _symbolSizeThreshold;
+        private bool _autoChooseSymbols;
 
         public BitmapToSymbolArtConverterOptionsViewModel()
         {
@@ -35,6 +36,7 @@ namespace OpenSAE.Models
             _disableLayering = defaultOptions.DisableLayering;
             _smoothResizing = defaultOptions.SmoothResizing;
             _symbolSizeThreshold = defaultOptions.SymbolSizeThreshold;
+            _autoChooseSymbols = defaultOptions.AutoChooseSymbols;
             _pixelSymbol = SymbolUtil.GetById(681)!;
         }
 
@@ -116,6 +118,12 @@ namespace OpenSAE.Models
             set => SetProperty(ref _symbolSizeThreshold, value);
         }
 
+        public bool AutoChooseSymbols
+        {
+            get => _autoChooseSymbols;
+            set => SetProperty(ref _autoChooseSymbols, value);
+        }
+
         public BitmapToSymbolArtConverterOptions GetOptions()
         {
             return new BitmapToSymbolArtConverterOptions()
@@ -133,6 +141,7 @@ namespace OpenSAE.Models
                 SmoothResizing = _smoothResizing,
                 PixelSymbol = PixelSymbol.Id - 1,
                 SymbolSizeThreshold = _symbolSizeThreshold,
+                AutoChooseSymbols = _autoChooseSymbols
             };
         }
     }

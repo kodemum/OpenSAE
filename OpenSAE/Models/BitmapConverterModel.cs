@@ -108,7 +108,9 @@ namespace OpenSAE.Models
             {
                 try
                 {
-                    _currentGroup = BitmapToSymbolArtConverter.BitmapToSymbolArt(BitmapFilename, Options.GetOptions());
+                    using var converter = new BitmapToSymbolArtConverter(BitmapFilename, Options.GetOptions());
+
+                    _currentGroup = converter.Convert();
 
                     var sa = new SymbolArtModel(new DummyUndoModel());
                     sa.Children.Add(new SymbolArtGroupModel(sa.Undo, _currentGroup, sa));

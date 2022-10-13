@@ -8,11 +8,44 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace OpenSAE.Core.BitmapConverter
 {
-    public class BitmapToSymbolArtConverter
+    public class BitmapToSymbolArtConverter : IDisposable
     {
+        public string Filename { get; }
+
+        private readonly BitmapToSymbolArtConverterOptions options;
+
+        private readonly Image<Rgba32> originalImage;
+        private readonly Image<Rgba32> image;
+
+        private readonly double pixelSize;
+
+        private static List<Symbol> usableSymbols = SymbolUtil.List.Where(x =>
+            x.Group == SymbolGroup.FilledSymbols || x.Group == SymbolGroup.CalligraphySymbols || x.Group == SymbolGroup.LineSegments).ToList();
+
+        public BitmapToSymbolArtConverter(string filename, BitmapToSymbolArtConverterOptions? op = null)
+        {
+            Filename = filename;
+            options = op ?? new BitmapToSymbolArtConverterOptions();
+
+            originalImage = Image.Load<Rgba32>(filename);
+            originalImage.Mutate(x => x.BackgroundColor(Color.White));
+
+            image = originalImage.Clone();
+
+            image.Mutate(x =>
+                x.Resize(0, options.ResizeImageHeight, options.SmoothResizing ? KnownResamplers.Lanczos8 : KnownResamplers.NearestNeighbor)
+                .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
+                );
+
+            image.Mutate(x => x.Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null })));
+
+            pixelSize = 96.0 / image.Height;
+        }
+
         private static IEnumerable<PixelColor> SplitToColors(Image<Rgba32> image)
         {
             Dictionary<Rgba32, PixelColor> colors = new();
@@ -37,7 +70,7 @@ namespace OpenSAE.Core.BitmapConverter
             return colors.Values;
         }
 
-        public static SymbolArtGroup ConvertSimple(SymbolArtGroup rootGroup, Image<Rgba32> image, BitmapToSymbolArtConverterOptions options)
+        public SymbolArtGroup ConvertSimple(SymbolArtGroup rootGroup)
         {
             bool[,] filled = new bool[image.Width, image.Height];
 
@@ -71,10 +104,10 @@ namespace OpenSAE.Core.BitmapConverter
                 }
 
                 for (int cx = current.X; cx < current.X + current.Width; cx++)
-                for (int cy = current.Y; cy < current.Y + current.Height; cy++)
-                {
-                    filled[cx, cy] = true;
-                }
+                    for (int cy = current.Y; cy < current.Y + current.Height; cy++)
+                    {
+                        filled[cx, cy] = true;
+                    }
             }
 
             for (int x = 0; x < image.Width; x++)
@@ -152,52 +185,34 @@ namespace OpenSAE.Core.BitmapConverter
             return rootGroup;
         }
 
-        public static SymbolArtGroup BitmapToSymbolArt(string filename, BitmapToSymbolArtConverterOptions? options = null)
+        public SymbolArtGroup Convert()
         {
-            if (options == null)
-            {
-                options = new();
-            }
-
-            using var image = Image.Load<Rgba32>(filename);
-
-            image.Mutate(x => x
-                .Resize(0, options.ResizeImageHeight, options.SmoothResizing ? KnownResamplers.Lanczos8 : KnownResamplers.NearestNeighbor)
-                .BackgroundColor(Color.White)
-                .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
-            );
-
             var rootGroup = new SymbolArtGroup()
             {
                 Visible = true,
-                Name = $"{Path.GetFileName(filename)} converted"
+                Name = $"{Path.GetFileName(Filename)} converted"
             };
 
             if (options.DisableLayering)
             {
-                return ConvertSimple(rootGroup, image, options);
+                return ConvertSimple(rootGroup);
             }
             else
             {
-                return ConvertLayered(rootGroup, image, options);
+                return ConvertLayered(rootGroup);
             }
         }
 
-        public static SymbolArtGroup ConvertLayered(SymbolArtGroup rootGroup, Image<Rgba32> image, BitmapToSymbolArtConverterOptions options)
-        { 
+        public SymbolArtGroup ConvertLayered(SymbolArtGroup rootGroup)
+        {
             var colors = SplitToColors(image).OrderByDescending(x => x.Pixels.Count).ToList();
 
             bool[,] globalUsed = new bool[image.Width, image.Height];
 
+            int colorCount = 0;
+
             foreach (var colorItem in colors)
             {
-                // area is transparent - we consider white that since that is more or less the background
-                // for SA's in-game
-                if (options.RemoveWhite && colorItem.Color.R > 251 && colorItem.Color.G > 251 && colorItem.Color.B > 251)
-                {
-                    continue;
-                }
-
                 var color = System.Windows.Media.Color.FromRgb(colorItem.Color.R, colorItem.Color.G, colorItem.Color.B);
                 var colorGroup = new SymbolArtGroup()
                 {
@@ -247,12 +262,40 @@ namespace OpenSAE.Core.BitmapConverter
                     }
                 }
 
-                double pixelSize = 96.0 / image.Height;
+                if (colorCount == 0)
+                {
+                    // first color considered background
+                    pss.Clear();
+                    pss.Add(new PseudoPixel()
+                    {
+                        Color = colorItem.Color,
+                        X = 0,
+                        Y = 0,
+                        Width = image.Width,
+                        Height = image.Height
+                    });
+                }
 
                 foreach (var ps in pss)
                 {
                     if (ps.Width * ps.Height < options.SymbolSizeThreshold)
                         continue;
+
+                    int symbolId;
+
+                    if (options.AutoChooseSymbols)
+                    {
+                        var symbol = FindBestOverlappingShape(ps);
+
+                        if (symbol == null)
+                            continue;
+
+                        symbolId = symbol.Id - 1;
+                    }
+                    else
+                    {
+                        symbolId = options.PixelSymbol;
+                    }
 
                     // since symbols do not take up the entirety of the area defined by their vertices, we
                     // have to take this into account when trying to make a grid of them
@@ -281,7 +324,7 @@ namespace OpenSAE.Core.BitmapConverter
                     colorGroup.Children.Add(new SymbolArtLayer()
                     {
                         Color = SymbolArtColorHelper.RemoveCurve(color),
-                        SymbolId = options.PixelSymbol,
+                        SymbolId = symbolId,
                         Vertex1 = new System.Windows.Point(left, top),
                         Vertex2 = new System.Windows.Point(left, bottom),
                         Vertex3 = new System.Windows.Point(right, bottom),
@@ -295,19 +338,108 @@ namespace OpenSAE.Core.BitmapConverter
                 foreach (var (X, Y) in colorItem.Pixels)
                 {
                     // enabling this isn't useful but creates kind of expressionist interpretations
-                    // if (pss.Any(x => x.X == X && x.Y == Y && x.Width * x.Height >= options.SymbolSizeThreshold))
+                    //if (pss.Any(x => x.X == X && x.Y == Y && x.Width * x.Height >= options.SymbolSizeThreshold))
                     globalUsed[X, Y] = true;
                 }
 
-                if (colorGroup.Children.Count > 0)
+                // area is transparent - we consider white that since that is more or less the background
+                // for SA's in-game
+                if (colorGroup.Children.Count > 0 && !(options.RemoveWhite && colorItem.Color.R > 251 && colorItem.Color.G > 251 && colorItem.Color.B > 251))
                 {
                     rootGroup.Children.Add(colorGroup);
                 }
+
+                colorCount++;
             }
 
             rootGroup.Children.Reverse();
 
             return rootGroup;
+        }
+
+        private Symbol? FindBestOverlappingShape(PseudoPixel ps)
+        {
+            int actualWidth = (int)Math.Round(64 * (1 - options.SizeXOffset / 2));
+            int actualHeight = (int)Math.Round(64 * (1 - options.SizeYOffset / 2));
+
+            Symbol? bestSymbol = null;
+            int bestFit = int.MaxValue;
+            double ratio = (double)originalImage.Height / image.Height;
+
+            using var cut = originalImage.Clone();
+
+            var cropBounds = new Rectangle((int)Math.Floor(ps.X * ratio), (int)Math.Floor(ps.Y * ratio), (int)Math.Floor(ps.Width * ratio), (int)Math.Floor(ps.Height * ratio));
+
+            cut.Mutate(x =>
+            {
+                if (cropBounds.Width + cropBounds.X < cut.Width && cropBounds.Height + cropBounds.Y < cut.Height)
+                    x.Crop(cropBounds);
+
+                x.Resize(actualWidth, actualHeight, KnownResamplers.NearestNeighbor);
+            });
+
+            int targetCount = 0;
+
+            cut.ProcessPixelRows(rows =>
+            {
+                for (int y = 0; y < actualHeight; y++)
+                {
+                    var span = rows.GetRowSpan(y);
+
+                    for (int x = 0; x < actualWidth; x++)
+                    {
+                        if (CloseEnough(span[x], ps.Color))
+                        {
+                            targetCount++;
+                        }
+                    }
+                }
+
+                foreach (var symbol in usableSymbols)
+                {
+                    byte[] pixelValues = new byte[4 * actualWidth * actualHeight];
+
+                    var rect = new Int32Rect((64 - actualWidth) / 2, (64 - actualHeight) / 2, actualWidth, actualHeight);
+
+                    symbol.Image.CopyPixels(rect, pixelValues, 4 * actualWidth, 0);
+
+                    int match = 0;
+
+                    for (int y = 0; y < actualHeight; y++)
+                    {
+                        var span = rows.GetRowSpan(y);
+
+                        for (int x = 0; x < actualWidth; x++)
+                        {
+                            if (CloseEnough(span[x], ps.Color))
+                            {
+                                int index = (y * actualWidth + x) * 4;
+
+                                if (pixelValues[index + 3] > 10)
+                                {
+                                    match++;
+                                }
+                            }
+                        }
+                    }
+
+                    int fit = Math.Abs(match - targetCount);
+
+                    if (fit < bestFit)
+                    {
+                        bestFit = fit;
+                        bestSymbol = symbol;
+                    }
+                }
+            });
+
+            return bestSymbol;
+        }
+
+        private static bool CloseEnough(Rgba32 color1, Rgba32 color2)
+        {
+            return Math.Abs(color1.R - color2.R) + Math.Abs(color1.G - color2.G) + Math.Abs(color1.B - color2.B)
+                < 8;
         }
 
         private static (int x, int y) FindLargestExtent(Image<Rgba32> image, int sourceX, int sourceY, bool xFirst, Func<int, int, bool> isAvailable, Func<int, int, bool> isColor)
@@ -396,6 +528,12 @@ namespace OpenSAE.Core.BitmapConverter
             }
 
             return (expandByX, expandByY);
+        }
+
+        public void Dispose()
+        {
+            image.Dispose();
+            originalImage.Dispose();
         }
 
         private class PseudoPixel

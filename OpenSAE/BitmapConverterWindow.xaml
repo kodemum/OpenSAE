@@ -37,6 +37,8 @@
                     <TextBlock Text="Minimum size" Margin="0 0 0 3" />
                     <TextBox Text="{Binding Options.SymbolSizeThreshold, StringFormat=0.00}" />
                     <Slider Value="{Binding Options.SymbolSizeThreshold}" Minimum="1" Maximum="10" Margin="0 5" TickFrequency="0.25" IsSnapToTickEnabled="True" LargeChange="2" />
+
+                    <CheckBox IsChecked="{Binding Options.AutoChooseSymbols}" Content="Auto-choose symbols" Margin="0 5 0 0" />
                 </StackPanel>
             </GroupBox>
             <views:SymbolSelector DataContext="{Binding SymbolsList}" SelectedSymbol="{Binding DataContext.Options.PixelSymbol, ElementName=bitmapConverterWindow, Mode=TwoWay}" />
@@ -52,11 +54,11 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="Resize height (px)">
+                    <GroupBox Header="Resolution (px)">
                         <StackPanel>
                             <TextBox Text="{Binding Options.ResizeImageHeight}" />
-                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="24" Maximum="96" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
-                            <CheckBox IsChecked="{Binding Options.SmoothResizing}" Content="Smooth resize" Margin="0 5" />
+                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="24" Maximum="192" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
+                            <CheckBox IsChecked="{Binding Options.SmoothResizing}" Content="Anti-aliasing" Margin="0 5" />
                         </StackPanel>
                     </GroupBox>
 
