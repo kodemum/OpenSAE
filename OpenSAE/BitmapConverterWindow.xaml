@@ -6,6 +6,7 @@
         xmlns:models="clr-namespace:OpenSAE.Models" xmlns:views="clr-namespace:OpenSAE.Views"
         d:DataContext="{d:DesignInstance Type=models:BitmapConverterModel}"
         mc:Ignorable="d"
+        x:Name="bitmapConverterWindow"
         Title="Bitmap -> symbol art converter" Height="650" Width="800" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <Style TargetType="GroupBox">
@@ -29,6 +30,17 @@
             <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding BitmapFilename}" Margin="5 0" />
             <Button Grid.Column="2" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Open file...</Button>
         </Grid>
+
+        <DockPanel Margin="5 5 10 5" Width="175" DockPanel.Dock="Right">
+            <GroupBox DockPanel.Dock="Top" Header="Symbol options">
+                <StackPanel>
+                    <TextBlock Text="Minimum size" Margin="0 0 0 3" />
+                    <TextBox Text="{Binding Options.SymbolSizeThreshold, StringFormat=0.00}" />
+                    <Slider Value="{Binding Options.SymbolSizeThreshold}" Minimum="1" Maximum="10" Margin="0 5" TickFrequency="0.25" IsSnapToTickEnabled="True" LargeChange="2" />
+                </StackPanel>
+            </GroupBox>
+            <views:SymbolSelector DataContext="{Binding SymbolsList}" SelectedSymbol="{Binding DataContext.Options.PixelSymbol, ElementName=bitmapConverterWindow, Mode=TwoWay}" />
+        </DockPanel>
 
         <ScrollViewer DockPanel.Dock="Left">
             <DockPanel Margin="5 5 10 5" Width="125">

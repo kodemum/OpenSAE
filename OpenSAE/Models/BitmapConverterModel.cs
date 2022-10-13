@@ -44,6 +44,8 @@ namespace OpenSAE.Models
 
         public BitmapToSymbolArtConverterOptionsViewModel Options { get; }
 
+        public SymbolListModel SymbolsList { get; }
+
         public string? ErrorMessage
         {
             get => _errorMessage;
@@ -63,6 +65,7 @@ namespace OpenSAE.Models
 
             Options = new BitmapToSymbolArtConverterOptionsViewModel();
             Options.PropertyChanged += (_, __) => Reload();
+            SymbolsList = new();
         }
 
         private void AcceptCommand_Implementation()

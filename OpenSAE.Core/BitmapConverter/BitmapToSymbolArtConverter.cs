@@ -127,8 +127,8 @@ namespace OpenSAE.Core.BitmapConverter
 
                 // since symbols do not take up the entirety of the area defined by their vertices, we
                 // have to take this into account when trying to make a grid of them
-                double extraWidth = ps.Width * pixelSize * (1 - options.SizeXOffset);
-                double extraHeight = ps.Height * pixelSize * (1 - options.SizeYOffset);
+                double extraWidth = ps.Width * pixelSize * (1 - 0.65);
+                double extraHeight = ps.Height * pixelSize * (1 - 0.65);
 
                 double left = ps.X * pixelSize - (image.Width * pixelSize / 2) - extraWidth / 2;
                 double top = ps.Y * pixelSize - (image.Height * pixelSize / 2) - extraHeight / 2;
@@ -138,7 +138,7 @@ namespace OpenSAE.Core.BitmapConverter
                 rootGroup.Children.Add(new SymbolArtLayer()
                 {
                     Color = SymbolArtColorHelper.RemoveCurve(System.Windows.Media.Color.FromRgb(ps.Color.R, ps.Color.G, ps.Color.B)),
-                    SymbolId = ps.Width > 1 || ps.Height > 1 ? 242 : 246,
+                    SymbolId = options.PixelSymbol,
                     Vertex1 = new System.Windows.Point(left, top),
                     Vertex2 = new System.Windows.Point(left, bottom),
                     Vertex3 = new System.Windows.Point(right, bottom),
@@ -205,8 +205,6 @@ namespace OpenSAE.Core.BitmapConverter
                     Name = ColorNameMapper.GetNearestName(color)
                 };
 
-                rootGroup.Children.Add(colorGroup);
-
                 bool[,] available = new bool[image.Width, image.Height];
 
                 foreach (var (X, Y) in colorItem.Pixels)
@@ -235,10 +233,9 @@ namespace OpenSAE.Core.BitmapConverter
                     bool isAvailable(int x, int y) => !globalUsed[x, y];
 
                     // while we can use both X and Y extent and choose the one that fits best
-                    // the end results seem to look better when only using X, so this is disabled for now
-                    var extend = FindLargestExtent(image, x, y, true, isAvailable, (x, y) => image[x, y] == colorItem.Color);
-                    //var extendY = FindLargestExtent(image, x, y, false, isAvailable, (x, y) => image[x, y] == colorItem.Color);
-                    //var extend = (extendX.y * extendX.x > extendY.y * extendY.x) ? extendX : extendY;
+                    var extendX = FindLargestExtent(image, x, y, true, isAvailable, (x, y) => image[x, y] == colorItem.Color);
+                    var extendY = FindLargestExtent(image, x, y, false, isAvailable, (x, y) => image[x, y] == colorItem.Color);
+                    var extend = (extendX.y * extendX.x > extendY.y * extendY.x) ? extendX : extendY;
 
                     current.Width += extend.x;
                     current.Height += extend.y;
@@ -254,6 +251,9 @@ namespace OpenSAE.Core.BitmapConverter
 
                 foreach (var ps in pss)
                 {
+                    if (ps.Width * ps.Height < options.SymbolSizeThreshold)
+                        continue;
+
                     // since symbols do not take up the entirety of the area defined by their vertices, we
                     // have to take this into account when trying to make a grid of them
                     double extraWidth = ps.Width * pixelSize * (1 - options.SizeXOffset);
@@ -281,7 +281,7 @@ namespace OpenSAE.Core.BitmapConverter
                     colorGroup.Children.Add(new SymbolArtLayer()
                     {
                         Color = SymbolArtColorHelper.RemoveCurve(color),
-                        SymbolId = 242,
+                        SymbolId = options.PixelSymbol,
                         Vertex1 = new System.Windows.Point(left, top),
                         Vertex2 = new System.Windows.Point(left, bottom),
                         Vertex3 = new System.Windows.Point(right, bottom),
@@ -294,7 +294,14 @@ namespace OpenSAE.Core.BitmapConverter
 
                 foreach (var (X, Y) in colorItem.Pixels)
                 {
+                    // enabling this isn't useful but creates kind of expressionist interpretations
+                    // if (pss.Any(x => x.X == X && x.Y == Y && x.Width * x.Height >= options.SymbolSizeThreshold))
                     globalUsed[X, Y] = true;
+                }
+
+                if (colorGroup.Children.Count > 0)
+                {
+                    rootGroup.Children.Add(colorGroup);
                 }
             }
 

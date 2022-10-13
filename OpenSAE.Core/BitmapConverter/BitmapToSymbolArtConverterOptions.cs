@@ -6,7 +6,7 @@
 
         public double SizeYOffset { get; set; } = 0.3;
 
-        public int ResizeImageHeight { get; set; } = 24;
+        public int ResizeImageHeight { get; set; } = 64;
 
         public int MaxColors { get; set; } = 30;
 
@@ -23,5 +23,9 @@
         public double CenterXOffset { get; set; } = -0.20;
 
         public bool SmoothResizing { get; set; } = false;
+
+        public int PixelSymbol { get; set; } = 680;
+
+        public double SymbolSizeThreshold { get; set; } = 1.25;
     }
 }
