@@ -13,14 +13,15 @@ namespace OpenSAE.Core
 
         private BitmapImage _image;
 
-        public Symbol(int id, string name, SymbolGroup group)
-            : this(id, name, name, group)
+        public Symbol(int id, string name, SymbolGroup group, SymbolFlag flags = SymbolFlag.None)
+            : this(id, name, name, group, flags)
         {
         }
 
-        public Symbol(int id, string name, string description, SymbolGroup group)
+        public Symbol(int id, string name, string description, SymbolGroup group, SymbolFlag flags = SymbolFlag.None)
             : this(id, name, 0, 0, description, group)
         {
+            Flags = flags;
         }
 
         public Symbol(int id, string name, double kerning, string description, SymbolGroup group)
@@ -74,5 +75,7 @@ namespace OpenSAE.Core
         }
 
         public SymbolGroup Group { get; }
+
+        public SymbolFlag Flags { get; }
     }
 }
