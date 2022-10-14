@@ -10,7 +10,9 @@
         DragOver="OnDragOver"
         Drop="OnDrop"
         AllowDrop="True"
-        Title="Bitmap -> symbol art converter" Height="650" Width="1000" ResizeMode="CanResizeWithGrip">
+        Title="Bitmap -> symbol art converter" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"
+        MinWidth="700" MinHeight="400"
+        >
     <Window.Resources>
         <Style TargetType="GroupBox">
             <Setter Property="Margin" Value="0 0 0 5" />
@@ -57,9 +59,11 @@
             </views:SymbolSelector>
         </DockPanel>
 
-        <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto">
-            <DockPanel Margin="5 5 10 5" Width="150">
-                <StackPanel>
+        <DockPanel DockPanel.Dock="Left">
+            <Button DockPanel.Dock="Bottom" Content="Accept" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" Margin="5" />
+
+            <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="5 5 10 5" Width="150">
                     <GroupBox Header="Max colors">
                         <StackPanel>
                             <TextBox Text="{Binding Options.MaxColors}" />
@@ -118,8 +122,9 @@
                         </GroupBox.Style>
                     </GroupBox>
                 </StackPanel>
-            </DockPanel>
-        </ScrollViewer>
+            </ScrollViewer>
+        </DockPanel>
+
 
         <StackPanel DockPanel.Dock="Bottom">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5">
@@ -152,7 +157,7 @@
                 <Rectangle.Fill>
                     <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
                         <DrawingBrush.Drawing>
-                            <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#eee"/>
+                            <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#fcfcfc"/>
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
                 </Rectangle.Fill>
@@ -166,8 +171,6 @@
                 ShowBoundingBox="True"
                 ShowGuides="False"
                 />
-
-            <Button Content="Open" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" />
 
             <ProgressBar Width="250" Height="10"  VerticalAlignment="Bottom" Margin="10" Value="{Binding LoadProgress}" Visibility="{Binding IsLoading, Converter={StaticResource booleanToVisibilityConverter}}" />
         </Grid>

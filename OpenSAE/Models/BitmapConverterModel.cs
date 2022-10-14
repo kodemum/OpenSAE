@@ -137,7 +137,7 @@ namespace OpenSAE.Models
 
         private void BrowseCommand_Implementation()
         {
-            string? filename = _dialogService.BrowseOpenFile("Open overlay image", AppModel.BitmapFormatFilter);
+            string? filename = _dialogService.BrowseOpenFile("Convert bitmap image", AppModel.BitmapFormatFilter);
 
             if (filename == null)
                 return;
