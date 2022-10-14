@@ -64,7 +64,7 @@ namespace OpenSAE.Core.BitmapConverter
                 for (int i = 0; i < actualWidth * actualWidth; i++)
                 {
                     // set each pixel if the alpha is higher than the set threshold
-                    symbolExtents[symbolId][i] = pixelValues[i * 4 + 3] > 20;
+                    symbolExtents[symbolId][i] = pixelValues[i * 4 + 3] > 40;
                 }
             }
 
