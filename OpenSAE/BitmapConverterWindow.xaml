@@ -7,7 +7,7 @@
         d:DataContext="{d:DesignInstance Type=models:BitmapConverterModel}"
         mc:Ignorable="d"
         x:Name="bitmapConverterWindow"
-        Title="Bitmap -> symbol art converter" Height="650" Width="800" ResizeMode="CanResizeWithGrip">
+        Title="Bitmap -> symbol art converter" Height="650" Width="1000" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <Style TargetType="GroupBox">
             <Setter Property="Margin" Value="0 0 0 5" />
@@ -41,11 +41,21 @@
                     <CheckBox IsChecked="{Binding Options.AutoChooseSymbols}" Content="Auto-choose symbols" Margin="0 5 0 0" />
                 </StackPanel>
             </GroupBox>
-            <views:SymbolSelector DataContext="{Binding SymbolsList}" SelectedSymbol="{Binding DataContext.Options.PixelSymbol, ElementName=bitmapConverterWindow, Mode=TwoWay}" />
+            <views:SymbolSelector DataContext="{Binding SymbolsList}" SelectedSymbol="{Binding DataContext.Options.PixelSymbol, ElementName=bitmapConverterWindow, Mode=TwoWay}">
+                <views:SymbolSelector.Style>
+                    <Style TargetType="views:SymbolSelector">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.Options.AutoChooseSymbols, ElementName=bitmapConverterWindow}" Value="true">
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </views:SymbolSelector.Style>
+            </views:SymbolSelector>
         </DockPanel>
 
-        <ScrollViewer DockPanel.Dock="Left">
-            <DockPanel Margin="5 5 10 5" Width="125">
+        <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto">
+            <DockPanel Margin="5 5 10 5" Width="150">
                 <StackPanel>
                     <GroupBox Header="Max colors">
                         <StackPanel>
@@ -57,8 +67,9 @@
                     <GroupBox Header="Resolution (px)">
                         <StackPanel>
                             <TextBox Text="{Binding Options.ResizeImageHeight}" />
-                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="24" Maximum="192" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
+                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="24" Maximum="96" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
                             <CheckBox IsChecked="{Binding Options.SmoothResizing}" Content="Anti-aliasing" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding LockSymbolCount}" Content="Restrict symbol count" Margin="0 5" />
                         </StackPanel>
                     </GroupBox>
 
@@ -107,6 +118,32 @@
             </DockPanel>
         </ScrollViewer>
 
+        <StackPanel DockPanel.Dock="Bottom">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5">
+                <TextBlock FontSize="24" FontWeight="Bold" TextAlignment="Center">
+                    <Run Text="{Binding LayerCount, Mode=OneWay}" /> / 225 symbols
+                </TextBlock>
+                <TextBlock TextAlignment="Center" FontWeight="Bold" TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TooManyLayers}" Value="true">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                    These settings will generate more symbols than are allowed in a symbol art. Change settings or use the slider below to get below the limit of 225.
+                </TextBlock>
+            </StackPanel>
+            <DockPanel Margin="5">
+                <TextBlock DockPanel.Dock="Left" Margin="0 0 5 0">0%</TextBlock>
+                <TextBlock DockPanel.Dock="Right" Margin="5 0 0 0">100%</TextBlock>
+                <Slider Value="{Binding SymbolCountReduction}" Minimum="1" Maximum="100" SmallChange="5" />
+            </DockPanel>
+        </StackPanel>
+
         <Grid>
             <Rectangle Grid.Row="1" Grid.Column="2" Panel.ZIndex="-2">
                 <Rectangle.Fill>
@@ -127,27 +164,9 @@
                 ShowGuides="False"
                 />
 
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10">
-                <TextBlock FontSize="24" FontWeight="Bold" TextAlignment="Center">
-                    <Run Text="{Binding CurrentSymbolArt.LayerCount, Mode=OneWay}" /> / 225 symbols
-                </TextBlock>
-                <TextBlock TextAlignment="Center" FontWeight="Bold">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Collapsed" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding TooManyLayers}" Value="true">
-                                    <Setter Property="Visibility" Value="Visible" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                    These settings will generate more symbols than are allowed in a symbol art.<LineBreak />
-                    You will need to manually remove symbols to get below the limit of 225.
-                </TextBlock>
-            </StackPanel>
-
             <Button Content="Open" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" />
+
+            <ProgressBar Width="250" Height="10"  VerticalAlignment="Bottom" Margin="10" IsIndeterminate="True" Visibility="{Binding IsLoading, Converter={StaticResource booleanToVisibilityConverter}}" />
         </Grid>
     </DockPanel>
 </Window>

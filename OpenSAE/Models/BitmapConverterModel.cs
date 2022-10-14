@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace OpenSAE.Models
 {
@@ -21,6 +22,10 @@ namespace OpenSAE.Models
         private SymbolArtGroup? _currentGroup;
         private string? _bitmapFilename;
         private string? _errorMessage;
+        private double _symbolCountReduction = 100;
+        private int _visibleLayerCount = 0;
+        private bool _lockSymbolCount;
+        private bool _isLoading;
 
         public SymbolArtModel? CurrentSymbolArt
         {
@@ -40,7 +45,19 @@ namespace OpenSAE.Models
             set => SetRefreshProperty(ref _bitmapFilename, value);
         }
 
-        public bool TooManyLayers => CurrentSymbolArt?.LayerCount > 225;
+        public bool TooManyLayers => LayerCount > 225;
+
+        public int LayerCount
+        {
+            get => _visibleLayerCount;
+            set
+            {
+                if (SetProperty(ref _visibleLayerCount, value))
+                {
+                    OnPropertyChanged(nameof(TooManyLayers));
+                }
+            }
+        }
 
         public BitmapToSymbolArtConverterOptionsViewModel Options { get; }
 
@@ -50,6 +67,36 @@ namespace OpenSAE.Models
         {
             get => _errorMessage;
             set => SetProperty(ref _errorMessage, value);
+        }
+
+        public double SymbolCountReduction
+        {
+            get => _symbolCountReduction;
+            set
+            {
+                if (SetProperty(ref _symbolCountReduction, value))
+                {
+                    RefreshSymbolAmount();
+                }
+            }
+        }
+
+        public bool LockSymbolCount
+        {
+            get => _lockSymbolCount;
+            set
+            {
+                if (SetProperty(ref _lockSymbolCount, value))
+                {
+                    RefreshSymbolAmount();
+                }
+            }
+        }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetProperty(ref _isLoading, value);
         }
 
         public IRelayCommand BrowseCommand { get; }
@@ -66,6 +113,8 @@ namespace OpenSAE.Models
             Options = new BitmapToSymbolArtConverterOptionsViewModel();
             Options.PropertyChanged += (_, __) => Reload();
             SymbolsList = new();
+
+            BitmapFilename = @"C:\Users\mum\source\repos\OpenSA\Bitmap tests\Segmentation-test-1.png";
         }
 
         private void AcceptCommand_Implementation()
@@ -98,6 +147,32 @@ namespace OpenSAE.Models
             return different;
         }
 
+        private void RefreshSymbolAmount()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            if (LockSymbolCount)
+            {
+                _symbolCountReduction = Math.Min(100, 225.0 / CurrentSymbolArt.LayerCount * 100);
+                OnPropertyChanged(nameof(SymbolCountReduction));
+            }
+
+            var symbols = CurrentSymbolArt.GetAllLayers().OrderByDescending(layer =>
+            {
+                var bounds = layer.BoundingVertices;
+
+                return (bounds[2].X - bounds[0].X) * (bounds[2].Y - bounds[0].Y);
+            }).ToArray();
+
+            for (int i = 0; i < symbols.Length; i++)
+            {
+                symbols[i].Visible = i < Math.Floor(symbols.Length * SymbolCountReduction / 100);
+            }
+
+            LayerCount = symbols.Count(x => x.Visible);
+        }
+
         private void Reload()
         {
             if (string.IsNullOrEmpty(BitmapFilename))
@@ -106,21 +181,37 @@ namespace OpenSAE.Models
             }
             else
             {
-                try
+                var dispatcher = Dispatcher.CurrentDispatcher;
+
+                IsLoading = true;
+
+                Task.Run(() =>
                 {
-                    using var converter = new BitmapToSymbolArtConverter(BitmapFilename, Options.GetOptions());
+                    try
+                    {
+                        using var converter = new BitmapToSymbolArtConverter(BitmapFilename, Options.GetOptions());
 
-                    _currentGroup = converter.Convert();
+                        _currentGroup = converter.Convert();
 
-                    var sa = new SymbolArtModel(new DummyUndoModel());
-                    sa.Children.Add(new SymbolArtGroupModel(sa.Undo, _currentGroup, sa));
+                        var sa = new SymbolArtModel(new DummyUndoModel());
+                        sa.Children.Add(new SymbolArtGroupModel(sa.Undo, _currentGroup, sa));
 
-                    CurrentSymbolArt = sa;
-                }
-                catch (Exception ex)
-                {
-                    ErrorMessage = "Unable to convert bitmap: " + ex.Message;
-                }
+                        dispatcher.Invoke(() =>
+                        {
+                            CurrentSymbolArt = sa;
+                            LayerCount = sa.LayerCount;
+
+                            RefreshSymbolAmount();
+                            ErrorMessage = null;
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorMessage = "Unable to convert bitmap: " + ex.Message;
+                    }
+
+                    IsLoading = false;
+                });
             }
 
             AcceptCommand.NotifyCanExecuteChanged();
