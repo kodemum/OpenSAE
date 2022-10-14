@@ -1003,8 +1003,25 @@ namespace OpenSAE.Models
                 CurrentSymbolArt = new SymbolArtModel(Undo);
                 SelectedItem = CurrentSymbolArt;
             }
+            else
+            {
+                var response = _dialogService.ShowYesNoCancel("Confirm conversion", "Do you wish to add the converted bitmap to the current symbol art [Yes] or create a new one [No]?");
+                if (response == null)
+                {
+                    return;
+                }
 
-            CurrentSymbolArt.Children.Add(new SymbolArtGroupModel(Undo, group, CurrentSymbolArt));
+                if (response == false)
+                {
+                    if (!ConfirmCloseOpenFile())
+                        return;
+
+                    CurrentSymbolArt = new SymbolArtModel(Undo);
+                    SelectedItem = CurrentSymbolArt;
+                }
+            }
+
+            CurrentSymbolArt.Children.Insert(0, new SymbolArtGroupModel(Undo, group, CurrentSymbolArt));
         }
 
         private void AddRecentFile(string filename)

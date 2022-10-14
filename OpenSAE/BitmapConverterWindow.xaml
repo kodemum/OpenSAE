@@ -38,7 +38,7 @@
                     <TextBox Text="{Binding Options.SymbolSizeThreshold, StringFormat=0.00}" />
                     <Slider Value="{Binding Options.SymbolSizeThreshold}" Minimum="1" Maximum="10" Margin="0 5" TickFrequency="0.25" IsSnapToTickEnabled="True" LargeChange="2" />
 
-                    <CheckBox IsChecked="{Binding Options.AutoChooseSymbols}" Content="Auto-choose symbols" Margin="0 5 0 0" />
+                    <CheckBox IsChecked="{Binding Options.AutoChooseSymbols}" Content="Auto-choose (slow)" Margin="0 5 0 0" />
                 </StackPanel>
             </GroupBox>
             <views:SymbolSelector DataContext="{Binding SymbolsList}" SelectedSymbol="{Binding DataContext.Options.PixelSymbol, ElementName=bitmapConverterWindow, Mode=TwoWay}">
@@ -166,7 +166,7 @@
 
             <Button Content="Open" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" Width="100" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="5" />
 
-            <ProgressBar Width="250" Height="10"  VerticalAlignment="Bottom" Margin="10" IsIndeterminate="True" Visibility="{Binding IsLoading, Converter={StaticResource booleanToVisibilityConverter}}" />
+            <ProgressBar Width="250" Height="10"  VerticalAlignment="Bottom" Margin="10" Value="{Binding LoadProgress}" Visibility="{Binding IsLoading, Converter={StaticResource booleanToVisibilityConverter}}" />
         </Grid>
     </DockPanel>
 </Window>

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -23,8 +24,52 @@ namespace OpenSAE.Core.BitmapConverter
 
         private readonly double pixelSize;
 
-        private static List<Symbol> usableSymbols = SymbolUtil.List.Where(x =>
-            x.Group == SymbolGroup.FilledSymbols || x.Group == SymbolGroup.CalligraphySymbols || x.Group == SymbolGroup.LineSegments).ToList();
+        /// <summary>
+        /// Array of symbols usable for the converter
+        /// </summary>
+        private static readonly Symbol[] usableSymbols = SymbolUtil.List.Where(x =>
+            x.Group == SymbolGroup.FilledSymbols || x.Group == SymbolGroup.LineSymbols || x.Id == 681).ToArray();
+
+        /// <summary>
+        /// Array of arrays containing extent info for the usable symbols
+        /// </summary>
+        private static readonly bool[][] symbolExtents;
+
+        /// <summary>
+        /// Actual (cropped) symbol height/width
+        /// </summary>
+        private static readonly int actualSymbolWidth;
+
+        private static bool debug = false;
+        private readonly string _debugDirectory;
+
+        public Action<double>? ConvertProgress { get; set; }
+
+        static BitmapToSymbolArtConverter()
+        {
+            // create arrays for all usable symbols that only contain their alpha channel - since this is all we care about
+            int actualWidth = (int)Math.Round(64 * 0.8);
+            symbolExtents = new bool[usableSymbols.Length][];
+
+            for (int symbolId = 0; symbolId < usableSymbols.Length; symbolId++)
+            {
+                byte[] pixelValues = new byte[4 * actualWidth * actualWidth];
+
+                // crop the symbol and copy the pixel data
+                var rect = new Int32Rect((64 - actualWidth) / 2, (64 - actualWidth) / 2, actualWidth, actualWidth);
+                usableSymbols[symbolId].Image.CopyPixels(rect, pixelValues, 4 * actualWidth, 0);
+
+                symbolExtents[symbolId] = new bool[actualWidth * actualWidth];
+
+                for (int i = 0; i < actualWidth * actualWidth; i++)
+                {
+                    // set each pixel if the alpha is higher than the set threshold
+                    symbolExtents[symbolId][i] = pixelValues[i * 4 + 3] > 20;
+                }
+            }
+
+            actualSymbolWidth = actualWidth;
+        }
 
         public BitmapToSymbolArtConverter(string filename, BitmapToSymbolArtConverterOptions? op = null)
         {
@@ -44,6 +89,13 @@ namespace OpenSAE.Core.BitmapConverter
             image.Mutate(x => x.Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null })));
 
             pixelSize = 96.0 / image.Height;
+
+            _debugDirectory = Path.Combine("converter-debug", Path.GetFileNameWithoutExtension(filename));
+
+            if (debug)
+            {
+                Directory.CreateDirectory(_debugDirectory);
+            }
         }
 
         private static IEnumerable<PixelColor> SplitToColors(Image<Rgba32> image)
@@ -185,7 +237,7 @@ namespace OpenSAE.Core.BitmapConverter
             return rootGroup;
         }
 
-        public SymbolArtGroup Convert()
+        public SymbolArtGroup Convert(CancellationToken token, IProgress<double>? progress = null)
         {
             var rootGroup = new SymbolArtGroup()
             {
@@ -199,13 +251,16 @@ namespace OpenSAE.Core.BitmapConverter
             }
             else
             {
-                return ConvertLayered(rootGroup);
+                return ConvertLayered(rootGroup, token, progress);
             }
         }
 
-        public SymbolArtGroup ConvertLayered(SymbolArtGroup rootGroup)
+        public SymbolArtGroup ConvertLayered(SymbolArtGroup rootGroup, CancellationToken token, IProgress<double>? progress = null)
         {
             var colors = SplitToColors(image).OrderByDescending(x => x.Pixels.Count).ToList();
+
+            int totalPixels = image.Width * image.Height;
+            int processedPixels = 0;
 
             bool[,] globalUsed = new bool[image.Width, image.Height];
 
@@ -276,21 +331,30 @@ namespace OpenSAE.Core.BitmapConverter
                     });
                 }
 
-                foreach (var ps in pss)
+                int pixelsInColor = colorItem.Pixels.Count;
+
+                for (int i = 0; i < pss.Count; i++)
                 {
+                    PseudoPixel? ps = pss[i];
+
                     if (ps.Width * ps.Height < options.SymbolSizeThreshold)
                         continue;
 
-                    int symbolId;
+                    token.ThrowIfCancellationRequested();
+                    progress?.Report((double)(processedPixels + (double)pixelsInColor / pss.Count * (i + 1)) / totalPixels * 100);
 
-                    if (options.AutoChooseSymbols)
+                    int symbolId;
+                    int rotate = 0;
+
+                    if (options.AutoChooseSymbols && colorCount > 0)
                     {
                         var symbol = FindBestOverlappingShape(ps);
 
-                        if (symbol == null)
+                        if (symbol.symbol == null)
                             continue;
 
-                        symbolId = symbol.Id - 1;
+                        symbolId = symbol.symbol.Id - 1;
+                        rotate = symbol.rotation;
                     }
                     else
                     {
@@ -321,14 +385,48 @@ namespace OpenSAE.Core.BitmapConverter
                         right -= positionXOffset;
                     }
 
+                    var vertices = new System.Windows.Point[]
+                    {
+                        new System.Windows.Point(left, top),
+                        new System.Windows.Point(left, bottom),
+                        new System.Windows.Point(right, bottom),
+                        new System.Windows.Point(right, top),
+                    };
+
+                    if (rotate == 1)
+                    {
+                        var start = vertices[0];
+                        vertices[0] = vertices[1];
+                        vertices[1] = vertices[2];
+                        vertices[2] = vertices[3];
+                        vertices[3] = start;
+                    }
+                    else if (rotate == 2)
+                    {
+                        var zero = vertices[0];
+                        var one = vertices[1];
+                        vertices[0] = vertices[2];
+                        vertices[1] = vertices[3];
+                        vertices[2] = zero;
+                        vertices[3] = one;
+                    }
+                    else if (rotate == 3)
+                    {
+                        var three = vertices[3];
+                        vertices[3] = vertices[2];
+                        vertices[2] = vertices[1];
+                        vertices[1] = vertices[0];
+                        vertices[0] = three;
+                    }
+
                     colorGroup.Children.Add(new SymbolArtLayer()
                     {
                         Color = SymbolArtColorHelper.RemoveCurve(color),
                         SymbolId = symbolId,
-                        Vertex1 = new System.Windows.Point(left, top),
-                        Vertex2 = new System.Windows.Point(left, bottom),
-                        Vertex3 = new System.Windows.Point(right, bottom),
-                        Vertex4 = new System.Windows.Point(right, top),
+                        Vertex1 = vertices[0],
+                        Vertex2 = vertices[1],
+                        Vertex3 = vertices[2],
+                        Vertex4 = vertices[3],
                         Visible = true,
                         Name = $"{ps.X}/{ps.Y} {ps.Width}x{ps.Height}",
                         Alpha = ps.Color.A / 255.0
@@ -341,6 +439,8 @@ namespace OpenSAE.Core.BitmapConverter
                     //if (pss.Any(x => x.X == X && x.Y == Y && x.Width * x.Height >= options.SymbolSizeThreshold))
                     globalUsed[X, Y] = true;
                 }
+
+                processedPixels += pixelsInColor;
 
                 // area is transparent - we consider white that since that is more or less the background
                 // for SA's in-game
@@ -357,13 +457,8 @@ namespace OpenSAE.Core.BitmapConverter
             return rootGroup;
         }
 
-        private Symbol? FindBestOverlappingShape(PseudoPixel ps)
+        private (Symbol? symbol, int rotation) FindBestOverlappingShape(PseudoPixel ps)
         {
-            int actualWidth = (int)Math.Round(64 * (1 - options.SizeXOffset / 2));
-            int actualHeight = (int)Math.Round(64 * (1 - options.SizeYOffset / 2));
-
-            Symbol? bestSymbol = null;
-            int bestFit = int.MaxValue;
             double ratio = (double)originalImage.Height / image.Height;
 
             using var cut = originalImage.Clone();
@@ -372,21 +467,35 @@ namespace OpenSAE.Core.BitmapConverter
 
             cut.Mutate(x =>
             {
-                if (cropBounds.Width + cropBounds.X < cut.Width && cropBounds.Height + cropBounds.Y < cut.Height)
-                    x.Crop(cropBounds);
+                if (cropBounds.Width + cropBounds.X > cut.Width)
+                {
+                    cropBounds.Width = cut.Width - cropBounds.X - 1;
+                }
+                
+                if (cropBounds.Height + cropBounds.Y > cut.Height)
+                {
+                    cropBounds.Height = cut.Height - cropBounds.Y - 1;    
+                }
 
-                x.Resize(actualWidth, actualHeight, KnownResamplers.NearestNeighbor);
+                x.Crop(cropBounds).Resize(actualSymbolWidth, actualSymbolWidth, KnownResamplers.NearestNeighbor);
             });
 
             int targetCount = 0;
 
+            if (debug)
+            {
+                cut.SaveAsPng(Path.Combine(_debugDirectory, $"{ps.X},{ps.Y}.png"));
+            }
+
+            List<(Symbol symbol, int rotation, int fit)> scores = new();
+
             cut.ProcessPixelRows(rows =>
             {
-                for (int y = 0; y < actualHeight; y++)
+                for (int y = 0; y < actualSymbolWidth; y++)
                 {
                     var span = rows.GetRowSpan(y);
 
-                    for (int x = 0; x < actualWidth; x++)
+                    for (int x = 0; x < actualSymbolWidth; x++)
                     {
                         if (CloseEnough(span[x], ps.Color))
                         {
@@ -395,45 +504,72 @@ namespace OpenSAE.Core.BitmapConverter
                     }
                 }
 
-                foreach (var symbol in usableSymbols)
+                for (int i = 0; i < usableSymbols.Length; i++)
                 {
-                    byte[] pixelValues = new byte[4 * actualWidth * actualHeight];
+                    Symbol symbol = usableSymbols[i];
 
-                    var rect = new Int32Rect((64 - actualWidth) / 2, (64 - actualHeight) / 2, actualWidth, actualHeight);
+                    bool[] pixelValues = symbolExtents[i];
 
-                    symbol.Image.CopyPixels(rect, pixelValues, 4 * actualWidth, 0);
-
-                    int match = 0;
-
-                    for (int y = 0; y < actualHeight; y++)
+                    for (int rotation = 0; rotation < 4; rotation++)
                     {
-                        var span = rows.GetRowSpan(y);
+                        int match = 0;
 
-                        for (int x = 0; x < actualWidth; x++)
+                        if (symbol.Flags.HasFlag(SymbolFlag.Symmetric) && rotation > 0)
+                            continue;
+
+                        for (int y = 0; y < actualSymbolWidth; y++)
                         {
-                            if (CloseEnough(span[x], ps.Color))
-                            {
-                                int index = (y * actualWidth + x) * 4;
+                            var span = rows.GetRowSpan(y);
 
-                                if (pixelValues[index + 3] > 10)
+                            for (int x = 0; x < actualSymbolWidth; x++)
+                            {
+                                if (CloseEnough(span[x], ps.Color))
                                 {
-                                    match++;
+                                    int xi = x, yi = y;
+
+                                    switch (rotation)
+                                    {
+                                        case 1:
+                                            yi = actualSymbolWidth - x - 1;
+                                            xi = y;
+                                            break;
+
+                                        case 2:
+                                            xi = actualSymbolWidth - x - 1;
+                                            yi = actualSymbolWidth - y - 1;
+                                            break;
+
+                                        case 3:
+                                            xi = actualSymbolWidth - y - 1;
+                                            yi = x;
+                                            break;
+                                    }
+
+                                    int index = (yi * actualSymbolWidth + xi);
+
+                                    if (pixelValues[index])
+                                    {
+                                        match++;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    int fit = Math.Abs(match - targetCount);
+                        int fit = Math.Abs(match - targetCount);
 
-                    if (fit < bestFit)
-                    {
-                        bestFit = fit;
-                        bestSymbol = symbol;
+                        scores.Add((symbol, rotation, fit));
                     }
                 }
             });
 
-            return bestSymbol;
+            if (debug)
+            {
+                var debugScores = scores.OrderBy(x => x.fit).Select(x => new { symbol = x.symbol.Name, fit = x.fit, rotation = x.rotation }).ToArray();
+
+                File.WriteAllText(Path.Combine(_debugDirectory, $"{ps.X},{ps.Y}.json"), JsonSerializer.Serialize(debugScores));
+            }
+
+            return scores.OrderBy(x => x.fit).Select(x => (x.symbol, x.rotation)).First();
         }
 
         private static bool CloseEnough(Rgba32 color1, Rgba32 color2)
