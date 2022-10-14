@@ -7,6 +7,9 @@
         d:DataContext="{d:DesignInstance Type=models:BitmapConverterModel}"
         mc:Ignorable="d"
         x:Name="bitmapConverterWindow"
+        DragOver="OnDragOver"
+        Drop="OnDrop"
+        AllowDrop="True"
         Title="Bitmap -> symbol art converter" Height="650" Width="1000" ResizeMode="CanResizeWithGrip">
     <Window.Resources>
         <Style TargetType="GroupBox">

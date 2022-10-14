@@ -1,4 +1,5 @@
 ﻿using OpenSAE.Core;
+using OpenSAE.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +21,43 @@ namespace OpenSAE
     /// </summary>
     public partial class BitmapConverterWindow : Window
     {
+        private readonly BitmapConverterModel _model;
+
         public BitmapConverterWindow(Action<SymbolArtGroup> acceptAction)
         {
             InitializeComponent();
 
-            DataContext = new Models.BitmapConverterModel(new Services.DialogService(this), acceptAction);
+            _model = new BitmapConverterModel(new Services.DialogService(this), acceptAction);
+
+            DataContext = _model;
+        }
+
+        private void OnDragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data is IDataObject dataObject)
+            {
+                var files = (string[]?)dataObject.GetData(DataFormats.FileDrop);
+
+                if (files?.Length == 1)
+                {
+                    e.Effects |= DragDropEffects.Copy;
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void OnDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data is IDataObject dataObject)
+            {
+                var files = (string[]?)dataObject.GetData(DataFormats.FileDrop);
+
+                if (files?.Length == 1)
+                {
+                    _model.BitmapFilename = files[0];
+                    e.Handled = true;
+                }
+            }
         }
     }
 }
