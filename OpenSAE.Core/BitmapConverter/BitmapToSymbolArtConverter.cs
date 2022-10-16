@@ -102,22 +102,27 @@ namespace OpenSAE.Core.BitmapConverter
         {
             Dictionary<Rgba32, PixelColor> colors = new();
 
-            for (int x = 0; x < image.Width; x++)
+            image.ProcessPixelRows(rows =>
             {
                 for (int y = 0; y < image.Height; y++)
                 {
-                    var color = image[x, y];
+                    var row = rows.GetRowSpan(y);
 
-                    if (colors.TryGetValue(color, out PixelColor? pixel))
+                    for (int x = 0; x < image.Width; x++)
                     {
-                        pixel.Pixels.Add((x, y));
-                    }
-                    else
-                    {
-                        colors.Add(color, new PixelColor(color, x, y));
+                        var color = row[x];
+
+                        if (colors.TryGetValue(color, out PixelColor? pixel))
+                        {
+                            pixel.Pixels.Add((x, y));
+                        }
+                        else
+                        {
+                            colors.Add(color, new PixelColor(color, x, y));
+                        }
                     }
                 }
-            }
+            });
 
             return colors.Values;
         }
@@ -311,10 +316,10 @@ namespace OpenSAE.Core.BitmapConverter
                     current.Height += extend.y;
 
                     for (int cx = current.X; cx < current.X + current.Width; cx++)
-                    for (int cy = current.Y; cy < current.Y + current.Height; cy++)
-                    {
-                        available[cx, cy] = false;
-                    }
+                        for (int cy = current.Y; cy < current.Y + current.Height; cy++)
+                        {
+                            available[cx, cy] = false;
+                        }
                 }
 
                 if (colorCount == 0)
@@ -471,10 +476,10 @@ namespace OpenSAE.Core.BitmapConverter
                 {
                     cropBounds.Width = cut.Width - cropBounds.X - 1;
                 }
-                
+
                 if (cropBounds.Height + cropBounds.Y > cut.Height)
                 {
-                    cropBounds.Height = cut.Height - cropBounds.Y - 1;    
+                    cropBounds.Height = cut.Height - cropBounds.Y - 1;
                 }
 
                 x.Crop(cropBounds).Resize(actualSymbolWidth, actualSymbolWidth, KnownResamplers.NearestNeighbor);
