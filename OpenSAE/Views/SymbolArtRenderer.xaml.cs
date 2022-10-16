@@ -734,18 +734,20 @@ namespace OpenSAE.Views
                 }
             }
 
-            group.PropertyChanged += (_, args) =>
-            {
-                if (args.PropertyName == nameof(SymbolArtItemModel.Visible))
-                {
-                    RecursiveRefreshVisibility(group);
-                }
-            };
-
             if (!_isStatic)
             {
                 group.Children.CollectionChanged -= Children_CollectionChanged;
                 group.Children.CollectionChanged += Children_CollectionChanged;
+                group.PropertyChanged -= GroupPropertyChanged;
+                group.PropertyChanged += GroupPropertyChanged;
+            }
+        }
+
+        private void GroupPropertyChanged(object? sender, PropertyChangedEventArgs args)
+        {
+            if (args.PropertyName == nameof(SymbolArtItemModel.Visible) && sender is SymbolArtItemModel group)
+            {
+                RecursiveRefreshVisibility(group);
             }
         }
 
