@@ -222,6 +222,7 @@ namespace OpenSAE.Models
                             RefreshSymbolAmount();
                             ErrorMessage = null;
                             IsLoading = false;
+                            AcceptCommand.NotifyCanExecuteChanged();
                         });
                     }
                     catch (OperationCanceledException)
@@ -234,8 +235,6 @@ namespace OpenSAE.Models
                     }
                 });
             }
-
-            AcceptCommand.NotifyCanExecuteChanged();
         }
     }
 }
