@@ -684,6 +684,9 @@ namespace OpenSAE.Views
             Cursor = null;
         }
 
+        /// <summary>
+        /// Clears and redraws all symbols
+        /// </summary>
         private void Redraw()
         {
             symbolArtContentGroup.Children.Clear();
@@ -694,6 +697,27 @@ namespace OpenSAE.Views
             {
                 DrawSymbolArtGroup(SymbolArt);
             }
+        }
+
+        /// <summary>
+        /// Refreshes the order of all symbols, but does not recreate their objects
+        /// </summary>
+        private void RefreshOrder()
+        {
+            var list = new Model3DCollection
+            {
+                new AmbientLight(Colors.White)
+            };
+
+            if (SymbolArt != null)
+            {
+                foreach (var layer in SymbolArt.GetAllLayers().Reverse())
+                {
+                    list.Add(_layerDictionary[layer].Model);
+                }
+            }
+
+            symbolArtContentGroup.Children = list;
         }
 
         private void DrawSymbolArtGroup(SymbolArtItemModel group)
@@ -727,6 +751,8 @@ namespace OpenSAE.Views
 
         private void Children_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            bool reorderNeeded = false;
+
             switch (e.Action)
             {
                 case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
@@ -743,11 +769,34 @@ namespace OpenSAE.Views
                     }
                     break;
 
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                    foreach (SymbolArtItemModel addedItem in e.NewItems!)
+                    {
+                        if (addedItem is SymbolArtGroupModel group)
+                        {
+                            DrawSymbolArtGroup(group);
+                        }
+                        else
+                        {
+                            Draw3d(addedItem);
+                        }
+                    }
+                    reorderNeeded = true;
+                    break;
+
+                case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                    reorderNeeded = true;
+                    break;
+
                 default:
-                    // lets just redraw everything - traversing the entire tree to 
-                    // figure out the order the elements should be in can wait
+                    // for any other operation lets redraw everything
                     Redraw();
                     break;
+            }
+
+            if (reorderNeeded)
+            {
+                RefreshOrder();
             }
         }
 
