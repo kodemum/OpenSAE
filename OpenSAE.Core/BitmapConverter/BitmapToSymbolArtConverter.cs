@@ -86,7 +86,7 @@ namespace OpenSAE.Core.BitmapConverter
                 .Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null }))
                 );
 
-            image.Mutate(x => x.Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null })));
+            originalImage.Mutate(x => x.Quantize(new OctreeQuantizer(new QuantizerOptions() { MaxColors = options.MaxColors, Dither = null })));
 
             pixelSize = 96.0 / image.Height;
 
