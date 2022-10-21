@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OpenSAE.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"\\\\asgard\\c\\Users\\Magnus\\Documents\\SEGA\\PHANTASYSTARONLINE2_NA_STEAM\\symbolarts\\cache\\saa45dba91e1450ec94ea4b097c51a9199.sar\" -o \"C:\\users\\mum\\desktop\\output.png\" --info-json \"C:\\users\\mum\\desktop\\output.json\""
+    }
+  }
+}
