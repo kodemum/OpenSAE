@@ -21,10 +21,9 @@ namespace OpenSAE.Models
         private SymbolArtSoundEffect _soundEffect;
         private SymbolArtFileFormat _fileFormat;
 
-        public SymbolArtModel(IUndoModel undoModel, string filename)
+        public SymbolArtModel(IUndoModel undoModel, SymbolArt sa)
             : base(undoModel)
         {
-            var sa = SymbolArt.LoadFromFile(filename);
             _name = sa.Name;
             _visible = sa.Visible;
             _height = sa.Height;
@@ -33,11 +32,15 @@ namespace OpenSAE.Models
             _fileFormat = sa.FileFormat;
             _authorId = sa.AuthorId;
 
-            FileName = filename;
-
             AddChildren(sa.Children);
 
             ChildrenChanged += SymbolArtModel_ChildrenChanged;
+        }
+
+        public SymbolArtModel(IUndoModel undoModel, string filename)
+            : this(undoModel, SymbolArt.LoadFromFile(filename))
+        {
+            FileName = filename;
         }
 
         private void SymbolArtModel_ChildrenChanged(object? sender, EventArgs e)
@@ -45,7 +48,7 @@ namespace OpenSAE.Models
             OnPropertyChanged(nameof(LayerCount));
         }
 
-        public SymbolArtModel(UndoModel undoModel)
+        public SymbolArtModel(IUndoModel undoModel)
             : base(undoModel)
         {
             _name = "NewSymbolArt";

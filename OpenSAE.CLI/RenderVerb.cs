@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OpenSAE.CLI
 {
-    [Verb("render", false, HelpText = "Renders a specified symbol art to a bitmap file")]
+    [Verb("render", true, HelpText = "Renders a specified symbol art to a bitmap file")]
     public class RenderVerb
     {
         [Option('i', "input", HelpText = "Path to symbol art file to convert", Required = true)]
@@ -18,5 +18,8 @@ namespace OpenSAE.CLI
 
         [Option("scale", Default = 100, HelpText = "Scale at which to render the symbol art, in percent")]
         public int RenderScale { get; set; }
+
+        [Option("info-json", HelpText = "Save symbol art information to specified file as JSON")]
+        public string? InfoJsonPath { get; set; }
     }
 }

@@ -9,7 +9,7 @@
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource titleText}">
-                OpenSAE Symbol Art Editor help (v1.8)
+                OpenSAE Symbol Art Editor help (v1.9)
             </TextBlock>
         </StackPanel>
         <TextBlock VerticalAlignment="Center" Margin="5 0">
@@ -198,6 +198,25 @@
         <TextBlock TextWrapping="Wrap">
             You can use the Import, Backup and Delete buttons in the backup manager to backup symbol arts from the various locations, delete them, or
             copy them to the import folder to be used in the game.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+            Bitmap to symbol art converter
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+            The bitmap to symbol art converter attempts to automatically generate symbol art from bitmap image files. (PNG, JPG, etc.) <LineBreak />
+            Open the converter by clicking Bitmap image -> symbol art converter... in the menu.<LineBreak />
+            In the window that appears, drag a bitmap image or use the Open File button.
+            <LineBreak /><LineBreak />
+            Most bitmaps do not readily convert to symbol arts due to the low maximum limit on the number of symbols (225). The converter will by default
+            not limit the number of symbols generated, but you can force it to do this by checking the <Run FontWeight="Bold">Restrict symbol count</Run>
+            checkbox. Modifying the <Run FontWeight="Bold">Max colors</Run>, <Run FontWeight="Bold">Resolution</Run> and <Run FontWeight="Bold">Minimum size</Run>
+            options all greatly affect the output symbol art and the number of generated symbols.
+            <LineBreak /><LineBreak />
+            The <Run FontWeight="Bold">Auto-choose</Run> symbol option attempts to change the symbols used in order to better fit the image. This option is slow, however
+            and does not always lead to a better result.
+            <LineBreak /><LineBreak />
+            When satisfied with the result, click the <Run FontWeight="Bold">Accept</Run> button to open it in the main editor.
         </TextBlock>
     </StackPanel>
 </UserControl>

@@ -25,7 +25,7 @@ namespace OpenSAE.Models
         private const string OpenFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
         private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
-        private const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
+        internal const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
         private const string ClipboardItemFormat = "OpenSAE.Item";
         private const double DefaultSymbolUnitWidth = 240;
         public const double MinimumSymbolUnitWidth = 24;
@@ -938,6 +938,17 @@ namespace OpenSAE.Models
             if (CurrentSymbolArt == null)
                 return false;
 
+            int layerCount = CurrentSymbolArt.GetAllLayers().Where(x => x.IsVisible).Count();
+
+            if (layerCount > 225)
+            {
+                if (!_dialogService.ShowConfirmation("Too many layers in symbol art", $"The current symbol art has more layers ({layerCount}) than PSO2 will accept (225). " +
+                    $"You can still save the file as SAR, but you will not be able to import it to the game. Continue anyway?"))
+                {
+                    return false;
+                }
+            }
+
             string? filename = _dialogService.BrowseSaveFile("Export symbol art", ExportFormatFilter, Path.ChangeExtension(CurrentSymbolArt.FileName, ".sar"));
 
             if (filename == null)
@@ -983,6 +994,34 @@ namespace OpenSAE.Models
             }
 
             return false;
+        }
+
+        public void OpenConvertedGroup(SymbolArtGroup group)
+        {
+            if (CurrentSymbolArt == null)
+            {
+                CurrentSymbolArt = new SymbolArtModel(Undo);
+                SelectedItem = CurrentSymbolArt;
+            }
+            else
+            {
+                var response = _dialogService.ShowYesNoCancel("Confirm conversion", "Do you wish to add the converted bitmap to the current symbol art [Yes] or create a new one [No]?");
+                if (response == null)
+                {
+                    return;
+                }
+
+                if (response == false)
+                {
+                    if (!ConfirmCloseOpenFile())
+                        return;
+
+                    CurrentSymbolArt = new SymbolArtModel(Undo);
+                    SelectedItem = CurrentSymbolArt;
+                }
+            }
+
+            CurrentSymbolArt.Children.Insert(0, new SymbolArtGroupModel(Undo, group, CurrentSymbolArt));
         }
 
         private void AddRecentFile(string filename)
