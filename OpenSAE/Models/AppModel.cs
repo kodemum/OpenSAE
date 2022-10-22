@@ -1048,10 +1048,17 @@ namespace OpenSAE.Models
             double boundryY = CurrentSymbolArt.Height / 2;
             double boundryX = CurrentSymbolArt.Width / 2;
 
+            Point[] extent = new Point[]
+            {
+                new(-boundryX, -boundryY),
+                new(-boundryX, boundryY),
+                new(boundryX, boundryY),
+                new(boundryX, -boundryY)
+            };
+
             var targetLayers = CurrentSymbolArt
                 .GetAllLayers()
-                .Where(layer => layer.Vertices.All(x => x.Y < -boundryY) || layer.Vertices.All(x => x.Y > boundryY) ||
-                                layer.Vertices.All(x => x.X < -boundryX) || layer.Vertices.All(x => x.X > boundryX))
+                .Where(layer => !layer.Vertices.Any(vertex => extent.IsPointInside(vertex)) && !extent.IntersectsWith(layer.Vertices))
                 .ToList();
 
             if (targetLayers.Count > 0)

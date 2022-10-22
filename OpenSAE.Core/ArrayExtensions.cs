@@ -24,6 +24,19 @@ namespace OpenSAE.Core
             return new Point(points.GetCenterX(), points.GetCenterY());
         }
 
+        /// <summary>
+        /// Gets the next item from the specified index in the array, unless it is the last item
+        /// in which case the first item of the array is returned.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If array is empty</exception>
+        public static T NextOrWrap<T>(this T[] array, int index)
+        {
+            if (array.Length == 0)
+                throw new InvalidOperationException("Array cannot be empty");
+
+            return index < array.Length - 1 ? array[index + 1] : array[0];
+        }
+
         public static int GetMinIndexBy(this Point[] array, bool byX)
         {
             int minIndex = 0;
