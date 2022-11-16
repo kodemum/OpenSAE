@@ -132,6 +132,7 @@ namespace OpenSAE.Models
 
         public List<SymbolArtSoundEffectOptionModel> SoundEffectOptions => new()
         {
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Unspecified, ""),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.None, "None"),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Default, "Default"),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Joy, "Joy"),
@@ -143,8 +144,7 @@ namespace OpenSAE.Models
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Help, "Help"),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Whistle, "Whistle"),
             new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Embarrassed, "Embarrassed"),
-            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.NailedIt, "Nailed it!"),
-            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.Texture, "Texture [JP only?]")
+            new SymbolArtSoundEffectOptionModel(SymbolArtSoundEffect.NailedIt, "Nailed it!")
         };
 
         public List<SymbolArtModel> RootItems => new() { this };

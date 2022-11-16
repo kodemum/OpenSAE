@@ -4,18 +4,18 @@ namespace OpenSAE.Core
 {
     public enum SymbolArtSoundEffect
     {
-        None = 0,
-        Default = 1,
-        Joy = 2,
-        Anger = 3,
-        Sorrow = 4,
-        Unease = 5,
-        Surprise = 6,
-        Doubt = 7,
-        Help = 8,
-        Whistle = 9,
-        Embarrassed = 10,
-        NailedIt = 11,
-        Texture = 12,
+        Unspecified = 0,
+        None = 1,
+        Default = 2,
+        Joy = 3,
+        Anger = 4,
+        Sorrow = 5,
+        Unease = 6,
+        Surprise = 7,
+        Doubt = 8,
+        Help = 9,
+        Whistle = 10,
+        Embarrassed = 11,
+        NailedIt = 12,
     }
 }
