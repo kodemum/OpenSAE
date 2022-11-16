@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using OpenSAE.Core;
+using OpenSAE.Helpers;
 using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
@@ -92,9 +93,26 @@ namespace OpenSAE.Models
 
         private void CurrentSymbolArt_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SymbolArtModel.Name))
+            switch (e.PropertyName)
             {
-                OnPropertyChanged(nameof(AppTitle));
+                case nameof(SymbolArtModel.Name):
+                    OnPropertyChanged(nameof(AppTitle));
+                    break;
+
+                case nameof(SymbolArtModel.SoundEffect):
+                    if (CurrentSymbolArt != null)
+                    {
+                        try
+                        {
+                            SoundEffectHelper.PlaySoundEffectIfExists(CurrentSymbolArt.SoundEffect);
+                        }
+                        catch
+                        {
+                            // should this fail - say if the machine doesn't have audio support,
+                            // it's really not that important
+                        }
+                    }
+                    break;
             }
         }
 

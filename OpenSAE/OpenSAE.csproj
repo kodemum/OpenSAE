@@ -5,13 +5,24 @@
 		<Nullable>enable</Nullable>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>OpenSAE.ico</ApplicationIcon>
-		<Version>1.9</Version>
+		<Version>1.9.1</Version>
 		<ProductName>OpenSAE Symbol Art Editor</ProductName>
 		<PublisherName>Magus Magnus</PublisherName>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Remove="assets\Anger.mp3" />
+		<None Remove="assets\Default.mp3" />
+		<None Remove="assets\Doubt.mp3" />
+		<None Remove="assets\Embarrassed.mp3" />
 		<None Remove="assets\example-background.png" />
+		<None Remove="assets\Help.mp3" />
+		<None Remove="assets\Joy.mp3" />
+		<None Remove="assets\NailedIt.mp3" />
+		<None Remove="assets\Sorrow.mp3" />
+		<None Remove="assets\Surprise.mp3" />
+		<None Remove="assets\Unease.mp3" />
+		<None Remove="assets\Whistle.mp3" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -19,7 +30,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Resource Include="assets\Anger.mp3" />
+		<Resource Include="assets\Unease.mp3" />
+		<Resource Include="assets\NailedIt.mp3" />
 		<Resource Include="assets\example-background.png" />
+		<Resource Include="assets\Default.mp3" />
+		<Resource Include="assets\Help.mp3" />
+		<Resource Include="assets\Joy.mp3" />
+		<Resource Include="assets\Doubt.mp3" />
+		<Resource Include="assets\Embarrassed.mp3" />
+		<Resource Include="assets\Sorrow.mp3" />
+		<Resource Include="assets\Surprise.mp3" />
+		<Resource Include="assets\Whistle.mp3" />
 	</ItemGroup>
 
 	<ItemGroup>
