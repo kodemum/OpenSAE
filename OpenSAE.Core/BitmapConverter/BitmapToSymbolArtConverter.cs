@@ -312,14 +312,16 @@ namespace OpenSAE.Core.BitmapConverter
                     var extendY = FindLargestExtent(image, x, y, false, isAvailable, (x, y) => image[x, y] == colorItem.Color);
                     var extend = (extendX.y * extendX.x > extendY.y * extendY.x) ? extendX : extendY;
 
-                    current.Width += extend.x;
-                    current.Height += extend.y;
+                    current.Width = extend.x;
+                    current.Height = extend.y;
 
                     for (int cx = current.X; cx < current.X + current.Width; cx++)
+                    {
                         for (int cy = current.Y; cy < current.Y + current.Height; cy++)
                         {
                             available[cx, cy] = false;
                         }
+                    }
                 }
 
                 if (colorCount == 0)
@@ -583,6 +585,51 @@ namespace OpenSAE.Core.BitmapConverter
                 < 8;
         }
 
+        private static (int x, int y) FindLargestExtentSquare(Image<Rgba32> image, int sourceX, int sourceY, Func<int, int, bool> isAvailable, Func<int, int, bool> isColor)
+        {
+            int expandBy = 0;
+            int lastColorX = -1, lastColorY = -1;
+
+            for (int x = sourceX; x < image.Width - 1; x++)
+            {
+                bool canExpand = true;
+
+                if (!isAvailable(x + 1, sourceY))
+                {
+                    break;
+                }
+
+                if (expandBy + sourceY >= image.Height)
+                    break;
+                
+                for (int y = sourceY; y <= Math.Min(image.Height - 2, expandBy + sourceY); y++)
+                {
+                    if (!isAvailable(x + 1, y))
+                    {
+                        canExpand = false;
+                        break;
+                    }
+
+                    if (isColor(x + 1, y))
+                    {
+                        lastColorX = x + 1;
+                        lastColorY = y;
+                    }
+                }
+
+                if (canExpand)
+                {
+                    expandBy++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return (expandBy, expandBy);
+        }
+
         private static (int x, int y) FindLargestExtent(Image<Rgba32> image, int sourceX, int sourceY, bool xFirst, Func<int, int, bool> isAvailable, Func<int, int, bool> isColor)
         {
             int expandByX = 0, expandByY = 0;
@@ -631,11 +678,11 @@ namespace OpenSAE.Core.BitmapConverter
 
                 if (lastColorX > -1)
                 {
-                    return (lastColorX - sourceX, lastColorY - sourceY);
+                    return (lastColorX - sourceX + 1, lastColorY - sourceY + 1);
                 }
                 else
                 {
-                    return (0, 0);
+                    return (1, 1);
                 }
             }
             else
@@ -645,6 +692,12 @@ namespace OpenSAE.Core.BitmapConverter
                     if (!isAvailable(sourceX, y + 1))
                     {
                         break;
+                    }
+
+                    if (isColor(sourceX, y + 1))
+                    {
+                        lastColorX = sourceX;
+                        lastColorY = y + 1;
                     }
 
                     expandByY++;
@@ -659,6 +712,11 @@ namespace OpenSAE.Core.BitmapConverter
                             atEnd = true;
                             break;
                         }
+                        else if (isColor(x + 1, y))
+                        {
+                            lastColorX = x + 1;
+                            lastColorY = y;
+                        }
                     }
 
                     if (atEnd)
@@ -666,9 +724,18 @@ namespace OpenSAE.Core.BitmapConverter
                     else
                         expandByX++;
                 }
+
+                if (lastColorY > -1)
+                {
+                    return (lastColorX - sourceX + 1, lastColorY - sourceY + 1);
+                }
+                else
+                {
+                    return (1, 1);
+                }
             }
 
-            return (expandByX, expandByY);
+            return (expandByX + 1, expandByY + 1);
         }
 
         public void Dispose()
