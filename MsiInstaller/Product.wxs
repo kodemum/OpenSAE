@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-	<Product Id="*" Name="OpenSAE Symbol Art Editor" Language="1033" Version="1.9.1" Manufacturer="Magus Magnus" UpgradeCode="D350A939-1E98-4051-90AB-7F763D96731F">
+	<Product Id="*" Name="OpenSAE Symbol Art Editor" Language="1033" Version="1.9.2" Manufacturer="Magus Magnus" UpgradeCode="D350A939-1E98-4051-90AB-7F763D96731F">
 		<Package InstallerVersion="500" Compressed="yes" />
 		
 		<Property Id="MSIINSTALLPERUSER" Secure="yes" Value="1"/>
