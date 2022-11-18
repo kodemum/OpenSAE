@@ -711,9 +711,12 @@ namespace OpenSAE.Views
 
             if (SymbolArt != null)
             {
-                foreach (var layer in SymbolArt.GetAllLayers().Reverse())
+                foreach (var layer in SymbolArt.GetAllItems().Reverse())
                 {
-                    list.Add(_layerDictionary[layer].Model);
+                    if (layer is SymbolArtLayerModel || layer is SymbolArtImageLayerModel)
+                    {
+                        list.Add(_layerDictionary[layer].Model);
+                    }
                 }
             }
 
