@@ -434,7 +434,9 @@ namespace OpenSAE.Models
                 return;
             }
 
-            AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, System.IO.Path.GetFileNameWithoutExtension(filename), imageBuffer, group));
+            AddItemToCurrentSymbolArt((group) => new SymbolArtImageLayerModel(Undo, $"{Path.GetFileNameWithoutExtension(filename)} (overlay)", imageBuffer, group));
+
+            ShowImageOverlays = true;
         }
 
         private void Zoom_Implementation(string? obj)
