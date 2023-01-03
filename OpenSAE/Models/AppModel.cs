@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -233,6 +234,12 @@ namespace OpenSAE.Models
         {
             get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.NaturalSymbolSelection);
             set => SetDisplayFlag(DisplaySettingFlags.NaturalSymbolSelection, value);
+        }
+
+        public bool DarkBackgroundEnabled
+        {
+            get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.DarkBackground);
+            set => SetDisplayFlag(DisplaySettingFlags.DarkBackground, value);
         }
 
         public DisplaySettingFlags DisplaySettingFlags
@@ -1145,7 +1152,7 @@ namespace OpenSAE.Models
             ProcessGroup(CurrentSymbolArt);
         }
 
-        private void SetDisplayFlag(DisplaySettingFlags flag, bool set)
+        private void SetDisplayFlag(DisplaySettingFlags flag, bool set, [CallerMemberName] string? propertyName = null)
         {
             if (set)
             {
@@ -1155,6 +1162,8 @@ namespace OpenSAE.Models
             {
                 DisplaySettingFlags &= ~flag;
             }
+
+            OnPropertyChanged(propertyName);
         }
     }
 }

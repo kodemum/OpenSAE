@@ -233,6 +233,7 @@
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
                 <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
                 <MenuItem Header="Use _natural symbol selection" IsCheckable="True" IsChecked="{Binding NaturalSymbolSelectionEnabled}" />
+                <MenuItem Header="Use _dark background" IsCheckable="True" IsChecked="{Binding DarkBackgroundEnabled}" />
                 <Separator />
                 <MenuItem Header="_Testing">
                     <MenuItem Header="Disable _grid rounding" IsCheckable="True" IsChecked="{Binding ElementName=renderer, Path=DisableGridPositioning}" />
@@ -368,15 +369,7 @@
         <GridSplitter Grid.Row="1" Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
 
         <!-- Grid background for symbol art renderer -->
-        <Rectangle Grid.Row="1" Grid.Column="2">
-            <Rectangle.Fill>
-                <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
-                    <DrawingBrush.Drawing>
-                        <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#ddd"/>
-                    </DrawingBrush.Drawing>
-                </DrawingBrush>
-            </Rectangle.Fill>
-        </Rectangle>
+        <views:GridBackground Grid.Row="1" Grid.Column="2" />
 
         <!-- Splitter between layer tree and current item options panel -->
         <GridSplitter Grid.Row="1" Grid.Column="3" Width="5" HorizontalAlignment="Stretch" />

@@ -9,6 +9,7 @@ namespace OpenSAE.Models
     public enum DisplaySettingFlags
     {
         None = 0,
-        NaturalSymbolSelection = 1
+        NaturalSymbolSelection = 1,
+        DarkBackground = 2,
     }
 }
