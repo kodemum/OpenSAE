@@ -24,6 +24,19 @@ namespace OpenSAE.Models.FileBrowser
         private bool _showAll;
         private bool _showOnlyAllianceFlags;
         private bool _showOnlySymbolArts;
+        private string _search;
+
+        public string Search
+        {
+            get => _search;
+            set
+            {
+                if (SetProperty(ref _search, value))
+                {
+                    FilesView.Refresh();
+                }
+            }
+        }
 
         public bool ShowAll
         {
@@ -94,19 +107,18 @@ namespace OpenSAE.Models.FileBrowser
         {
             if (obj is FileModel fileModel)
             {
-                if (_showAll)
+                if (_showOnlyAllianceFlags && fileModel.SymbolArt?.Size != Core.SymbolArtSize.AllianceLogo)
                 {
-                    return true;
+                    return false;
                 }
 
-                if (fileModel.SymbolArt?.Size == Core.SymbolArtSize.AllianceLogo)
+                if (_showOnlySymbolArts && fileModel.SymbolArt?.Size == Core.SymbolArtSize.AllianceLogo)
                 {
-                    return _showOnlyAllianceFlags;
+                    return false;
                 }
-                else
-                {
-                    return _showOnlySymbolArts;
-                }
+
+                return string.IsNullOrEmpty(Search)
+                    || (fileModel.Name?.Contains(Search, StringComparison.CurrentCultureIgnoreCase) ?? true);
             }
             else
             {

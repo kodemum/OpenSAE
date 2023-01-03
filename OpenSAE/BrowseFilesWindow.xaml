@@ -31,17 +31,21 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <TextBlock VerticalAlignment="Center">Current directory</TextBlock>
             <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding RootPath}" Margin="5 0" />
             <Button Grid.Column="2" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Browse...</Button>
 
-            <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="5 5 0 0">
+            <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="5">
                 <RadioButton Content="Show all" IsChecked="{Binding ShowAll}" />
                 <RadioButton Content="Only show alliance flags" Margin="5 0" IsChecked="{Binding ShowOnlyAllianceFlags}" />
                 <RadioButton Content="Only show symbol arts" IsChecked="{Binding ShowOnlySymbolArts}" />
             </StackPanel>
+
+            <TextBlock Grid.Row="2" VerticalAlignment="Center">Search</TextBlock>
+            <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Margin="5 0" />
         </Grid>
 
         <views:SymbolArtBrowser Grid.Row="1" />
