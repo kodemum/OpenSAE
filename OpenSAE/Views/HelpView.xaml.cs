@@ -20,6 +20,8 @@ namespace OpenSAE.Views
     /// </summary>
     public partial class HelpView : UserControl
     {
+        public string? VersionNumber => System.Reflection.Assembly.GetExecutingAssembly().GetName()?.Version?.ToString(3);
+
         public HelpView()
         {
             InitializeComponent();

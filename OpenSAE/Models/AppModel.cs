@@ -415,7 +415,7 @@ namespace OpenSAE.Models
 
             try
             {
-                imageBuffer = System.IO.File.ReadAllBytes(filename);
+                imageBuffer = File.ReadAllBytes(filename);
             }
             catch (Exception ex)
             {

@@ -5,11 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:OpenSAE.Views"
              mc:Ignorable="d" 
+             x:Name="helpView"
              d:DesignHeight="1500" d:DesignWidth="800">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource titleText}">
-                OpenSAE Symbol Art Editor help (v1.9.2)
+                OpenSAE Symbol Art Editor help (v<Run Text="{Binding VersionNumber, ElementName=helpView, Mode=OneWay}" />)
             </TextBlock>
         </StackPanel>
         <TextBlock VerticalAlignment="Center" Margin="5 0">
