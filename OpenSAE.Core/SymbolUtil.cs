@@ -309,8 +309,17 @@
                 new Symbol(579, "Burst pattern 1", SymbolGroup.Patterns),
                 new Symbol(580, "Burst pattern 2", SymbolGroup.Patterns),
                 new Symbol(581, "Noise pattern", SymbolGroup.Patterns),
+                new Symbol(582, "Electric pattern", SymbolGroup.Patterns),
+                new Symbol(583, "Malstrom pattern", SymbolGroup.Patterns),
+                new Symbol(584, "Flower pattern", SymbolGroup.Patterns),
+                new Symbol(585, "Ball lightning pattern", SymbolGroup.Patterns),
 
                 // don't have these either
+                new Symbol(609, "Bang!", SymbolGroup.GameSymbols),
+                new Symbol(610, "ARKS", SymbolGroup.GameSymbols),
+                new Symbol(611, "ARKS star", SymbolGroup.GameSymbols),
+                new Symbol(612, "Rappy", SymbolGroup.GameSymbols),
+                new Symbol(613, "Lillipan", SymbolGroup.GameSymbols),
                 new Symbol(641, "Speech bubble 1", SymbolGroup.GameSymbols),
                 new Symbol(642, "Speech bubble 2", SymbolGroup.GameSymbols),
                 new Symbol(643, "Speech bubble outlined", SymbolGroup.GameSymbols),
