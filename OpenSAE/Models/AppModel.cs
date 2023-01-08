@@ -633,6 +633,14 @@ namespace OpenSAE.Models
                     GroupLayersBasedOnColor();
                     break;
 
+                case "restrictToAffine":
+                    RestrictTransformationsToAffine();
+                    break;
+
+                case "corruptNonAffine":
+                    CorruptNonAffine();
+                    break;
+
                 case "duplicate":
                     if (SelectedItem.Parent == null)
                         return;
@@ -654,6 +662,67 @@ namespace OpenSAE.Models
                         }
                     );
                     break;
+            }
+        }
+
+        private void RestrictTransformationsToAffine()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            using var scope = Undo.StartAggregateScope("Convert to affine");
+
+            foreach (var layer in CurrentSymbolArt.GetAllLayers())
+            {
+                var diff1 = layer.Vertex1 - layer.Vertex2;
+                var diff2 = layer.Vertex4 - layer.Vertex3;
+
+                if (diff1 != diff2)
+                {
+                    var avgDiff = (diff1 + diff2) / 2;
+
+                    var oldVertices = layer.Vertices;
+
+                    Undo.Do("Update vertices", () =>
+                    {
+                        layer.Vertex3 = oldVertices[3] - avgDiff;
+                        layer.Vertex1 = oldVertices[1] + avgDiff;
+                    }, () =>
+                    {
+                        layer.Vertices = oldVertices;
+                    });
+                }
+            }
+        }
+
+        private void CorruptNonAffine()
+        {
+            if (CurrentSymbolArt == null)
+                return;
+
+            using var scope = Undo.StartAggregateScope("Corrupt non-affine");
+
+            foreach (var layer in CurrentSymbolArt.GetAllLayers())
+            {
+                var diff1 = layer.Vertex1 - layer.Vertex2;
+                var diff2 = layer.Vertex4 - layer.Vertex3;
+
+                if (diff1 != diff2)
+                {
+                    var avgDiff = (diff1 + diff2) / 4;
+                    var oldVertices = layer.Vertices;
+
+                    Undo.Do("Update vertices", () =>
+                    {
+                        layer.Vertex4 = layer.Vertex3 + avgDiff;
+                        layer.Vertex3 -= avgDiff;
+                        layer.Vertex1 = layer.Vertex2 + avgDiff;
+                        layer.Vertex2 -= avgDiff;
+                    }, () =>
+                    {
+                        layer.Vertices = oldVertices;
+                    });
+                }
             }
         }
 
