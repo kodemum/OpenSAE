@@ -13,5 +13,6 @@ namespace OpenSAE.Models
         NaturalSymbolSelection = 1,
         DarkBackground = 2,
         RestrictToAffineManipulation = 4,
+        IngameRenderMode = 8,
     }
 }

@@ -448,4 +448,42 @@
             </GeometryDrawing.Geometry>
         </GeometryDrawing>
     </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingDeleteIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#cc0000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M21,4L8,4 1,12 8,20 21,20A2,2,0,0,0,23,18L23,6A2,2,0,0,0,21,4z" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#cc0000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="18,9" EndPoint="12,15" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#cc0000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="12,9" EndPoint="18,15" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
 </ResourceDictionary>

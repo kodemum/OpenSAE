@@ -248,6 +248,12 @@ namespace OpenSAE.Models
             set => SetDisplayFlag(DisplaySettingFlags.RestrictToAffineManipulation, value);
         }
 
+        public bool IngameRenderModeEnabled
+        {
+            get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.IngameRenderMode);
+            set => SetDisplayFlag(DisplaySettingFlags.IngameRenderMode, value);
+        }
+
         public DisplaySettingFlags DisplaySettingFlags
         {
             get => _displayFlags;
@@ -476,6 +482,10 @@ namespace OpenSAE.Models
 
                 case "guideLines":
                     GuideLinesEnabled = !GuideLinesEnabled;
+                    break;
+
+                case "ingameRenderMode":
+                    IngameRenderModeEnabled = !IngameRenderModeEnabled;
                     break;
             }
         }

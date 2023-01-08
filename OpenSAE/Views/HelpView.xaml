@@ -127,6 +127,13 @@
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" VerticalAlignment="Center" />
                 <TextBlock Margin="5 2">Delete the current symbol or group (Shift+Del)</TextBlock>
             </StackPanel>
+
+            <TextBlock Margin="0 10 0 0" TextWrapping="Wrap">
+                One important setting for the canvas is the <Bold>Render non-affine symbols as in-game</Bold>, which can be switched from the <Bold>View</Bold> menu or by pressing <Bold>F11</Bold>.
+                When this setting is enabled, the canvas will render the symbol art as it will appear in the symbol art dialogs in the game but <Bold>not as it appears in the in-game editor</Bold>.
+                <LineBreak />
+                The reason for this is that the in-game editor handles displaying symbols with non-affine transformations differently when symbol arts are otherwise displayed.
+            </TextBlock>
         </StackPanel>
 
         <TextBlock Style="{StaticResource subtitleText}">

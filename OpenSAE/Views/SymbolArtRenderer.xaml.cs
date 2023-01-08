@@ -95,7 +95,7 @@ namespace OpenSAE.Views
               name: "DisplaySettingFlags",
               propertyType: typeof(DisplaySettingFlags),
               ownerType: typeof(SymbolArtRenderer),
-              typeMetadata: new FrameworkPropertyMetadata(defaultValue: DisplaySettingFlags.NaturalSymbolSelection)
+              typeMetadata: new FrameworkPropertyMetadata(defaultValue: DisplaySettingFlags.NaturalSymbolSelection, PropertyChangedRedrawNecessary)
         );
 
         public static readonly DependencyProperty DisableGridPositioningProperty =
@@ -426,7 +426,7 @@ namespace OpenSAE.Views
                 return;
             }
 
-            if (CanvasEditMode != CanvasEditMode.Default)
+            if (CanvasEditMode != CanvasEditMode.Default && args.RightButton != MouseButtonState.Pressed)
             {
                 switch (CanvasEditMode)
                 {
@@ -722,7 +722,7 @@ namespace OpenSAE.Views
                 {
                     if (layer is SymbolArtLayerModel || layer is SymbolArtImageLayerModel)
                     {
-                        list.Add(_layerDictionary[layer].Model);
+                        _layerDictionary[layer].AddTo(list);
                     }
                 }
             }
@@ -774,7 +774,7 @@ namespace OpenSAE.Views
                         {
                             if (_layerDictionary.TryGetValue(item, out LayerModelReference? refs))
                             {
-                                symbolArtContentGroup.Children.Remove(refs.Model);
+                                refs.RemoveFrom(symbolArtContentGroup.Children);
                                 _layerDictionary.Remove(item);
                             }
                         }
@@ -849,7 +849,7 @@ namespace OpenSAE.Views
 
             var brush = new ImageBrush(GetLayerImage(layer))
             {
-                Opacity = layer.IsVisible ? layer.Alpha : 0
+                Opacity = layer.IsVisible ? layer.Alpha : 0,
             };
 
             var material = new DiffuseMaterial()
@@ -875,16 +875,61 @@ namespace OpenSAE.Views
                 }
             };
 
-            var model = new GeometryModel3D()
+            LayerModelReference reference;
+
+            if (DisplaySettingFlags.HasFlag(DisplaySettingFlags.IngameRenderMode))
             {
-                Geometry = geometry,
-                Material = material,
-                BackMaterial = material,
-            };
+                var positions1 = GetLayer3DPoints(layer);
+                var coordinates1 = new PointCollection(geometry.TextureCoordinates);
+                positions1.RemoveAt(1);
+                coordinates1.RemoveAt(1);
 
-            symbolArtContentGroup.Children.Add(model);
+                var model1 = new GeometryModel3D()
+                {
+                    Geometry = new MeshGeometry3D()
+                    {
+                        Positions = positions1,
+                        TextureCoordinates = coordinates1,
+                        TriangleIndices = geometry.TriangleIndices
+                    },
+                    Material = material,
+                    BackMaterial = material,
+                };
 
-            _layerDictionary.Add(layer, new LayerModelReference(model, material, brush, geometry));
+                var positions2 = GetLayer3DPoints(layer);
+                var coordinates2 = new PointCollection(geometry.TextureCoordinates);
+                positions2.RemoveAt(2);
+                coordinates2.RemoveAt(2);
+
+                var model2 = new GeometryModel3D()
+                {
+                    Geometry = new MeshGeometry3D()
+                    {
+                        Positions = positions2,
+                        TextureCoordinates = coordinates2,
+                        TriangleIndices = geometry.TriangleIndices
+                    },
+                    Material = material,
+                    BackMaterial = material,
+                };
+
+                reference = new LayerModelReference(model1, model2, material, brush);
+            }
+            else
+            {
+                var model = new GeometryModel3D()
+                {
+                    Geometry = geometry,
+                    Material = material,
+                    BackMaterial = material,
+                };
+
+                reference = new LayerModelReference(model, material, brush);
+            }
+
+            _layerDictionary.Add(layer, reference);
+
+            reference.AddTo(symbolArtContentGroup.Children);
 
             if (!_isStatic)
             {
@@ -947,7 +992,7 @@ namespace OpenSAE.Views
                 default:
                     if (e.PropertyName?.StartsWith("Vertex") == true || e.PropertyName == nameof(layer.RawVertices))
                     {
-                        refs.Geometry.Positions = GetLayer3DPoints(layer);
+                        refs.UpdateGeometry(GetLayer3DPoints(layer));
                     }
                     break;
             }
@@ -979,21 +1024,73 @@ namespace OpenSAE.Views
         /// </summary>
         private class LayerModelReference
         {
-            public LayerModelReference(GeometryModel3D model, DiffuseMaterial material, ImageBrush brush, MeshGeometry3D geometry)
+            public LayerModelReference(GeometryModel3D model, DiffuseMaterial material, ImageBrush brush)
             {
                 Model = model;
                 Material = material;
                 Brush = brush;
-                Geometry = geometry;
+                Geometry = model.Geometry as MeshGeometry3D ?? throw new InvalidOperationException("Only MeshGeometry3D supported");
             }
 
-            public GeometryModel3D Model { get; }
+            public LayerModelReference(GeometryModel3D model1, GeometryModel3D model2, DiffuseMaterial material, ImageBrush brush)
+            {
+                Model = model1;
+                Model2 = model2;
+                Material = material;
+                Brush = brush;
+                Geometry = model1.Geometry as MeshGeometry3D ?? throw new InvalidOperationException("Only MeshGeometry3D supported");
+                Geometry3D2 = model2.Geometry as MeshGeometry3D ?? throw new InvalidOperationException("Only MeshGeometry3D supported");
+            }
+
+            private GeometryModel3D Model { get; }
+
+            private GeometryModel3D? Model2 { get; }
 
             public DiffuseMaterial Material { get; }
 
             public ImageBrush Brush { get; }
 
-            public MeshGeometry3D Geometry { get; }
+            private MeshGeometry3D Geometry { get; }
+
+            private MeshGeometry3D? Geometry3D2 { get; }
+
+            public void UpdateGeometry(Point3DCollection point3DCollection)
+            {
+                if (Geometry3D2 == null)
+                {
+                    Geometry.Positions = point3DCollection;
+                }
+                else
+                {
+                    var positions1 = new Point3DCollection(point3DCollection);
+                    var positions2 = new Point3DCollection(point3DCollection);
+                    positions1.RemoveAt(1);
+                    positions2.RemoveAt(2);
+
+                    Geometry.Positions = positions1;
+                    Geometry3D2.Positions = positions2;
+                }
+            }
+
+            public void AddTo(Model3DCollection collection)
+            {
+                collection.Add(Model);
+
+                if (Model2 != null)
+                {
+                    collection.Add(Model2);
+                }
+            }
+
+            public void RemoveFrom(Model3DCollection collection)
+            {
+                collection.Remove(Model);
+
+                if (Model2 != null)
+                {
+                    collection.Remove(Model2);
+                }
+            }
         }
 
         private enum ManipulationOperation

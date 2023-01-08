@@ -128,6 +128,7 @@
 
         <KeyBinding Modifiers="Ctrl+Shift" Key="T" Command="{Binding ChangeSettingCommand}" CommandParameter="toneCurve" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="G" Command="{Binding ChangeSettingCommand}" CommandParameter="guideLines" />
+        <KeyBinding Key="F11" Command="{Binding ChangeSettingCommand}" CommandParameter="ingameRenderMode" />
 
         <KeyBinding Modifiers="Ctrl" Key="OemPlus" Command="{Binding ZoomCommand}" CommandParameter="in" />
         <KeyBinding Modifiers="Ctrl" Key="OemMinus" Command="{Binding ZoomCommand}" CommandParameter="out" />
@@ -232,8 +233,9 @@
                 <MenuItem Header="_Reset zoom" Command="{Binding ZoomCommand}" />
                 <Separator />
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
+                <MenuItem Header="Render non-affine symbols as _in-game" InputGestureText="F11" IsCheckable="True" IsChecked="{Binding IngameRenderModeEnabled}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
-                <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
+                <MenuItem Header="Show image _overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
                 <MenuItem Header="Restrict non-_affine transformations" IsCheckable="True" IsChecked="{Binding RestrictToAffineManipulation}" />
                 <MenuItem Header="Use _natural symbol selection" IsCheckable="True" IsChecked="{Binding NaturalSymbolSelectionEnabled}" />
                 <MenuItem Header="Use _dark background" IsCheckable="True" IsChecked="{Binding DarkBackgroundEnabled}" />
@@ -459,13 +461,13 @@
                         <Button Content="{StaticResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
                         <ToggleButton IsChecked="{Binding ColorPickerEnabled}" Content="{StaticResource drawingEyeDropperIcon}" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
+                        <Button Content="{StaticResource drawingIconUp}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
+                        <Button Content="{StaticResource drawingIconDown}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
                         <Separator />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource undoIcon}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource redoIcon}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
+                        <Button Content="{StaticResource drawingUndoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
+                        <Button Content="{StaticResource drawingRedoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
                         <Separator />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource deleteIcon}" Foreground="#cc0000" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                        <Button Content="{StaticResource drawingDeleteIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
 
