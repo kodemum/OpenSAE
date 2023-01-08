@@ -296,7 +296,7 @@ namespace OpenSAE.Models
             var u = (ptMouse - p0) * n0 / ((ptMouse - p0) * n0 + (ptMouse - p2) * n2);
             var v = (ptMouse - p0) * n1 / ((ptMouse - p0) * n1 + (ptMouse - p3) * n3);
 
-            if (Symbol == null || u < 0 || u > 1 || v < 0 || v > 1)
+            if (Symbol == null || double.IsNaN(u) || double.IsNaN(v) || u < 0 || u > 1 || v < 0 || v > 1)
                 return false;
 
             int targetPixelX = (int)Math.Round((Symbol.Image.PixelWidth - 1) * u);
