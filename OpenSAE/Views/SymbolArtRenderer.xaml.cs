@@ -630,7 +630,14 @@ namespace OpenSAE.Views
                     break;
 
                 case ManipulationOperation.DragVertex:
+                    var orgVertex = SelectedLayer.Vertices[draggingVertexIndex];
+                    int companionIndex = draggingVertexIndex == 3 ? 0 : draggingVertexIndex + 1;
+
                     SelectedLayer.SetVertex(draggingVertexIndex, ptMouse);
+                    if (DisplaySettingFlags.HasFlag(DisplaySettingFlags.RestrictToAffineManipulation))
+                    {
+                        SelectedLayer.SetVertex(companionIndex, SelectedLayer.Vertices[companionIndex] + (ptMouse - orgVertex));
+                    }
                     break;
 
                 case ManipulationOperation.Resize:

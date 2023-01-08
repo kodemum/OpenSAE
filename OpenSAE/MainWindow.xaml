@@ -234,6 +234,7 @@
                 <MenuItem Header="Use game _tone curve" InputGestureText="Ctrl+Shift+T" IsCheckable="True" IsChecked="{Binding ApplyToneCurve}" />
                 <MenuItem Header="Show _guide lines" InputGestureText="Ctrl+Shift+G" IsCheckable="True" IsChecked="{Binding GuideLinesEnabled}" />
                 <MenuItem Header="Show _image overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
+                <MenuItem Header="Restrict non-_affine transformations" IsCheckable="True" IsChecked="{Binding RestrictToAffineManipulation}" />
                 <MenuItem Header="Use _natural symbol selection" IsCheckable="True" IsChecked="{Binding NaturalSymbolSelectionEnabled}" />
                 <MenuItem Header="Use _dark background" IsCheckable="True" IsChecked="{Binding DarkBackgroundEnabled}" />
                 <Separator />

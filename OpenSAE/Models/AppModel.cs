@@ -242,6 +242,12 @@ namespace OpenSAE.Models
             set => SetDisplayFlag(DisplaySettingFlags.DarkBackground, value);
         }
 
+        public bool RestrictToAffineManipulation
+        {
+            get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.RestrictToAffineManipulation);
+            set => SetDisplayFlag(DisplaySettingFlags.RestrictToAffineManipulation, value);
+        }
+
         public DisplaySettingFlags DisplaySettingFlags
         {
             get => _displayFlags;
