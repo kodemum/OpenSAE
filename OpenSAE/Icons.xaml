@@ -30,4 +30,422 @@
     <clr:String x:Key="undoIcon">&#xE7A7;</clr:String>
     <clr:String x:Key="colorIcon">&#xE790;</clr:String>
     <clr:String x:Key="colorPickerIcon">&#xE1C4;</clr:String>
+
+    <Style TargetType="Rectangle" x:Key="drawingIconButton">
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Fill">
+            <Setter.Value>
+                <DrawingBrush Drawing="{Binding}" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Button" x:Key="toolbarIconButton">
+        <Setter Property="Opacity" Value="1" />
+        <Style.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.5" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <DataTemplate DataType="{x:Type DrawingGroup}">
+        <Rectangle Height="24" Width="24">
+            <Rectangle.Fill>
+                <DrawingBrush Drawing="{Binding}" />
+            </Rectangle.Fill>
+        </Rectangle>
+    </DataTemplate>
+
+    <DrawingGroup x:Key="drawingPlusIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="12,5" EndPoint="12,19" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="5,12" EndPoint="19,12" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+    
+    <DrawingGroup x:Key="drawingPlusFolderIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M22,19A2,2,0,0,1,20,21L4,21A2,2,0,0,1,2,19L2,5A2,2,0,0,1,4,3L9,3 11,6 20,6A2,2,0,0,1,22,8z" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="12,11" EndPoint="12,17" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="9,14" EndPoint="15,14" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingEyeIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M1,12C1,12 5,4 12,4 19,4 23,12 23,12 23,12 19,20 12,20 5,20 1,12 1,12z" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <EllipseGeometry RadiusX="3" RadiusY="3" Center="12,12" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingMirrorVerticalIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <DrawingGroup x:Name="g843" Transform="0,-1,-1,0,24,24">
+            <GeometryDrawing x:Name="path2">
+                <GeometryDrawing.Pen>
+                    <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <PathGeometry FillRule="Nonzero" Figures="M12,3L19,3A2,2,0,0,1,21,5L21,19A2,2,0,0,1,19,21L12,21 M12,3L5,3A2,2,0,0,0,3,5L3,19A2,2,0,0,0,5,21L12,21 M12,3L12,21" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+            <GeometryDrawing x:Name="rect839">
+                <GeometryDrawing.Brush>
+                    <SolidColorBrush Color="#FF000000" Opacity="0.767742" />
+                </GeometryDrawing.Brush>
+                <GeometryDrawing.Pen>
+                    <Pen Thickness="1.41603" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                        <Pen.Brush>
+                            <SolidColorBrush Color="#FF000000" Opacity="0.767742" />
+                        </Pen.Brush>
+                    </Pen>
+                </GeometryDrawing.Pen>
+                <GeometryDrawing.Geometry>
+                    <RectangleGeometry RadiusX="0" RadiusY="0" Rect="3.9313,3.9313,7.5254,16.4484" />
+                </GeometryDrawing.Geometry>
+            </GeometryDrawing>
+        </DrawingGroup>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingMirrorIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M12,3L19,3A2,2,0,0,1,21,5L21,19A2,2,0,0,1,19,21L12,21 M12,3L5,3A2,2,0,0,0,3,5L3,19A2,2,0,0,0,5,21L12,21 M12,3L12,21" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Brush>
+                <SolidColorBrush Color="#FF000000" Opacity="0.76774194" />
+            </GeometryDrawing.Brush>
+            <GeometryDrawing.Pen>
+                <Pen Thickness="1.41603" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                    <Pen.Brush>
+                        <SolidColorBrush Color="#FF000000" Opacity="0.76774194" />
+                    </Pen.Brush>
+                </Pen>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry RadiusX="0" RadiusY="0" Rect="3.9313,3.9313,7.5254,16.4484" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingRotateIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M23,4L23,4 23,10 17,10" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M20.49,15A9,9,0,1,1,18.37,5.64L23,10" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingCopyIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry RadiusX="2" RadiusY="2" Rect="9,9,13,13" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M5,15L4,15A2,2,0,0,1,2,13L2,4A2,2,0,0,1,4,2L13,2A2,2,0,0,1,15,4L15,5" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingEyeDropperIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing x:Name="path2">
+            <GeometryDrawing.Pen>
+                <Pen Brush="Blue" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M11.696931,8.1495119L4.8978116,17.125011A2.5,2.5,0,0,0,8.8833791,20.144158L15.682498,11.168659A4.5,4.5,0,1,0,11.696931,8.1495119z" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing x:Name="path837">
+            <GeometryDrawing.Brush>
+                <SolidColorBrush Color="Blue" Opacity="0.767742" />
+            </GeometryDrawing.Brush>
+            <GeometryDrawing.Pen>
+                <Pen Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round">
+                    <Pen.Brush>
+                        <SolidColorBrush Color="Blue" Opacity="0.767742" />
+                    </Pen.Brush>
+                </Pen>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <EllipseGeometry RadiusX="4.2857" RadiusY="4.5238" Center="16.0952,6.5714" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingIconUp">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="12,19" EndPoint="12,5" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M5,12L5,12 12,5 19,12" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingIconDown">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="12,5" EndPoint="12,19" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M19,12L19,12 12,19 5,12" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingUndoIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M9,14L9,14 4,9 9,4" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M20,20L20,13A4,4,0,0,0,16,9L4,9" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
+
+    <DrawingGroup x:Key="drawingRedoIcon">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0,0,24,24" />
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#00FFFFFF" Thickness="1" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <RectangleGeometry Rect="0,0,24,24" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M15,14L15,14 20,9 15,4" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="#FF000000" Thickness="1.5" StartLineCap="Round" EndLineCap="Round" LineJoin="Round" />
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry FillRule="Nonzero" Figures="M4,20L4,13A4,4,0,0,1,8,9L20,9" />
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
 </ResourceDictionary>

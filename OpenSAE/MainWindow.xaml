@@ -449,15 +449,15 @@
                 <!-- Upper icon toolbar -->
                 <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
                     <ToolBar Padding="2" FontSize="24">
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource addIcon}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource newFolderIcon}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
+                        <Button Content="{StaticResource drawingPlusIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
+                        <Button Content="{StaticResource drawingPlusFolderIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
                         <Separator />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource viewIcon}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipXIcon}" ToolTip="Horizontally flips the current symbol or group (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource flipYIcon}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource rotateIcon}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
-                        <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource copyIcon}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
-                        <ToggleButton IsChecked="{Binding ColorPickerEnabled}" FontFamily="Segoe MDL2 Assets" Content="{StaticResource colorIcon}" Foreground="Blue" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
+                        <Button Content="{StaticResource drawingEyeIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
+                        <Button Content="{StaticResource drawingMirrorIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Horizontally flips the current symbol or group (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
+                        <Button Content="{StaticResource drawingMirrorVerticalIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
+                        <Button Content="{StaticResource drawingRotateIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
+                        <Button Content="{StaticResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <ToggleButton IsChecked="{Binding ColorPickerEnabled}" Content="{StaticResource drawingEyeDropperIcon}" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource upIcon}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
                         <Button FontFamily="Segoe MDL2 Assets" Content="{StaticResource downIcon}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
