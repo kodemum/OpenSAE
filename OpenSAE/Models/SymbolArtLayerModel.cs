@@ -306,7 +306,7 @@ namespace OpenSAE.Models
 
             Symbol.Image.CopyPixels(new Int32Rect(targetPixelX, targetPixelY, 1, 1), pixelValues, 4, 0);
 
-            return pixelValues[3] > 10;
+            return pixelValues[3] > 50;
         }
 
         public override bool ShowBoundingVertices
