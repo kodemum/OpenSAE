@@ -32,6 +32,7 @@
             NoInteraction="True"
             ShowGuides="False"
             ShowBoundingBox="False"
+            DisplaySettingFlags="{Binding DisplaySettingFlags}"
             />
     </Grid>
 </Window>
