@@ -426,7 +426,7 @@ namespace OpenSAE.Views
                 return;
             }
 
-            if (CanvasEditMode != CanvasEditMode.Default && args.RightButton != MouseButtonState.Pressed)
+            if (CanvasEditMode != CanvasEditMode.Default && args.LeftButton == MouseButtonState.Pressed)
             {
                 switch (CanvasEditMode)
                 {
