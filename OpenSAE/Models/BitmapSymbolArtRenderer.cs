@@ -30,6 +30,7 @@ namespace OpenSAE.Models
                 ApplyToneCurve = true,
                 ShowGuides = false,
                 ShowBoundingBox = false,
+                DisableGridPositioning = true,
                 SymbolUnitWidth = 192,
             };
 
