@@ -224,8 +224,6 @@ namespace OpenSAE.Models
 
         public Point[] PreManipulationVertices => _isManipulating ? _temporaryVertices : Vertices;
 
-        public PointCollection PointCollection => new(Vertices);
-
         public override SymbolArtItemModel Duplicate(SymbolArtItemModel parent)
         {
             var duplicate = (SymbolArtLayer)ToSymbolArtItem();
