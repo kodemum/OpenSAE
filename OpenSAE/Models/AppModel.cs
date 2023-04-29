@@ -320,6 +320,8 @@ namespace OpenSAE.Models
 
         public IRelayCommand CanvasModeCommand { get; }
 
+        public IDialogService DialogService => _dialogService;
+
         public AppModel(IDialogService dialogService)
         {
             _dialogService = dialogService;

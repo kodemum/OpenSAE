@@ -1,25 +1,15 @@
-﻿using Microsoft.Win32;
-using OpenSAE.Core;
-using OpenSAE.Core.SAML;
-using OpenSAE.Models;
+﻿using OpenSAE.Models;
 using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.Media3D;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace OpenSAE
 {
@@ -121,7 +111,7 @@ namespace OpenSAE
 
         private void TreeView_DragEnter(object sender, DragEventArgs e)
         {
-            if (e.OriginalSource is DependencyObject obj && FindParent<TreeViewItem>(obj) is TreeViewItem && _treeViewDraggingItem != null)
+            if (e.OriginalSource is DependencyObject obj && FindParent<TreeViewItem>(obj) is not null && _treeViewDraggingItem != null)
             {
                 e.Effects = e.KeyStates.HasFlag(DragDropKeyStates.ControlKey) ? DragDropEffects.Copy : DragDropEffects.Move;
                 e.Handled = true;
@@ -156,22 +146,29 @@ namespace OpenSAE
             {
                 if (treeViewItem?.DataContext is SymbolArtItemModel targetItem)
                 {
-                    var stringContent = e.Data.GetData(DataFormats.StringFormat) as string;
-
-                    if (stringContent != nameof(SymbolArtItemModel))
-                        return;
-
-                    // ensure we do not try to move an element into itself or one of its children
-                    if (_treeViewDraggingItem == targetItem || SymbolArtItemModel.IsChildOfRecursive(targetItem, _treeViewDraggingItem))
-                        return;
-
-                    if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
+                    try
                     {
-                        _model.CopyItemTo(_treeViewDraggingItem, targetItem);
+                        var stringContent = e.Data.GetData(DataFormats.StringFormat) as string;
+
+                        if (stringContent != nameof(SymbolArtItemModel))
+                            return;
+
+                        // ensure we do not try to move an element into itself or one of its children
+                        if (_treeViewDraggingItem == targetItem || SymbolArtItemModel.IsChildOfRecursive(targetItem, _treeViewDraggingItem))
+                            return;
+
+                        if (e.KeyStates.HasFlag(DragDropKeyStates.ControlKey))
+                        {
+                            _model.CopyItemTo(_treeViewDraggingItem, targetItem);
+                        }
+                        else
+                        {
+                            _model.MoveItemTo(_treeViewDraggingItem, targetItem);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        _model.MoveItemTo(_treeViewDraggingItem, targetItem);
+                        _model.DialogService.ShowErrorMessage("Drag/drop error", "Error occurred when dropping symbol/group", ex);
                     }
                 }
             }
