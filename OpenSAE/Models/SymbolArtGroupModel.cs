@@ -161,7 +161,7 @@ namespace OpenSAE.Models
                     if (layers.Count == 0)
                         return;
 
-                    using var scope = _undoModel.StartAggregateScope("Change group opacity", this, nameof(Alpha));
+                    using var scope = _undoModel.StartAggregateScope($"Change {ItemTypeName} opacity", this, nameof(Alpha));
 
                     foreach (var layer in layers)
                     {
@@ -185,7 +185,7 @@ namespace OpenSAE.Models
                     if (layers.Count == 0)
                         return;
 
-                    using var scope = _undoModel.StartAggregateScope($"Change group color", this, nameof(Color));
+                    using var scope = _undoModel.StartAggregateScope($"Change {ItemTypeName} color", this, nameof(Color));
 
                     foreach (var layer in layers)
                     {
@@ -224,7 +224,7 @@ namespace OpenSAE.Models
                 }
                 else
                 {
-                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art group");
+                    throw new Exception($"Item of unknown type {item.GetType().Name} found in symbol art {ItemTypeName}");
                 }
             }
         }
@@ -293,7 +293,7 @@ namespace OpenSAE.Models
         {
             if (!_isManipulating)
             {
-                _undoModel.BeginAggregate($"{operationName ?? "Manipulate"} group", null, null, OnVerticesChanged, OnVerticesChanged);
+                _undoModel.BeginAggregate($"{operationName ?? "Manipulate"} {ItemTypeName}", null, null, OnVerticesChanged, OnVerticesChanged);
 
                 foreach (var layer in GetAllLayers())
                 {

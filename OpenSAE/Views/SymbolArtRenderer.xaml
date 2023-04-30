@@ -162,7 +162,7 @@
                             </Polyline.Points>
                         </Polyline>
                         <Polyline Points="{Binding Points, ElementName=layerVertices}" StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" />
-                        
+
                         <!-- Circles on each vertex -->
                         <Ellipse Fill="#FF0C00" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[0]}" />
                         <Ellipse Fill="#00FFFC" Style="{StaticResource vertexCornerCircle}" DataContext="{Binding Vertices[1]}" />
@@ -181,5 +181,38 @@
                 </Style>
             </ContentPresenter.Style>
         </ContentPresenter>
+
+        <!-- If we later want an option to show outlines of all selected symbols -->
+        <!--<ItemsControl ItemsSource="{Binding ElementName=renderer, Path=SelectedLayers}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <controls:CoordinateCanvas 
+                        CoordinateWidth="{Binding ElementName=renderer, Path=SymbolUnitWidth}"
+                        VerticalAlignment="Center"
+                        CenterOrigin="True"
+                        IsItemsHost="True"
+                        Offset="{Binding ElementName=renderer, Path=ViewPosition}">
+                        <controls:CoordinateCanvas.Height>
+                            <MultiBinding Converter="{StaticResource symbolArtScaleConverter}">
+                                <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                                <Binding Path="SymbolArt.Height" ElementName="renderer" />
+                            </MultiBinding>
+                        </controls:CoordinateCanvas.Height>
+                    </controls:CoordinateCanvas>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Polyline StrokeThickness="1" Stroke="White" StrokeDashArray="2 0 2" x:Name="layerVertices" Opacity="0.5">
+                        <Polyline.Points>
+                            <MultiBinding Converter="{StaticResource layerPointConverter}">
+                                <Binding Path="SymbolScaleFactor" ElementName="renderer" />
+                                <Binding Path="Vertices" />
+                            </MultiBinding>
+                        </Polyline.Points>
+                    </Polyline>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>-->
     </Grid>
 </UserControl>

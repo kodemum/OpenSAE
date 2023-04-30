@@ -47,14 +47,15 @@ namespace OpenSAE.Views
                   )
         );
 
-        public static readonly DependencyProperty SelectedLayerProperty =
+        public static readonly DependencyProperty SelectedLayersProperty =
             DependencyProperty.Register(
-              name: "SelectedLayer",
-              propertyType: typeof(SymbolArtItemModel),
+              name: "SelectedLayers",
+              propertyType: typeof(IReadOnlyList<SymbolArtItemModel>),
               ownerType: typeof(SymbolArtRenderer),
               typeMetadata: new FrameworkPropertyMetadata(
                   defaultValue: null,
-                  flags: FrameworkPropertyMetadataOptions.AffectsRender
+                  flags: FrameworkPropertyMetadataOptions.AffectsRender,
+                  SelectedLayersPropertyChanged
                   )
         );
 
@@ -150,6 +151,14 @@ namespace OpenSAE.Views
             }
         }
 
+        private static void SelectedLayersPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is SymbolArtRenderer renderer)
+            {
+                renderer.UpdateSelectedLayer();
+            }
+        }
+
         private static object OnSymbolUnitWidthCoerce(DependencyObject d, object baseValue)
         {
             if (baseValue is double newValue)
@@ -177,6 +186,8 @@ namespace OpenSAE.Views
         /// Disables all interaction with the control
         /// </summary>
         private bool _noInteraction;
+
+        private SymbolArtItemModel? _selectedLayer;
 
         private Dictionary<SymbolArtItemModel, LayerModelReference> _layerDictionary
             = new();
@@ -264,8 +275,28 @@ namespace OpenSAE.Views
 
         public SymbolArtItemModel? SelectedLayer
         {
-            get => (SymbolArtItemModel)GetValue(SelectedLayerProperty);
-            set => SetValue(SelectedLayerProperty, value);
+            get => _selectedLayer;
+            set
+            {
+                var list = new List<SymbolArtItemModel>();
+
+                if (value != null)
+                {
+                    list.Add(value);
+                }
+
+                SelectedLayers = list;
+            }
+        }
+
+        public IReadOnlyList<SymbolArtItemModel>? SelectedLayers
+        {
+            get => (IReadOnlyList<SymbolArtItemModel>?)GetValue(SelectedLayersProperty);
+            set
+            {
+                SetValue(SelectedLayersProperty, value);
+                OnPropertyChanged(nameof(SelectedLayer));
+            }
         }
 
         public bool ApplyToneCurve
@@ -296,6 +327,24 @@ namespace OpenSAE.Views
         {
             get => (DisplaySettingFlags)GetValue(DisplaySettingFlagsProperty);
             set => SetValue(DisplaySettingFlagsProperty, value);
+        }
+
+        private void UpdateSelectedLayer()
+        {
+            if (SelectedLayers == null || SelectedLayers.Count == 0)
+            {
+                _selectedLayer = null;
+            }
+            else if (SelectedLayers?.Count == 1)
+            {
+                _selectedLayer = SelectedLayers[0];
+            }
+            else
+            {
+                _selectedLayer = SymbolArtItemCollection.Create(SelectedLayers); ;
+            }
+
+            OnPropertyChanged(nameof(SelectedLayer));
         }
 
         /// <summary>
@@ -571,7 +620,19 @@ namespace OpenSAE.Views
                     {
                         // just in case
                         SelectedLayer?.CommitManipulation();
-                        SelectedLayer = layer;
+
+                        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+                        {
+                            // add layer to selection
+                            var layers = new List<SymbolArtItemModel>(SelectedLayers);
+                            layers.Add(layer);
+                            SelectedLayers = layers;
+                        }
+                        else
+                        {
+                            // replace selection with layer
+                            SelectedLayers = new List<SymbolArtItemModel>() { layer };
+                        }
                         return true;
                     }
                 }

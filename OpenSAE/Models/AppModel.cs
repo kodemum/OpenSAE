@@ -5,6 +5,7 @@ using OpenSAE.Helpers;
 using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -15,7 +16,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using static OpenSAE.Behaviors.TreeViewSelectionBehavior;
 
 namespace OpenSAE.Models
 {
@@ -36,6 +36,7 @@ namespace OpenSAE.Models
 
         private readonly IDialogService _dialogService;
         private SymbolArtModel? _currentSymbolArt;
+        private IReadOnlyList<SymbolArtItemModel> _selectedItems = new List<SymbolArtItemModel>();
         private SymbolArtItemModel? _selectedItem;
         private bool _applyToneCurve;
         private bool _guideLinesEnabled;
@@ -118,18 +119,56 @@ namespace OpenSAE.Models
         }
 
         /// <summary>
-        /// Currently selected item (group, layer, SA root)
+        /// Currently selected item or items (group, layer, SA root, collection of selected items)
         /// </summary>
         public SymbolArtItemModel? SelectedItem
         {
             get => _selectedItem;
             set
             {
-                if (SetProperty(ref _selectedItem, value))
+                var list = new List<SymbolArtItemModel>();
+
+                if (value != null)
+                    list.Add(value);
+
+                SelectedItems = list;
+            }
+        }
+
+        /// <summary>
+        /// First item selected if any; does not aggregate multiple selected items into a collection.
+        /// </summary>
+        public SymbolArtItemModel? FirstSelectedItem => _selectedItems.Count > 0 ? _selectedItems[0] : null;
+
+        /// <summary>
+        /// Helper for data binding as we cannot databind an a generic list. Use <see cref="SelectedItems"/> instead.
+        /// </summary>
+        public IEnumerable SelectedItemsBind
+        {
+            get => SelectedItems;
+            set => SelectedItems = value?.Cast<SymbolArtItemModel>()?.ToList() ?? new List<SymbolArtItemModel>();
+        }
+
+        public IReadOnlyList<SymbolArtItemModel> SelectedItems
+        {
+            get => _selectedItems;
+            set
+            {
+                if (value is IReadOnlyList<SymbolArtItemModel> list && SetProperty(ref _selectedItems, list))
                 {
                     CurrentItemCommand.NotifyCanExecuteChanged();
                     RotateCurrentItemCommand.NotifyCanExecuteChanged();
+
+                    if (list.Count == 0)
+                        _selectedItem = null;
+                    else if (list.Count == 1)
+                        _selectedItem = list[0];
+                    else
+                        _selectedItem = SymbolArtItemCollection.Create(list);
+
                     OnPropertyChanged(nameof(SelectedItemIsLayer));
+                    OnPropertyChanged(nameof(SelectedItem));
+                    OnPropertyChanged(nameof(SelectedItemsBind));
                 }
             }
         }
@@ -260,7 +299,7 @@ namespace OpenSAE.Models
             set => SetProperty(ref _displayFlags, value);
         }
 
-        public IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
+        public Controls.IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 
         public bool SelectedItemIsLayer => SelectedItem is SymbolArtLayerModel;
 
@@ -564,20 +603,46 @@ namespace OpenSAE.Models
 
                         if (newItem != null)
                         {
-                            var currentSelection = SelectedItem;
+                            var currentSelection = SelectedItems;
 
-                            Undo.Do($"Paste {newItem.ItemTypeName}",
-                                () =>
-                                {
-                                    targetParent.Children.Insert(newIndex, newItem);
-                                    SelectedItem = newItem;
-                                },
-                                () =>
-                                {
-                                    targetParent.Children.Remove(newItem);
-                                    SelectedItem = currentSelection;
-                                }
-                            );
+                            if (newItem.Name == SymbolArtItemCollection.CollectionIdentifier)
+                            {
+                                Undo.Do($"Paste {newItem.Children.Count} items",
+                                    () =>
+                                    {
+                                        foreach (var item in newItem.Children.Reverse())
+                                        {
+                                            targetParent.Children.Insert(newIndex, item);
+                                        }
+
+                                        SelectedItems = new List<SymbolArtItemModel>(newItem.Children);
+                                    },
+                                    () =>
+                                    {
+                                        foreach (var item in newItem.Children)
+                                        {
+                                            targetParent.Children.Remove(item);
+                                        }
+                                        
+                                        SelectedItems = currentSelection;
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                Undo.Do($"Paste {newItem.ItemTypeName}",
+                                    () =>
+                                    {
+                                        targetParent.Children.Insert(newIndex, newItem);
+                                        SelectedItem = newItem;
+                                    },
+                                    () =>
+                                    {
+                                        targetParent.Children.Remove(newItem);
+                                        SelectedItems = currentSelection;
+                                    }
+                                );
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -663,22 +728,38 @@ namespace OpenSAE.Models
                     if (SelectedItem.Parent == null)
                         return;
 
-                    var duplicate = SelectedItem.Duplicate(SelectedItem.Parent);
-                    var currentIndex = SelectedItem.Parent.Children.IndexOf(SelectedItem);
-                    var targetItem = SelectedItem;
+                    var currentSelection = SelectedItems;
+                    List<SymbolArtItemModel> duplicates = new();
+                    SymbolArtItemModel parent = SelectedItem.Parent;
+                    int currentIndex = SelectedItem.IndexInParent;
 
-                    Undo.Do($"Duplicate {SelectedItem.ItemTypeName}",
+                    foreach (var item in SelectedItems)
+                    {
+                        duplicates.Add(item.Duplicate(parent));
+                    }
+
+                    duplicates.Reverse();
+
+                    Undo.Do(SelectedItems.Count == 1 ? $"Duplicate {SelectedItem.ItemTypeName}" : $"Duplicate {SelectedItems.Count} items",
                         () =>
                         {
-                            targetItem.Parent.Children.Insert(currentIndex, duplicate);
-                            SelectedItem = duplicate;
+                            foreach (var item in duplicates)
+                            {
+                                parent.Children.Insert(currentIndex, item);
+                            }
+
+                            SelectedItems = duplicates;
                         },
                         () =>
                         {
-                            targetItem.Parent.Children.Remove(duplicate);
-                            SelectedItem = targetItem;
-                        }
-                    );
+                            foreach (var item in duplicates)
+                            {
+                                parent.Children.Remove(item);
+                            }
+
+                            SelectedItems = currentSelection;
+                        });
+
                     break;
             }
         }
@@ -799,6 +880,7 @@ namespace OpenSAE.Models
             var targetItem = item;
             var targetParent = targetItem.Parent;
             var currentIndex = item.IndexInParent;
+            var currentSelection = SelectedItems;
 
             using var scope = Undo.StartAggregateScope($"Delete {item.ItemTypeName}");
 
@@ -819,14 +901,34 @@ namespace OpenSAE.Models
                     else
                         SelectedItem = targetParent;
                 },
-                () => SelectedItem = targetItem
+                () => SelectedItems = currentSelection
             );
         }
 
-        public void CopyItemTo(SymbolArtItemModel source, SymbolArtItemModel target)
+        public SymbolArtItemModel? CopyItemTo(SymbolArtItemModel source, SymbolArtItemModel target, bool considerCollectionSelection)
         {
             if (source.Parent == null)
-                return;
+                return null;
+
+            if (considerCollectionSelection && SelectedItems.Count > 1 && SelectedItems.Contains(source))
+            {
+                using var scope = Undo.StartAggregateScope($"Copy {SelectedItems.Count} items");
+
+                List<SymbolArtItemModel> newSelectedItems = new();
+                var oldSelectedItems = SelectedItems;
+
+                foreach (var item in SelectedItems.Reverse().ToArray())
+                {
+                    var itemCopy = CopyItemTo(item, target, false);
+
+                    if (itemCopy != null)
+                        newSelectedItems.Add(itemCopy);
+                }
+
+                Undo.Do($"Select symbols", () => SelectedItems = newSelectedItems, () => SelectedItems = oldSelectedItems);
+
+                return null;
+            }
 
             SymbolArtItemModel group;
             int targetIndex;
@@ -847,7 +949,7 @@ namespace OpenSAE.Models
             }
 
             var copy = source.Duplicate(group);
-            var currentSelection = SelectedItem;
+            var currentSelection = SelectedItems;
 
             Undo.Do($"Copy {source.ItemTypeName}",
                 () =>
@@ -858,15 +960,27 @@ namespace OpenSAE.Models
                 () =>
                 {
                     group.Children.Remove(copy);
-                    SelectedItem = currentSelection;
+                    SelectedItems = currentSelection;
                 }
             );
+
+            return copy;
         }
 
-        public void MoveItemTo(SymbolArtItemModel source, SymbolArtItemModel target)
+        public void MoveItemTo(SymbolArtItemModel source, SymbolArtItemModel target, bool considerCollectionSelection)
         {
             if (source.Parent == null)
                 return;
+
+            if (considerCollectionSelection && SelectedItems.Count > 1 && SelectedItems.Contains(source))
+            {
+                using var scope = Undo.StartAggregateScope($"Reorder {SelectedItems.Count} items");
+
+                foreach (var item in SelectedItems.Reverse().ToArray())
+                    MoveItemTo(item, target, false);
+                
+                return;
+            }
 
             int currentIndex = source.IndexInParent;
             int newIndex;
@@ -898,7 +1012,7 @@ namespace OpenSAE.Models
             }
             else
             {
-                var currentSelection = SelectedItem;
+                var currentSelection = SelectedItems;
 
                 Undo.Do($"Reorder {source.ItemTypeName}", 
                     () =>
@@ -913,7 +1027,7 @@ namespace OpenSAE.Models
                         targetParent.Children.Remove(source);
                         currentParent.Children.Insert(currentIndex, source);
                         source.Parent = currentParent;
-                        SelectedItem = source;
+                        SelectedItems = currentSelection;
                     }
                 );
             }
@@ -957,27 +1071,31 @@ namespace OpenSAE.Models
 
         private void AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
         {
-            // find group to add layer to - may be current item, it's parent
-            // or possibly the root symbol art
+            // find group to add layer to - may be current item, its parent or possibly the root symbol art
+            var selectedItem = FirstSelectedItem;
+
             SymbolArtGroupModel targetGroup =
-                SelectedItem as SymbolArtGroupModel
-                ?? SelectedItem?.Parent as SymbolArtGroupModel
+                selectedItem as SymbolArtGroupModel
+                ?? selectedItem?.Parent as SymbolArtGroupModel
                 ?? CurrentSymbolArt!;
 
             var item = itemCreationPredicate(targetGroup);
 
-            var selectedItem = SelectedItem;
-
             // if selected item is a layer, add the new layer before it
             // and if it is a group, add the layer as the first
             var index = selectedItem is SymbolArtLayerModel ? targetGroup.Children.IndexOf(selectedItem) : 0;
+            var currentSelection = SelectedItems;
 
             Undo.Do($"Add {item.ItemTypeName}", () =>
                 {
                     targetGroup.Children.Insert(index, item);
                     SelectedItem = item;
                 },
-                () => targetGroup.Children.Remove(item)
+                () =>
+                {
+                    targetGroup.Children.Remove(item);
+                    SelectedItems = currentSelection;
+                }
             );
         }
 
@@ -1198,7 +1316,7 @@ namespace OpenSAE.Models
 
                 parent.Children.Insert(index, colorGroup);
 
-                layers.ForEach(x => MoveItemTo(x, colorGroup));
+                layers.ForEach(x => MoveItemTo(x, colorGroup, false));
             }
 
             void ProcessGroup(SymbolArtGroupModel group)

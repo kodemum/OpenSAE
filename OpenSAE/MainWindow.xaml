@@ -7,8 +7,6 @@
         xmlns:views="clr-namespace:OpenSAE.Views"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         xmlns:controls="clr-namespace:OpenSAE.Controls"
-        xmlns:behaviors="clr-namespace:OpenSAE.Behaviors"
-        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:OpenSAE"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=models:AppModel}"
@@ -264,7 +262,7 @@
             <!-- Tree view of groups/layers in current symbol art -->
             <TabControl SelectedIndex="{Binding TabIndex}">
                 <TabItem Header="Symbol tree">
-                    <TreeView
+                    <controls:MultiSelectTreeView
                         x:Name="treeView"
                         BorderThickness="0"
                         ItemsSource="{Binding CurrentSymbolArt.RootItems}"
@@ -273,10 +271,11 @@
                         Drop="TreeView_Drop"
                         PreviewMouseMove="TreeView_PreviewMouseMove"
                         PreviewMouseDown="treeView_MouseDown"
+                        SelectedItems="{Binding SelectedItemsBind}"
+                        ExpandSelected="True"
+                        HierarchyPredicate="{Binding HierarchyPredicate}"
+                        ItemContainerStyle="{StaticResource MultiSelectTreeViewItemStyle}"
                         >
-                        <i:Interaction.Behaviors>
-                            <behaviors:TreeViewSelectionBehavior ExpandSelected="True" HierarchyPredicate="{Binding HierarchyPredicate}" SelectedItem="{Binding SelectedItem}" />
-                        </i:Interaction.Behaviors>
                         <TreeView.Resources>
                             <HierarchicalDataTemplate DataType="{x:Type models:SymbolArtLayerModel}" ItemsSource="{Binding Children}">
                                 <DockPanel>
@@ -325,7 +324,7 @@
                                 </DockPanel>
                             </HierarchicalDataTemplate>
                         </TreeView.Resources>
-                    </TreeView>
+                    </controls:MultiSelectTreeView>
                 </TabItem>
 
                 <TabItem Header="Palette">
@@ -539,7 +538,7 @@
                     ViewPosition="{Binding ViewPosition, Mode=TwoWay}"
                     SymbolArt="{Binding CurrentSymbolArt}"
                     SymbolUnitWidth="{Binding DisplaySymbolUnitWidth, Mode=TwoWay}"
-                    SelectedLayer="{Binding SelectedItem, Mode=TwoWay}"
+                    SelectedLayers="{Binding SelectedItems, Mode=TwoWay}"
                     ApplyToneCurve="{Binding ApplyToneCurve}"
                     ShowGuides="{Binding GuideLinesEnabled}"
                     ShowImageOverlayLayers="{Binding ShowImageOverlays}"

@@ -239,7 +239,7 @@ namespace OpenSAE.Models
 
         public abstract Color Color { get; set; }
 
-        public int IndexInParent
+        public virtual int IndexInParent
         {
             get => Parent?.Children.IndexOf(this) ?? 0;
             set
@@ -257,7 +257,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public void MoveUp()
+        public virtual void MoveUp()
         {
             if (IndexInParent > 0)
             {
@@ -265,7 +265,7 @@ namespace OpenSAE.Models
             }
         }
 
-        public void MoveDown()
+        public virtual void MoveDown()
         {
             if (IndexInParent < Parent?.Children.Count - 1)
             {
@@ -305,6 +305,11 @@ namespace OpenSAE.Models
             return result;
         }
 
+        /// <summary>
+        /// Returns a recursive copy of the item with the specified item as its parent.
+        /// </summary>
+        /// <param name="parent">Parent to set for the item copy</param>
+        /// <returns></returns>
         public abstract SymbolArtItemModel Duplicate(SymbolArtItemModel parent);
 
         public abstract SymbolArtItem ToSymbolArtItem();
