@@ -29,6 +29,7 @@
             The tree has checkboxes to enable/disable each symbol or group and items can be dragged to other positions in the tree (or duplicated if Ctrl is held at the same time)
             <LineBreak />
             Select an item in the tree to have it highlighted in the canvas and the item editor.
+            Hold Shift or Ctrl to enable you to select multiple symbols or groups at the same time. Once selected, they can be manipulated as if they were a single group.
         </TextBlock>
 
         <TextBlock Style="{StaticResource subtitleText}">
@@ -89,31 +90,31 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource viewIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Toggle the visibility of the current symbol or group (Ctrl+,)</TextBlock>
+                <TextBlock Margin="5 2">Toggle the visibility of the currently selected items (Ctrl+,)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource flipXIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Horizontally flips the current symbol or group (Ctrl+F)</TextBlock>
+                <TextBlock Margin="5 2">Horizontally flips the currently selected items (Ctrl+F)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource flipYIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Vertically flips the current symbol or group (Ctrl+Shift+F)</TextBlock>
+                <TextBlock Margin="5 2">Vertically flips the currently selected items (Ctrl+Shift+F)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource rotateIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)</TextBlock>
+                <TextBlock Margin="5 2">Rotate the currently selected items clockwise by 90 degrees (Ctrl+R)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource copyIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Duplicates the current symbol or group (Ctrl+Shift+D)</TextBlock>
+                <TextBlock Margin="5 2">Duplicates the currently selected items (Ctrl+Shift+D)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource upIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Moves the current symbol or group up in the drawing order (Alt+Up)</TextBlock>
+                <TextBlock Margin="5 2">Moves the currently selected items up in the drawing order (Alt+Up)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource downIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Moves the current symbol or group down in the drawing order (Alt+Up)</TextBlock>
+                <TextBlock Margin="5 2">Moves the currently selected items down in the drawing order (Alt+Up)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource undoIcon}" VerticalAlignment="Center" />
@@ -125,7 +126,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource deleteIcon}" VerticalAlignment="Center" />
-                <TextBlock Margin="5 2">Delete the current symbol or group (Shift+Del)</TextBlock>
+                <TextBlock Margin="5 2">Delete the currently selected items (Shift+Del)</TextBlock>
             </StackPanel>
 
             <TextBlock Margin="0 10 0 0" TextWrapping="Wrap">

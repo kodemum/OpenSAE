@@ -200,8 +200,8 @@
                 <MenuItem Header="Add new _overlay image..." Command="{Binding AddImageLayerCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <MenuItem Header="Clear _selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
                 <Separator />
-                <MenuItem Header="_Move item up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
-                <MenuItem Header="Move item _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
+                <MenuItem Header="_Move selected up in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" InputGestureText="Alt+Up" Template="{StaticResource iconMenuItem}" Icon="{StaticResource upIcon}" />
+                <MenuItem Header="Move selected _down in drawing order" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" InputGestureText="Alt+Down" Template="{StaticResource iconMenuItem}" Icon="{StaticResource downIcon}" />
                 <Separator />
                 <MenuItem Header="Ad_vanced">
                     <MenuItem Header="_Clean up symbols outside visible area" Command="{Binding CurrentItemCommand}" CommandParameter="cleanupBounds" />
@@ -210,11 +210,11 @@
                     <MenuItem Header="Corrupt non-affine symbols (just for fun!)" Command="{Binding CurrentItemCommand}" CommandParameter="corruptNonAffine" />
                 </MenuItem>
                 <Separator />
-                <MenuItem Header="Toggle item _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
-                <MenuItem Header="Dupli_cate item" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
-                <MenuItem Header="_Delete item" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
+                <MenuItem Header="Toggle selected _visibility" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" InputGestureText="Ctrl+," Template="{StaticResource iconMenuItem}" Icon="{StaticResource viewIcon}" />
+                <MenuItem Header="Dupli_cate selected" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" InputGestureText="Ctrl+Shift+D" Template="{StaticResource iconMenuItem}" Icon="{StaticResource copyIcon}" />
+                <MenuItem Header="_Delete selected" Command="{Binding CurrentItemCommand}" CommandParameter="delete" InputGestureText="Shift+Del" Template="{StaticResource iconMenuItem}" Icon="{StaticResource deleteIcon}" />
             </MenuItem>
-            <MenuItem Header="_Transform item">
+            <MenuItem Header="_Transform selected">
                 <MenuItem Header="Flip _horizontally" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" InputGestureText="Ctrl+F" Template="{StaticResource iconMenuItem}" Icon="{StaticResource flipXIcon}" />
                 <MenuItem Header="Flip _vertically" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" InputGestureText="Ctrl+Shift+F" Template="{StaticResource iconMenuItem}" Icon="{StaticResource flipYIcon}" />
                 <Separator />
@@ -453,20 +453,20 @@
                         <Button Content="{StaticResource drawingPlusIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
                         <Button Content="{StaticResource drawingPlusFolderIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
                         <Separator />
-                        <Button Content="{StaticResource drawingEyeIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Toggle the visibility of the current symbol or group (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
-                        <Button Content="{StaticResource drawingMirrorIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Horizontally flips the current symbol or group (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
-                        <Button Content="{StaticResource drawingMirrorVerticalIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Vertically flips the current symbol or group (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
-                        <Button Content="{StaticResource drawingRotateIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Rotate the current symbol or group clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
-                        <Button Content="{StaticResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current symbol or group (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <Button Content="{StaticResource drawingEyeIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Toggle the visibility of the current selection (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
+                        <Button Content="{StaticResource drawingMirrorIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Horizontally flips the current selection (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
+                        <Button Content="{StaticResource drawingMirrorVerticalIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Vertically flips the current selection (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
+                        <Button Content="{StaticResource drawingRotateIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Rotate the current selection clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
+                        <Button Content="{StaticResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current selection (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
                         <ToggleButton IsChecked="{Binding ColorPickerEnabled}" Content="{StaticResource drawingEyeDropperIcon}" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
-                        <Button Content="{StaticResource drawingIconUp}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current symbol or group up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
-                        <Button Content="{StaticResource drawingIconDown}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current symbol or group down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
+                        <Button Content="{StaticResource drawingIconUp}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
+                        <Button Content="{StaticResource drawingIconDown}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
                         <Separator />
                         <Button Content="{StaticResource drawingUndoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
                         <Button Content="{StaticResource drawingRedoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
                         <Separator />
-                        <Button Content="{StaticResource drawingDeleteIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Delete the current symbol or group (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                        <Button Content="{StaticResource drawingDeleteIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Delete the currently selected item(s) (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
 
