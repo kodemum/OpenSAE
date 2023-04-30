@@ -120,6 +120,7 @@
         <KeyBinding Modifiers="Alt" Key="Up" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
         <KeyBinding Modifiers="Alt" Key="Down" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
         <KeyBinding Modifiers="Ctrl" Key="Space" Command="{Binding CurrentItemCommand}" CommandParameter="toggleImageOverlays" />
+        <KeyBinding Modifiers="Ctrl" Key="G" Command="{Binding CurrentItemCommand}" CommandParameter="groupSelection" />
 
         <KeyBinding Modifiers="Ctrl" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
         <KeyBinding Modifiers="Ctrl+Shift" Key="R" Command="{Binding RotateCurrentItemCommand}" CommandParameter="-90" />
@@ -197,6 +198,7 @@
                 <Separator />
                 <MenuItem Header="_Add new symbol" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" InputGestureText="Ctrl+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource addIcon}" />
                 <MenuItem Header="Add new _group" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" InputGestureText="Ctrl+Shift+E" Template="{StaticResource iconMenuItem}" Icon="{StaticResource newFolderIcon}" />
+                <MenuItem Header="Gr_oup selected items" Command="{Binding CurrentItemCommand}" CommandParameter="groupSelection" InputGestureText="Ctrl+G" Template="{StaticResource iconMenuItem}" Icon="{StaticResource layersIcon}" />
                 <MenuItem Header="Add new _overlay image..." Command="{Binding AddImageLayerCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <MenuItem Header="Clear _selection" Command="{Binding CurrentItemCommand}" CommandParameter="deselect" InputGestureText="Ctrl+D" />
                 <Separator />
@@ -458,6 +460,7 @@
                         <Button Content="{StaticResource drawingMirrorVerticalIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Vertically flips the current selection (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
                         <Button Content="{StaticResource drawingRotateIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Rotate the current selection clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
                         <Button Content="{StaticResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current selection (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <Button Content="{StaticResource drawingLayersIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Creates a new group and moves the current selection into it (Ctrl+G)" Command="{Binding CurrentItemCommand}" CommandParameter="groupSelection" />
                         <ToggleButton IsChecked="{Binding ColorPickerEnabled}" Content="{StaticResource drawingEyeDropperIcon}" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
                         <Button Content="{StaticResource drawingIconUp}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />

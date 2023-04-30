@@ -109,6 +109,10 @@
                 <TextBlock Margin="5 2">Duplicates the currently selected items (Ctrl+Shift+D)</TextBlock>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
+                <TextBlock Style="{StaticResource iconText}" Text="{StaticResource layersIcon}" VerticalAlignment="Center" />
+                <TextBlock Margin="5 2">Creates a new group and moves the current selection into it (Ctrl+G)</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource upIcon}" VerticalAlignment="Center" />
                 <TextBlock Margin="5 2">Moves the currently selected items up in the drawing order (Alt+Up)</TextBlock>
             </StackPanel>

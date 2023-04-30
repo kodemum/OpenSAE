@@ -700,6 +700,10 @@ namespace OpenSAE.Models
                     AddItemToCurrentSymbolArt((parentGroup) => new SymbolArtGroupModel(Undo, "Group", true, parentGroup));
                     break;
 
+                case "groupSelection":
+                    CreateGroupForCurrentlySelectedItems();
+                    break;
+
                 case "export":
                     ExportCurrent();
                     break;
@@ -1067,6 +1071,30 @@ namespace OpenSAE.Models
             }
 
             return true;
+        }
+
+        private void CreateGroupForCurrentlySelectedItems()
+        {
+            if (FirstSelectedItem == null)
+                return;
+
+            // create new group as child of parent of first selected item, or possibly the root item
+            var targetParent = FirstSelectedItem.Parent ?? CurrentSymbolArt!;
+            var targetIndex = FirstSelectedItem.IndexInParent;
+            var currentSelection = SelectedItems;
+            var newGroup = new SymbolArtGroupModel(Undo, $"{SelectedItems.Count} item group", true, targetParent);
+
+            using var scope = Undo.StartAggregateScope($"Group {SelectedItems.Count} items");
+
+            Undo.Do("Add group",
+                () => targetParent.Children.Insert(targetIndex, newGroup),
+                () => targetParent.Children.Remove(newGroup)
+                );
+
+            foreach (var item in SelectedItems.Reverse())
+                MoveItemTo(item, newGroup, false);
+
+            Undo.Do("Update selection", () => SelectedItem = newGroup, () => SelectedItems = currentSelection);
         }
 
         private void AddItemToCurrentSymbolArt(Func<SymbolArtGroupModel, SymbolArtItemModel> itemCreationPredicate)
