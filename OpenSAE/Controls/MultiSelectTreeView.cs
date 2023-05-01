@@ -55,9 +55,29 @@ namespace OpenSAE.Controls
 
             if (e.NewValue is IEnumerable newItems)
             {
+                List<TreeViewItem> itemContainers = new();
+                bool foundCurrentSelection = false;
+
                 foreach (var item in newItems)
                 {
-                    view.ExpandToAndSelectItem(view, item);
+                    // keep track of the contains created/retrieved for the selected items
+                    var container = view.ExpandToAndSelectItem(view, item);
+                    if (container != null)
+                        itemContainers.Add(container);
+
+                    // and note if the currently "selected" item is one of the ones we're selecting
+                    if (view.SelectedItem == item)
+                        foundCurrentSelection = true;
+                }
+
+                // if the normal selection of the TreeView isn't one of the target items
+                // then change it to the last one to ensure they're not out of sync
+                //
+                // if we don't do this, the item the TreeView considers selected internally cannot be selected
+                // by clicking on it in the control
+                if (!foundCurrentSelection && itemContainers.Count > 0)
+                {
+                    itemContainers[^1].IsSelected = true;
                 }
             }
 
@@ -74,7 +94,7 @@ namespace OpenSAE.Controls
             return (bool)element.GetValue(IsItemSelectedProperty);
         }
 
-        private bool ExpandToAndSelectItem(ItemsControl source, object targetItem)
+        private TreeViewItem? ExpandToAndSelectItem(ItemsControl source, object targetItem)
         {
             foreach (var item in source.Items)
             {
@@ -83,7 +103,7 @@ namespace OpenSAE.Controls
                     // assuming our expansion and building of container elements works correctly,
                     // we should always be able to find the container element
                     // but we don't want to throw an exception should it fail
-                    return false;
+                    return null;
                 }
 
                 if (item == targetItem)
@@ -95,7 +115,7 @@ namespace OpenSAE.Controls
 
                     container.BringIntoView();
 
-                    return true;
+                    return container;
                 }
 
                 bool isParentOfModel = HierarchyPredicate?.Invoke(targetItem, item) ?? true;
@@ -109,12 +129,13 @@ namespace OpenSAE.Controls
                         UpdateLayout();
                     }
 
-                    if (ExpandToAndSelectItem(container, targetItem))
-                        return true;
+                    var foundItem = ExpandToAndSelectItem(container, targetItem);
+                    if (foundItem != null)
+                        return foundItem;
                 }
             }
 
-            return false;
+            return null;
         }
 
         private static bool IsCtrlPressed => Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
