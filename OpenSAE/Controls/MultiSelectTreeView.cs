@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
+using System.Diagnostics;
 
 namespace OpenSAE.Controls
 {
@@ -56,26 +57,21 @@ namespace OpenSAE.Controls
             if (e.NewValue is IEnumerable newItems)
             {
                 List<TreeViewItem> itemContainers = new();
-                bool foundCurrentSelection = false;
+                HashSet<object> itemSet = new();
 
                 foreach (var item in newItems)
                 {
-                    // keep track of the contains created/retrieved for the selected items
-                    var container = view.ExpandToAndSelectItem(view, item);
-                    if (container != null)
-                        itemContainers.Add(container);
-
-                    // and note if the currently "selected" item is one of the ones we're selecting
-                    if (view.SelectedItem == item)
-                        foundCurrentSelection = true;
+                    itemSet.Add(item);
                 }
+
+                view.ExpandToAndSelectItems(view, itemSet, itemContainers);
 
                 // if the normal selection of the TreeView isn't one of the target items
                 // then change it to the last one to ensure they're not out of sync
                 //
                 // if we don't do this, the item the TreeView considers selected internally cannot be selected
                 // by clicking on it in the control
-                if (!foundCurrentSelection && itemContainers.Count > 0)
+                if (!itemContainers.Any(x => x.DataContext == view.SelectedItem) && itemContainers.Count > 0)
                 {
                     itemContainers[^1].IsSelected = true;
                 }
@@ -94,7 +90,7 @@ namespace OpenSAE.Controls
             return (bool)element.GetValue(IsItemSelectedProperty);
         }
 
-        private TreeViewItem? ExpandToAndSelectItem(ItemsControl source, object targetItem)
+        private bool ExpandToAndSelectItems(ItemsControl source, HashSet<object> targetItems, List<TreeViewItem> items)
         {
             foreach (var item in source.Items)
             {
@@ -103,10 +99,10 @@ namespace OpenSAE.Controls
                     // assuming our expansion and building of container elements works correctly,
                     // we should always be able to find the container element
                     // but we don't want to throw an exception should it fail
-                    return null;
+                    continue;
                 }
 
-                if (item == targetItem)
+                if (targetItems.Contains(item))
                 {
                     SetIsItemSelected(container, true);
 
@@ -115,10 +111,18 @@ namespace OpenSAE.Controls
 
                     container.BringIntoView();
 
-                    return container;
+                    items.Add(container);
+                    targetItems.Remove(item);
+
+                    if (targetItems.Count == 0)
+                    {
+                        return true;
+                    }
+
+                    continue;
                 }
 
-                bool isParentOfModel = HierarchyPredicate?.Invoke(targetItem, item) ?? true;
+                bool isParentOfModel = HierarchyPredicate == null || targetItems.Any(x => HierarchyPredicate.Invoke(x, item));
                 if (isParentOfModel)
                 {
                     container.IsExpanded = true;
@@ -129,13 +133,12 @@ namespace OpenSAE.Controls
                         UpdateLayout();
                     }
 
-                    var foundItem = ExpandToAndSelectItem(container, targetItem);
-                    if (foundItem != null)
-                        return foundItem;
+                    if (ExpandToAndSelectItems(container, targetItems, items))
+                        return true;
                 }
             }
 
-            return null;
+            return false;
         }
 
         private static bool IsCtrlPressed => Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl);
@@ -160,15 +163,20 @@ namespace OpenSAE.Controls
             set => SetValue(ExpandSelectedProperty, value);
         }
 
+        /// <summary>
+        /// We use the normal item selected event to add the new selection to our list of selected items
+        /// (and possibly clear it, depending on modifier keys held)
+        /// </summary>
+        /// <param name="e"></param>
         protected override void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object> e)
         {
             base.OnSelectedItemChanged(e);
 
-            if (SelectedItem == null)
+            if (SelectedItem == null || _isUpdating)
                 return;
 
             var item = ContainerFromItemRecursive(ItemContainerGenerator, SelectedItem);
-            if (item != null && !GetIsItemSelected(item))
+            if (item != null)
             {
                 SelectedItemChangedInternal(item);
             }
@@ -222,7 +230,7 @@ namespace OpenSAE.Controls
             // Otherwise, individual selection
             else
             {
-                SetIsItemSelected(item, true);
+                SetIsItemSelected(item, !GetIsItemSelected(item));
                 _lastItemSelected = item;
             }
 
