@@ -886,7 +886,7 @@ namespace OpenSAE.Models
             var currentIndex = item.IndexInParent;
             var currentSelection = SelectedItems;
 
-            using var scope = Undo.StartAggregateScope($"Delete {item.ItemTypeName}");
+            using var scope = Undo.StartAggregateScope($"Delete {item.ItemTypeName}", afterUndo: () => SelectedItems = currentSelection);
 
             // deleting the item adds it to the undo scope
             item.Delete();
@@ -905,7 +905,7 @@ namespace OpenSAE.Models
                     else
                         SelectedItem = targetParent;
                 },
-                () => SelectedItems = currentSelection
+                () => { }
             );
         }
 
