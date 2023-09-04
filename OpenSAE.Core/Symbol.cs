@@ -11,7 +11,7 @@ namespace OpenSAE.Core
     {
         public static bool DisablePreloading { get; set; }
 
-        private BitmapImage _image;
+        private BitmapImage? _image;
 
         public Symbol(int id, string name, SymbolGroup group, SymbolFlag flags = SymbolFlag.None)
             : this(id, name, name, group, flags)

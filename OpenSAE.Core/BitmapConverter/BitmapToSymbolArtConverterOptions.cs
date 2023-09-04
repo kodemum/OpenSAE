@@ -2,32 +2,20 @@
 {
     public class BitmapToSymbolArtConverterOptions
     {
-        public double SizeXOffset { get; set; } = 0.35;
+        public int ResizeImageHeight { get; set; } = 160;
 
-        public double SizeYOffset { get; set; } = 0.3;
+        public bool RespectEdges { get; set; } = false;
 
-        public int ResizeImageHeight { get; set; } = 64;
+        public double SymbolOpacity { get; set; } = 1d / 7 * 5;
 
-        public int MaxColors { get; set; } = 30;
+        public int ShapesPerStep { get; set; } = 150;
 
-        public bool RemoveWhite { get; set; } = false;
+        public int MutationsPerStep { get; set; } = 170;
 
-        public bool DisableLayering { get; set; } = false;
+        public int MaxSymbolCount { get; set; } = 225;
 
-        public double OffsetSizeYExponent { get; set; } = 0.75;
+        public bool IncludeBackground { get; set; } = true;
 
-        public double OffsetSizeXExponent { get; set; } = 0.7;
-
-        public double CenterYOffset { get; set; } = 0.25;
-
-        public double CenterXOffset { get; set; } = -0.20;
-
-        public bool SmoothResizing { get; set; } = false;
-
-        public int PixelSymbol { get; set; } = 680;
-
-        public double SymbolSizeThreshold { get; set; } = 1.25;
-
-        public bool AutoChooseSymbols { get; set; }
+        public ShapeType[] ShapeTypes { get; set; } = new ShapeType[] { ShapeType.Rotated_Rectangle, ShapeType.Ellipse };
     }
 }

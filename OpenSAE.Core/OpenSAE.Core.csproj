@@ -406,6 +406,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <ProjectReference Include="..\Geometrize\Geometrize.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Resource Include="assets\1.png" />
 		<Resource Include="assets\10.png" />
 		<Resource Include="assets\11.png" />

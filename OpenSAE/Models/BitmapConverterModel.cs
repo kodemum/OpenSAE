@@ -28,6 +28,7 @@ namespace OpenSAE.Models
         private bool _lockSymbolCount;
         private bool _isLoading;
         private double _loadProgress = 0;
+        private readonly Dispatcher _dispatcher;
 
         public SymbolArtModel? CurrentSymbolArt
         {
@@ -121,6 +122,8 @@ namespace OpenSAE.Models
             Options = new BitmapToSymbolArtConverterOptionsViewModel();
             Options.PropertyChanged += (_, __) => Reload();
             SymbolsList = new();
+
+            _dispatcher = Dispatcher.CurrentDispatcher;
         }
 
         private void AcceptCommand_Implementation()
@@ -183,7 +186,8 @@ namespace OpenSAE.Models
             LayerCount = symbols.Count(x => x.Visible);
         }
 
-        private CancellationTokenSource convertCancelTokenSource;
+        private CancellationTokenSource? convertCancelTokenSource;
+        private Task? convertTask;
 
         private void Reload()
         {
@@ -193,31 +197,35 @@ namespace OpenSAE.Models
             }
             else
             {
-                var dispatcher = Dispatcher.CurrentDispatcher;
-
                 LoadProgress = 0;
                 IsLoading = true;
 
                 convertCancelTokenSource?.Cancel();
                 convertCancelTokenSource = new CancellationTokenSource();
 
-                Task.Run(() =>
+                var token = convertCancelTokenSource.Token;
+
+                void action()
                 {
                     try
                     {
-                        using var converter = new BitmapToSymbolArtConverter(BitmapFilename, Options.GetOptions());
-
-                        var group = converter.Convert(convertCancelTokenSource.Token, new Progress<double>(x => LoadProgress = x));
-
-                        var sa = new SymbolArtModel(new DummyUndoModel());
-                        _currentGroup = new SymbolArtGroupModel(sa.Undo, group, sa);
-
-                        sa.Children.Add(_currentGroup);
-
-                        dispatcher.Invoke(() =>
+                        _dispatcher.Invoke(() =>
                         {
-                            CurrentSymbolArt = sa;
-                            LayerCount = sa.LayerCount;
+                            CurrentSymbolArt = new SymbolArtModel(new DummyUndoModel());
+                            _currentGroup = new SymbolArtGroupModel(CurrentSymbolArt.Undo, new SymbolArtGroup() { Visible = true }, CurrentSymbolArt);
+
+                            CurrentSymbolArt.Children.Add(_currentGroup);
+                        });
+
+                        token.ThrowIfCancellationRequested();
+
+                        using var converter = new GeometrizeBitmapConverter(BitmapFilename, Options.GetOptions());
+
+                        converter.Convert(AddLayer, token, new Progress<double>(x => LoadProgress = x));
+
+                        _dispatcher.Invoke(() =>
+                        {
+                            LayerCount = CurrentSymbolArt?.LayerCount ?? 0;
 
                             RefreshSymbolAmount();
                             ErrorMessage = null;
@@ -233,8 +241,35 @@ namespace OpenSAE.Models
                         ErrorMessage = "Unable to convert bitmap: " + ex.Message;
                         IsLoading = false;
                     }
-                });
+                }
+
+                if (convertTask is null)
+                {
+                    convertTask = Task.Run(action);
+                }
+                else
+                {
+                    convertTask = convertTask.ContinueWith((t) => action());
+                }
             }
+        }
+
+        private void AddLayer(SymbolArtLayer layer)
+        {
+            if (CurrentSymbolArt is null || _currentGroup is null)
+                return;
+
+            var layerModel = new SymbolArtLayerModel(CurrentSymbolArt.Undo, layer, _currentGroup);
+
+            _dispatcher.Invoke(() =>
+            {
+                _currentGroup.Children.Insert(0, layerModel);
+
+                LayerCount = CurrentSymbolArt.LayerCount;
+
+                RefreshSymbolAmount();
+                OnPropertyChanged(nameof(CurrentSymbolArt));
+            });
         }
     }
 }
