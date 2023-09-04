@@ -3,6 +3,7 @@ using geometrize.bitmap;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.Windows.Media;
 
 namespace OpenSAE.Core.BitmapConverter
 {
@@ -13,6 +14,7 @@ namespace OpenSAE.Core.BitmapConverter
         private readonly double _xOffset;
         private readonly double _yOffset;
         private readonly BitmapToSymbolArtConverterOptions _options;
+        private readonly System.Windows.Media.Color _backgroundColor;
 
         public GeometrizeBitmapConverter(string filename, BitmapToSymbolArtConverterOptions options)
         {
@@ -21,17 +23,22 @@ namespace OpenSAE.Core.BitmapConverter
 
             _originalImage = Image.Load<Rgba32>(filename);
 
+            var targetSize = options.ResizeImageHeight;
+            _backgroundColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
+
+            var backgroundColor = SixLabors.ImageSharp.Color.FromRgb(_backgroundColor.R, _backgroundColor.G, _backgroundColor.B);
+
             if (options.RespectEdges)
             {
                 _originalImage.Mutate(x => x
                     .Resize(new ResizeOptions()
                     {
-                        Size = new Size(options.ResizeImageHeight * 2, options.ResizeImageHeight),
+                        Size = new Size(targetSize * 2, targetSize),
                         Sampler = KnownResamplers.Lanczos8,
                         Mode = ResizeMode.Pad,
-                        PadColor = Color.Transparent,
+                        PadColor = backgroundColor,
                     })
-                    .BackgroundColor(Color.White)
+                    .BackgroundColor(backgroundColor)
                 );
 
                 _scale = 192d / _originalImage.Width;
@@ -43,11 +50,11 @@ namespace OpenSAE.Core.BitmapConverter
                 _originalImage.Mutate(x => x
                     .Resize(new ResizeOptions()
                     {
-                        Size = new Size(options.ResizeImageHeight, options.ResizeImageHeight),
+                        Size = new Size(targetSize, targetSize),
                         Sampler = KnownResamplers.Lanczos8,
                         Mode = ResizeMode.Max
                     })
-                    .BackgroundColor(Color.White)
+                    .BackgroundColor(backgroundColor)
                     );
 
                 if ((double)_originalImage.Width / _originalImage.Height > 2)
@@ -78,7 +85,7 @@ namespace OpenSAE.Core.BitmapConverter
 
             Bitmap bitmap = Bitmap.createFromBytes(_originalImage.Width, _originalImage.Height, new haxe.io.Bytes(imageData.Length, imageData));
 
-            var commonColor = FindMostCommonColor();
+            var commonColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
 
             Model geometrize = new(bitmap, GeometrizeUtil.ColorToInt(commonColor));
 
@@ -248,39 +255,6 @@ namespace OpenSAE.Core.BitmapConverter
         public void Dispose()
         {
             _originalImage.Dispose();
-        }
-
-        private Rgba32 FindMostCommonColor()
-        {
-            Dictionary<Rgba32, int> colors = new();
-
-            _originalImage.ProcessPixelRows(accessor =>
-            {
-                for (int rowi = 0; rowi < accessor.Height; rowi++)
-                {
-                    var row = accessor.GetRowSpan(rowi);
-
-                    for (int coli = 0; coli < row.Length; coli++)
-                    {
-                        var color = row[coli];
-
-                        // only consider mostly-opaque pixels
-                        if (color.A > 128)
-                        {
-                            if (colors.TryGetValue(color, out int count))
-                            {
-                                colors[color] = count + 1;
-                            }
-                            else
-                            {
-                                colors[color] = 1;
-                            }
-                        }
-                    }
-                }
-            });
-
-            return colors.OrderByDescending(x => x.Value).First().Key;
         }
     }
 }

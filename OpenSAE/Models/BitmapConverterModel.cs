@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using OpenSAE.Core;
 using OpenSAE.Core.BitmapConverter;
 using OpenSAE.Services;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace OpenSAE.Models
@@ -45,7 +48,14 @@ namespace OpenSAE.Models
         public string? BitmapFilename
         {
             get => _bitmapFilename;
-            set => SetRefreshProperty(ref _bitmapFilename, value);
+            set
+            {
+                if (SetProperty(ref _bitmapFilename, value))
+                {
+                    LoadBitmapBackgroundColor();
+                    OnPropertyChanged();
+                }
+            }
         }
 
         public bool TooManyLayers => LayerCount > 225;
@@ -184,6 +194,31 @@ namespace OpenSAE.Models
             }
 
             LayerCount = symbols.Count(x => x.Visible);
+        }
+
+        private void LoadBitmapBackgroundColor()
+        {
+            try
+            {
+                if (BitmapFilename is not null)
+                {
+                    using var image = Image.Load<Rgba32>(BitmapFilename);
+
+                    var mostCommon = image.FindMostCommonColor();
+                    if (mostCommon.A > 127)
+                    {
+                        Options.BackgroundColor = mostCommon.ToWindowsMediaColor();
+                    }
+                    else
+                    {
+                        // image is transparent, default to white background
+                        Options.BackgroundColor = Colors.White;
+                    }
+                }
+            }
+            catch
+            { 
+            }
         }
 
         private CancellationTokenSource? convertCancelTokenSource;

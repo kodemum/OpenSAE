@@ -4,6 +4,7 @@ using OpenSAE.Core.BitmapConverter;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
@@ -15,6 +16,7 @@ namespace OpenSAE.Models
         private int _shapesPerStep;
         private int _maxSymbolCount;
         private bool _includeBackground;
+        private Color _backgroundColor;
 
         private int _mutationsPerStep;
         private List<ShapeType> _shapeTypes;
@@ -22,6 +24,7 @@ namespace OpenSAE.Models
         public BitmapToSymbolArtConverterOptionsViewModel()
         {
             var defaultOptions = new BitmapToSymbolArtConverterOptions();
+            _backgroundColor = defaultOptions.BackgroundColor;
             _includeBackground = defaultOptions.IncludeBackground;
             _maxSymbolCount = defaultOptions.MaxSymbolCount;
             _mutationsPerStep = defaultOptions.MutationsPerStep;
@@ -104,6 +107,12 @@ namespace OpenSAE.Models
             set => SetProperty(ref _includeBackground, value);
         }
 
+        public Color BackgroundColor
+        {
+            get => _backgroundColor;
+            set => SetProperty(ref _backgroundColor, value);
+        }
+
         private bool HasShapeType(ShapeType type) => _shapeTypes.Contains(type);
         
         private void SetShapeType(ShapeType type, bool isSet, [CallerMemberName]string? propertyName = null)
@@ -120,6 +129,7 @@ namespace OpenSAE.Models
         {
             return new BitmapToSymbolArtConverterOptions()
             {
+                BackgroundColor = _backgroundColor,
                 IncludeBackground = _includeBackground,
                 MaxSymbolCount = _maxSymbolCount,
                 MutationsPerStep = _mutationsPerStep,

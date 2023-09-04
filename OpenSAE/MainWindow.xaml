@@ -171,7 +171,7 @@
                 <MenuItem Header="Export as _bitmap image..." Command="{Binding CurrentItemCommand}" CommandParameter="exportBitmap" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <Separator />
                 <MenuItem Header="Open _backup manager..." Click="OpenBackupManagerWindow_Click" />
-                <MenuItem Header="Bitmap image -> symbol art converter..." Click="MenuItem_BitmapConverter_Click" />
+                <MenuItem Header="_Import bitmap image..." Click="MenuItem_BitmapConverter_Click" />
                 <Separator />
                 <MenuItem Header="_Recent files" ItemsSource="{Binding RecentFiles}">
                     <MenuItem.ItemTemplate>

@@ -4,13 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:models="clr-namespace:OpenSAE.Models" xmlns:views="clr-namespace:OpenSAE.Views"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
         d:DataContext="{d:DesignInstance Type=models:BitmapConverterModel}"
         mc:Ignorable="d"
         x:Name="bitmapConverterWindow"
         DragOver="OnDragOver"
         Drop="OnDrop"
         AllowDrop="True"
-        Title="Bitmap -> symbol art converter" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"
+        Title="Import bitmap image" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"
         MinWidth="700" MinHeight="400"
         >
     <Window.Resources>
@@ -41,17 +42,25 @@
 
             <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="5 5 10 5" Width="150">
-                    <GroupBox Header="Input resolution">
+                    <GroupBox Header="Resolution">
                         <StackPanel>
                             <TextBox Text="{Binding Options.ResizeImageHeight}" />
-                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="96" Maximum="392" TickFrequency="16" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
-                            <CheckBox IsChecked="{Binding Options.RespectEdges}" Content="Respect image edges" Margin="0 5" />
+                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="96" Maximum="512" TickFrequency="16" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Background">
+                        <StackPanel>
+                            <CheckBox IsChecked="{Binding Options.IncludeBackground}" Content="Enable background" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.RespectEdges}" Content="Fill entire background" Margin="0 5" />
+                            
+                            <TextBlock DockPanel.Dock="Left">Background color</TextBlock>
+                            <colorpicker:PortableColorPicker Height="25" Margin="0 5 0 0" SelectedColor="{Binding Options.BackgroundColor, Mode=TwoWay}" />
                         </StackPanel>
                     </GroupBox>
 
                     <GroupBox Header="Segmentation">
                         <StackPanel>
-                            <CheckBox IsChecked="{Binding Options.IncludeBackground}" Content="Include background" Margin="0 5" />
                             <TextBlock Text="Symbol opacity" Margin="0 0 0 3" />
                             <TextBox Text="{Binding Options.SymbolOpacity, StringFormat=0.00}" />
                             <Slider Minimum="1" Maximum="7" Value="{Binding Options.SymbolOpacity, Converter={StaticResource alphaConverter}}" Margin="0 5" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />

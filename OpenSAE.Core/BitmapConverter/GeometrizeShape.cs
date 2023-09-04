@@ -1,6 +1,4 @@
-﻿using SixLabors.ImageSharp.PixelFormats;
-
-namespace OpenSAE.Core.BitmapConverter
+﻿namespace OpenSAE.Core.BitmapConverter
 {
     internal class GeometrizeShape
     {
@@ -12,10 +10,10 @@ namespace OpenSAE.Core.BitmapConverter
 
         public double[] Points { get; }
 
-        public GeometrizeShape(ShapeType type, Rgba32 color, double score, double[] points)
+        public GeometrizeShape(ShapeType type, System.Windows.Media.Color color, double score, double[] points)
         {
             Type = type;
-            Color = GeometrizeUtil.ToWindowsMediaColor(color);
+            Color = color;
             Score = score;
             Points = points;
         }
