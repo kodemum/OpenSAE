@@ -43,6 +43,7 @@ namespace OpenSAE
 
             _model = new AppModel(new DialogService(this));
             _model.ExitRequested += (_, __) => Close();
+            _model.BitmapConversionRequested += BitmapConversionRequested;
 
             DataContext = _model;
 
@@ -62,6 +63,11 @@ namespace OpenSAE
                     _model.OpenFile_Implementation(args[1]);
                 }
             }
+        }
+
+        private void BitmapConversionRequested(object? sender, BitmapConversionRequestedEventArgs e)
+        {
+            new BitmapConverterWindow(e.Model) { Owner = this }.Show();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -272,11 +278,6 @@ namespace OpenSAE
         private static void OpenFileInNewWindow(string filename)
         {
             new MainWindow(filename).Show();
-        }
-
-        private void MenuItem_BitmapConverter_Click(object sender, RoutedEventArgs e)
-        {
-            new BitmapConverterWindow(_model.OpenConvertedGroup).Show();
         }
     }
 }

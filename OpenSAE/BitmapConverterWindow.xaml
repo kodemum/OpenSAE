@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         x:Name="bitmapConverterWindow"
         DragOver="OnDragOver"
+        WindowStartupLocation="CenterOwner"
         Drop="OnDrop"
         AllowDrop="True"
         Title="Import bitmap image" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"

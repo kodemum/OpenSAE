@@ -18,9 +18,9 @@ using System.Windows.Threading;
 
 namespace OpenSAE.Models
 {
-    internal class BitmapConverterModel : ObservableObject
+    public class BitmapConverterModel : ObservableObject
     {
-        private readonly IDialogService _dialogService;
+        private IDialogService _dialogService;
         private readonly Action<SymbolArtGroup> _openAction;
         private SymbolArtModel? _currentSymbolArt;
         private SymbolArtGroupModel? _currentGroup;
@@ -53,7 +53,7 @@ namespace OpenSAE.Models
                 if (SetProperty(ref _bitmapFilename, value))
                 {
                     LoadBitmapBackgroundColor();
-                    OnPropertyChanged();
+                    Reload();
                 }
             }
         }
@@ -136,6 +136,11 @@ namespace OpenSAE.Models
             _dispatcher = Dispatcher.CurrentDispatcher;
         }
 
+        public void SetDialogService(IDialogService service)
+        {
+            _dialogService = service;
+        }
+
         private void AcceptCommand_Implementation()
         {
             if (_currentGroup != null)
@@ -156,18 +161,6 @@ namespace OpenSAE.Models
                 return;
 
             BitmapFilename = filename;
-        }
-
-        private bool SetRefreshProperty<T>(ref T prop, T value, [CallerMemberName] string? propertyName = null)
-        {
-            bool different = SetProperty(ref prop, value, propertyName);
-
-            if (different)
-            {
-                Reload();
-            }
-
-            return different;
         }
 
         private void RefreshSymbolAmount()
@@ -296,15 +289,19 @@ namespace OpenSAE.Models
 
             var layerModel = new SymbolArtLayerModel(CurrentSymbolArt.Undo, layer, _currentGroup);
 
-            _dispatcher.Invoke(() =>
+            try
             {
-                _currentGroup.Children.Insert(0, layerModel);
+                _dispatcher.Invoke(() =>
+                {
+                    _currentGroup.Children.Insert(0, layerModel);
 
-                LayerCount = CurrentSymbolArt.LayerCount;
+                    LayerCount = CurrentSymbolArt.LayerCount;
 
-                RefreshSymbolAmount();
-                OnPropertyChanged(nameof(CurrentSymbolArt));
-            });
+                    RefreshSymbolAmount();
+                    OnPropertyChanged(nameof(CurrentSymbolArt));
+                });
+            }
+            catch (TaskCanceledException) { }
         }
     }
 }

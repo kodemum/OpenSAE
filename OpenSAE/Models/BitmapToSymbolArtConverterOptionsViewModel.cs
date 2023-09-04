@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
-    internal class BitmapToSymbolArtConverterOptionsViewModel : ObservableObject
+    public class BitmapToSymbolArtConverterOptionsViewModel : ObservableObject
     {
         private int _resizeImageHeight;
         private bool _respectEdges;

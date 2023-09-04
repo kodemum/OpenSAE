@@ -42,7 +42,7 @@
     <Style TargetType="TextBlock" x:Key="subtitleText">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Margin" Value="0 10 0 5" />
+        <Setter Property="Margin" Value="0 20 0 5" />
     </Style>
 
     <Style TargetType="Button" x:Key="statusBarIconButton">

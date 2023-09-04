@@ -6,7 +6,7 @@ namespace OpenSAE.Core.BitmapConverter
     {
         public int ResizeImageHeight { get; set; } = 256;
 
-        public bool RespectEdges { get; set; } = false;
+        public bool RespectEdges { get; set; } = true;
 
         public double SymbolOpacity { get; set; } = 1d / 7 * 5;
 

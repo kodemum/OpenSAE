@@ -23,11 +23,11 @@ namespace OpenSAE
     {
         private readonly BitmapConverterModel _model;
 
-        public BitmapConverterWindow(Action<SymbolArtGroup> acceptAction)
+        public BitmapConverterWindow(BitmapConverterModel model)
         {
             InitializeComponent();
 
-            _model = new BitmapConverterModel(new Services.DialogService(this), acceptAction);
+            _model = model;
 
             DataContext = _model;
         }
