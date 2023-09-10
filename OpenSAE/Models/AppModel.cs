@@ -75,6 +75,7 @@ namespace OpenSAE.Models
                     SaveAsCommand.NotifyCanExecuteChanged();
                     AddImageLayerCommand.NotifyCanExecuteChanged();
                     OpenViewCurrentItemCommand.NotifyCanExecuteChanged();
+                    SelectedItem = _currentSymbolArt;
 
                     if (previous != null)
                     {
