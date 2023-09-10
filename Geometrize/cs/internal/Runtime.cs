@@ -18,36 +18,11 @@ namespace haxe.lang {
 		if (obj == null && !throwErrors) return null;
 		return obj.__hx_getField(field, (fieldHash == 0) ? haxe.lang.FieldLookup.hash(field) : fieldHash, throwErrors, false, false);
 	}
-
-	public static double getField_f(haxe.lang.HxObject obj, string field, int fieldHash, bool throwErrors)
-	{
-		if (obj == null && !throwErrors) return 0.0;
-		return obj.__hx_getField_f(field, (fieldHash == 0) ? haxe.lang.FieldLookup.hash(field) : fieldHash, throwErrors, false);
-	}
-
-	public static object setField(haxe.lang.HxObject obj, string field, int fieldHash, object value)
-	{
-		return obj.__hx_setField(field, (fieldHash == 0) ? haxe.lang.FieldLookup.hash(field) : fieldHash, value, false);
-	}
-
-	public static double setField_f(haxe.lang.HxObject obj, string field, int fieldHash, double value)
-	{
-		return obj.__hx_setField_f(field, (fieldHash == 0) ? haxe.lang.FieldLookup.hash(field) : fieldHash, value, false);
-	}
-
-	public static object callField(haxe.lang.HxObject obj, string field, int fieldHash, object[] args)
-	{
-		return obj.__hx_invokeField(field, (fieldHash == 0) ? haxe.lang.FieldLookup.hash(field) : fieldHash, args);
-	}
 		public Runtime() {
 		}
 		
 		
 		public static readonly object undefined = ((object) (new global::System.Object()) );
-		
-		public static object closure(object obj, int hash, string field) {
-			return new global::haxe.lang.Closure(obj, field, hash);
-		}
 		
 		
 		public static bool eq(object v1, object v2) {
