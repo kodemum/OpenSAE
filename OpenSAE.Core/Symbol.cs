@@ -24,12 +24,12 @@ namespace OpenSAE.Core
             Flags = flags;
         }
 
-        public Symbol(int id, string name, double kerning, string description, SymbolGroup group)
-            : this(id, name, kerning / 2, kerning / 2, description, group)
+        public Symbol(int id, string name, double kerning, string description, SymbolGroup group, SymbolFlag flags = SymbolFlag.None)
+            : this(id, name, kerning / 2, kerning / 2, description, group, flags)
         {
         }
 
-        public Symbol(int id, string name, double kerningRight, double kerningLeft, string description, SymbolGroup group)
+        public Symbol(int id, string name, double kerningRight, double kerningLeft, string description, SymbolGroup group, SymbolFlag flags = SymbolFlag.None)
         {
             Id = id;
             Name = name;
@@ -42,6 +42,8 @@ namespace OpenSAE.Core
             {
                 _ = this.Image;
             }
+
+            Flags = flags;
         }
 
         public int Id { get; }
