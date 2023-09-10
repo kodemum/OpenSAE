@@ -17,7 +17,7 @@ namespace geometrize.shape {
 		}
 		
 		
-		public static global::geometrize.shape.Shape create(int type, int xBound, int yBound) {
+		public static global::geometrize.shape.Shape create(int type, int xBound, int yBound, SymbolShapeOptions symbolOptions) {
 			unchecked {
 				switch (type) {
 					case 0:
@@ -63,8 +63,13 @@ namespace geometrize.shape {
 
 					case 7:
 					{
-						return new SymbolShape(xBound, yBound);
+						return new SymbolShape(xBound, yBound, symbolOptions);
 					}
+
+                    case 8:
+                    {
+                        return new RotatedSymbolShape(xBound, yBound, symbolOptions);
+                    }
                 }
 				
 				return null;
@@ -72,8 +77,8 @@ namespace geometrize.shape {
 		}
 		
 		
-		public static Shape randomShapeOf(HaxeArray<int> types, int xBound, int yBound) {
-            return create(types[HaxeMath.rand.Next(types.length)], xBound, yBound);
+		public static Shape randomShapeOf(HaxeArray<int> types, int xBound, int yBound, SymbolShapeOptions symbolOptions) {
+            return create(types[HaxeMath.rand.Next(types.length)], xBound, yBound, symbolOptions);
 		}
 	}
 }

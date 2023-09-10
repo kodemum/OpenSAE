@@ -2,6 +2,7 @@
 using OpenSAE.Core;
 using OpenSAE.Core.BitmapConverter;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Media;
@@ -34,6 +35,9 @@ namespace OpenSAE.Models
             _shapesPerStep = defaultOptions.ShapesPerStep;
             _shapeTypes = defaultOptions.ShapeTypes.ToList();
             _symbolOpacity = defaultOptions.SymbolOpacity;
+
+            ShapeSymbolsToUse = new(SymbolUtil.DefaultSymbolsForBitmapConverter);
+            ShapeSymbolsToUse.CollectionChanged += (_, __) => OnPropertyChanged(nameof(ShapeSymbolsToUse));
         }
 
         public int ResizeImageHeight
@@ -102,6 +106,12 @@ namespace OpenSAE.Models
             set => SetShapeType(ShapeType.Symbols, value);
         }
 
+        public bool EnableRotatedSymbolShape
+        {
+            get => HasShapeType(ShapeType.Rotated_Symbols);
+            set => SetShapeType(ShapeType.Rotated_Symbols, value);
+        }
+
         public int MaxSymbolCount
         {
             get => _maxSymbolCount;
@@ -125,6 +135,8 @@ namespace OpenSAE.Models
             get => _showViewPort;
             set => SetProperty(ref _showViewPort, value);
         }
+
+        public ObservableCollection<Symbol> ShapeSymbolsToUse { get; }
 
         private bool HasShapeType(ShapeType type) => _shapeTypes.Contains(type);
         
@@ -151,6 +163,7 @@ namespace OpenSAE.Models
                 ShapesPerStep = _shapesPerStep,
                 ShapeTypes = _shapeTypes.ToArray(),
                 SymbolOpacity = _symbolOpacity,
+                ShapeSymbolsToUse = ShapeSymbolsToUse.ToList(),
             };
         }
     }

@@ -7,6 +7,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -37,6 +38,8 @@ namespace OpenSAE.Models
         private byte[]? _currentImageData;
         private BitmapImage? _currentImage;
         private readonly Dispatcher _dispatcher;
+        private Symbol? _selectedSymbol;
+        private Symbol? _selectedPendingSymbol;
 
         public SymbolArtModel? CurrentSymbolArt
         {
@@ -77,9 +80,29 @@ namespace OpenSAE.Models
             }
         }
 
+        public Symbol? SelectedSymbol
+        {
+            get => _selectedSymbol;
+            set
+            {
+                if (SetProperty(ref _selectedSymbol, value))
+                    SymbolCommand.NotifyCanExecuteChanged();
+            }
+        }
+
+        public Symbol? SelectedPendingSymbol
+        {
+            get => _selectedPendingSymbol;
+            set
+            {
+                if (SetProperty(ref _selectedPendingSymbol, value))
+                    SymbolCommand.NotifyCanExecuteChanged();
+            }
+        }
+
         public BitmapToSymbolArtConverterOptionsViewModel Options { get; }
 
-        public SymbolListModel SymbolsList { get; }
+        public ObservableCollection<Symbol> AvailableSymbols { get; }
 
         public string? ErrorMessage
         {
@@ -166,18 +189,47 @@ namespace OpenSAE.Models
 
         public IRelayCommand AcceptCommand { get; }
 
+        public IRelayCommand SymbolCommand { get; }
+
         public BitmapConverterModel(IDialogService dialogService, Action<SymbolArtGroup> openAction)
         {
             _dialogService = dialogService;
             _openAction = openAction;
             BrowseCommand = new RelayCommand(BrowseCommand_Implementation);
             AcceptCommand = new RelayCommand(AcceptCommand_Implementation, () => CurrentSymbolArt != null);
+            SymbolCommand = new RelayCommand<string>(SymbolCommand_Implementation, SymbolCommand_CanRun);
 
             Options = new BitmapToSymbolArtConverterOptionsViewModel();
             Options.PropertyChanged += (_, __) => Reload();
-            SymbolsList = new();
+            AvailableSymbols = new(SymbolUtil.SymbolsUsableByBitmapConverter);
 
             _dispatcher = Dispatcher.CurrentDispatcher;
+        }
+
+        private bool SymbolCommand_CanRun(string? obj)
+        {
+            return obj == "add" ? _selectedPendingSymbol != null : _selectedSymbol != null;
+        }
+
+        private void SymbolCommand_Implementation(string? obj)
+        {
+            if (obj == "add")
+            {
+                if (_selectedPendingSymbol != null)
+                {
+                    if (!Options.ShapeSymbolsToUse.Contains(_selectedPendingSymbol))
+                    {
+                        Options.ShapeSymbolsToUse.Add(_selectedPendingSymbol);
+                    }
+                }
+            }
+            else
+            {
+                if (_selectedSymbol != null)
+                {
+                    Options.ShapeSymbolsToUse.Remove(_selectedSymbol);
+                }
+            }
         }
 
         public void SetDialogService(IDialogService service)

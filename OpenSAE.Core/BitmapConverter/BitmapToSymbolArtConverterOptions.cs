@@ -18,7 +18,9 @@ namespace OpenSAE.Core.BitmapConverter
 
         public bool IncludeBackground { get; set; } = true;
 
-        public ShapeType[] ShapeTypes { get; set; } = new ShapeType[] { ShapeType.Rotated_Ellipse, ShapeType.Symbols };
+        public ShapeType[] ShapeTypes { get; set; } = new ShapeType[] { ShapeType.Rotated_Ellipse, ShapeType.Rotated_Symbols };
+
+        public List<Symbol> ShapeSymbolsToUse { get; set; } = new();
 
         public Color BackgroundColor { get; set; }
             = Colors.White;

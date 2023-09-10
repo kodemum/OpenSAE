@@ -2,20 +2,20 @@
 
 #pragma warning disable 109, 114, 219, 429, 168, 162
 namespace geometrize {
-	public class Model : global::haxe.lang.HxObject {
+	public class Model : haxe.lang.HxObject {
 		
-		public Model(global::haxe.lang.EmptyObject empty) {
+		public Model(haxe.lang.EmptyObject empty) {
 		}
 		
 		
-		public Model(global::geometrize.bitmap.Bitmap target, int backgroundColor) {
-			global::geometrize.Model.__hx_ctor_geometrize_Model(this, target, backgroundColor);
+		public Model(bitmap.Bitmap target, int backgroundColor) {
+            __hx_ctor_geometrize_Model(this, target, backgroundColor);
 		}
 		
 		
-		protected static void __hx_ctor_geometrize_Model(global::geometrize.Model __hx_this, global::geometrize.bitmap.Bitmap target, int backgroundColor) {
+		protected static void __hx_ctor_geometrize_Model(Model __hx_this, bitmap.Bitmap target, int backgroundColor) {
 			if (( target == null )) {
-				throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: target != null")) );
+				throw ((System.Exception) (haxe.Exception.thrown("FAIL: target != null")) );
 			}
 			
 			__hx_this.width = target.width;
@@ -23,31 +23,31 @@ namespace geometrize {
 			__hx_this.target = target;
 			int w = target.width;
 			int h = target.height;
-			global::geometrize.bitmap.Bitmap bitmap = new global::geometrize.bitmap.Bitmap();
+            bitmap.Bitmap bitmap = new bitmap.Bitmap();
 			bitmap.width = w;
 			bitmap.height = h;
-			bitmap.data = ((int[]) (new int[( w * h )]) );
+			bitmap.data = (new int[(w * h)]);
 			int i = 0;
-			while (( i < ( ((int[]) (bitmap.data) ) as global::System.Array ).Length )) {
-				((int[]) (bitmap.data) )[i] = backgroundColor;
+			while (( i < bitmap.data.Length )) {
+                bitmap.data[i] = backgroundColor;
 				 ++ i;
 			}
 			
 			__hx_this.current = bitmap;
 			int w1 = target.width;
 			int h1 = target.height;
-			global::geometrize.bitmap.Bitmap bitmap1 = new global::geometrize.bitmap.Bitmap();
+            bitmap.Bitmap bitmap1 = new bitmap.Bitmap();
 			bitmap1.width = w1;
 			bitmap1.height = h1;
-			bitmap1.data = ((int[]) (new int[( w1 * h1 )]) );
+			bitmap1.data = (new int[(w1 * h1)]);
 			int i1 = 0;
-			while (( i1 < ( ((int[]) (bitmap1.data) ) as global::System.Array ).Length )) {
-				((int[]) (bitmap1.data) )[i1] = backgroundColor;
+			while (( i1 < bitmap1.data.Length )) {
+                bitmap1.data[i1] = backgroundColor;
 				 ++ i1;
 			}
 			
 			__hx_this.buffer = bitmap1;
-			__hx_this.score = global::geometrize.Core.differenceFull(target, __hx_this.current);
+			__hx_this.score = Core.differenceFull(target, __hx_this.current);
 		}
 		
 		
@@ -55,47 +55,47 @@ namespace geometrize {
 		
 		public int height;
 		
-		public global::geometrize.bitmap.Bitmap target;
+		public bitmap.Bitmap target;
 		
-		public global::geometrize.bitmap.Bitmap current;
+		public bitmap.Bitmap current;
 		
-		public global::geometrize.bitmap.Bitmap buffer;
+		public bitmap.Bitmap buffer;
 		
 		public double score;
 		
-		public virtual global::HaxeArray<object> step(global::HaxeArray<int> shapeTypes, int alpha, int n, int age) {
-			global::geometrize.State state = global::geometrize.Core.bestHillClimbState(shapeTypes, alpha, n, age, this.target, this.current, this.buffer, this.score);
-			global::HaxeArray<object> results = new global::HaxeArray<object>(new object[]{this.addShape(state.shape, state.alpha)});
+		public virtual HaxeArray<object> step(HaxeArray<int> shapeTypes, int alpha, int n, int age, SymbolShapeOptions symbolOptions) {
+            State state = Core.bestHillClimbState(shapeTypes, alpha, n, age, this.target, this.current, this.buffer, this.score, symbolOptions);
+            HaxeArray<object> results = new HaxeArray<object>(new object[]{this.addShape(state.shape, state.alpha)});
 			return results;
 		}
 		
 		
-		public virtual object addShape(global::geometrize.shape.Shape shape, int alpha) {
+		public virtual object addShape(shape.Shape shape, int alpha) {
 			if (( shape == null )) {
-				throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: shape != null")) );
+				throw ((System.Exception) (haxe.Exception.thrown("FAIL: shape != null")) );
 			}
-			
-			global::geometrize.bitmap.Bitmap _this = this.current;
-			global::geometrize.bitmap.Bitmap bitmap = new global::geometrize.bitmap.Bitmap();
+
+            bitmap.Bitmap _this = this.current;
+            bitmap.Bitmap bitmap = new bitmap.Bitmap();
 			bitmap.width = _this.width;
 			bitmap.height = _this.height;
-			bitmap.data = ((int[]) (new int[( ((int[]) (_this.data) ) as global::System.Array ).Length]) );
+			bitmap.data = (new int[_this.data.Length]);
 			{
 				int _g = 0;
-				int _g1 = ( ((int[]) (_this.data) ) as global::System.Array ).Length;
+				int _g1 = _this.data.Length;
 				while (( _g < _g1 )) {
 					int i = _g++;
-					((int[]) (bitmap.data) )[i] = ((int[]) (_this.data) )[i];
+                    bitmap.data[i] = _this.data[i];
 				}
 				
 			}
-			
-			global::geometrize.bitmap.Bitmap before = bitmap;
-			global::HaxeArray<object> lines = shape.rasterize();
-			int color = global::geometrize.Core.computeColor(this.target, this.current, lines, alpha);
-			global::geometrize.rasterizer.Rasterizer.drawLines(this.current, color, lines);
-			this.score = global::geometrize.Core.differencePartial(this.target, before, this.current, this.score, lines);
-			object result = new global::haxe.lang.DynamicObject(new int[]{2082267937}, new object[]{shape}, new int[]{1247572323, 2027516754}, new double[]{((double) (color) ), this.score});
+
+            bitmap.Bitmap before = bitmap;
+            HaxeArray<object> lines = shape.rasterize();
+			int color = Core.computeColor(this.target, this.current, lines, alpha);
+            rasterizer.Rasterizer.drawLines(this.current, color, lines);
+			this.score = Core.differencePartial(this.target, before, this.current, this.score, lines);
+			object result = new haxe.lang.DynamicObject(new int[]{2082267937}, new object[]{shape}, new int[]{1247572323, 2027516754}, new double[]{ color, this.score});
 			return result;
 		}
 		
@@ -105,7 +105,7 @@ namespace geometrize {
 				switch (hash) {
 					case 2027516754:
 					{
-						this.score = ((double) (@value) );
+						this.score = @value;
 						return @value;
 					}
 					
@@ -140,42 +140,42 @@ namespace geometrize {
 				switch (hash) {
 					case 2027516754:
 					{
-						this.score = ((double) (global::haxe.lang.Runtime.toDouble(@value)) );
+						this.score = haxe.lang.Runtime.toDouble(@value);
 						return @value;
 					}
 					
 					
 					case 1351924992:
 					{
-						this.buffer = ((global::geometrize.bitmap.Bitmap) (@value) );
+						this.buffer = ((bitmap.Bitmap) (@value) );
 						return @value;
 					}
 					
 					
 					case 1273207865:
 					{
-						this.current = ((global::geometrize.bitmap.Bitmap) (@value) );
+						this.current = ((bitmap.Bitmap) (@value) );
 						return @value;
 					}
 					
 					
 					case 116192081:
 					{
-						this.target = ((global::geometrize.bitmap.Bitmap) (@value) );
+						this.target = ((bitmap.Bitmap) (@value) );
 						return @value;
 					}
 					
 					
 					case 38537191:
 					{
-						this.height = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
+						this.height = haxe.lang.Runtime.toInt(@value);
 						return @value;
 					}
 					
 					
 					case 1247983110:
 					{
-						this.width = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
+						this.width = haxe.lang.Runtime.toInt(@value);
 						return @value;
 					}
 					
@@ -196,13 +196,13 @@ namespace geometrize {
 				switch (hash) {
 					case 1970932032:
 					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "addShape", 1970932032)) );
+						return new haxe.lang.Closure(this, "addShape", 1970932032);
 					}
 					
 					
 					case 1281091404:
 					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "step", 1281091404)) );
+						return new haxe.lang.Closure(this, "step", 1281091404);
 					}
 					
 					
@@ -264,13 +264,13 @@ namespace geometrize {
 					
 					case 38537191:
 					{
-						return ((double) (this.height) );
+						return this.height;
 					}
 					
 					
 					case 1247983110:
 					{
-						return ((double) (this.width) );
+						return this.width;
 					}
 					
 					
@@ -290,13 +290,13 @@ namespace geometrize {
 				switch (hash) {
 					case 1970932032:
 					{
-						return this.addShape(((global::geometrize.shape.Shape) (dynargs[0]) ), ((int) (global::haxe.lang.Runtime.toInt(dynargs[1])) ));
+						return this.addShape(((shape.Shape) (dynargs[0]) ), haxe.lang.Runtime.toInt(dynargs[1]));
 					}
 					
 					
 					case 1281091404:
 					{
-						return this.step(((global::HaxeArray<int>) (global::HaxeArray<object>.__hx_cast<int>(((global::HaxeArray) (dynargs[0]) ))) ), ((int) (global::haxe.lang.Runtime.toInt(dynargs[1])) ), ((int) (global::haxe.lang.Runtime.toInt(dynargs[2])) ), ((int) (global::haxe.lang.Runtime.toInt(dynargs[3])) ));
+						return this.step(((HaxeArray<int>) (HaxeArray<object>.__hx_cast<int>(((HaxeArray) (dynargs[0]) ))) ), haxe.lang.Runtime.toInt(dynargs[1]), haxe.lang.Runtime.toInt(dynargs[2]), haxe.lang.Runtime.toInt(dynargs[3]), new SymbolShapeOptions());
 					}
 					
 					
@@ -311,7 +311,7 @@ namespace geometrize {
 		}
 		
 		
-		public override void __hx_getFields(global::HaxeArray<string> baseArr) {
+		public override void __hx_getFields(HaxeArray<string> baseArr) {
 			baseArr.push("score");
 			baseArr.push("buffer");
 			baseArr.push("current");

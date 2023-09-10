@@ -3,8 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:OpenSAE.Models" xmlns:views="clr-namespace:OpenSAE.Views"
+        xmlns:models="clr-namespace:OpenSAE.Models"
+        xmlns:views="clr-namespace:OpenSAE.Views"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:controls="clr-namespace:OpenSAE.Controls"
         d:DataContext="{d:DesignInstance Type=models:BitmapConverterModel}"
         mc:Ignorable="d"
         x:Name="bitmapConverterWindow"
@@ -37,6 +39,58 @@
             <TextBox Grid.Column="1" VerticalAlignment="Center" Text="{Binding BitmapFilename}" Margin="5 0" />
             <Button Grid.Column="2" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Open file...</Button>
         </Grid>
+
+        <Grid Margin="5 5 10 5" Width="250" DockPanel.Dock="Right">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock>Available symbols:</TextBlock>
+            <controls:ListBoxScroll Grid.Row="1" ItemsSource="{Binding AvailableSymbols}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="true" 
+                VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding SelectedPendingSymbol}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Fill="Black" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </controls:ListBoxScroll>
+            <StackPanel Grid.Row="2">
+                <UniformGrid Grid.Row="2" Columns="2" Margin="5">
+                    <Button Command="{Binding SymbolCommand}" CommandParameter="remove">Remove symbol -</Button>
+                    <Button Command="{Binding SymbolCommand}" CommandParameter="add">Use symbol +</Button>
+                </UniformGrid>
+                <TextBlock>Symbols in use:</TextBlock>
+            </StackPanel>
+            <controls:ListBoxScroll Grid.Row="3" ItemsSource="{Binding Options.ShapeSymbolsToUse}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="true" 
+    VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding SelectedSymbol}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Fill="Black" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </controls:ListBoxScroll>
+        </Grid>
+
 
         <DockPanel DockPanel.Dock="Left">
             <Button DockPanel.Dock="Bottom" Content="Accept" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" Margin="5" />
@@ -82,6 +136,7 @@
                             <CheckBox IsChecked="{Binding Options.EnableRotatedEllipseShape}" Content="Rotated ellipses" Margin="0 5" />
                             <CheckBox IsChecked="{Binding Options.EnableRotatedRectangleShape}" Content="Rotated rectangles" Margin="0 5" />
                             <CheckBox IsChecked="{Binding Options.EnableSymbolShape}" Content="Symbols" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableRotatedSymbolShape}" Content="Rotated symbols" Margin="0 5" />
                         </StackPanel>
                     </GroupBox>
 

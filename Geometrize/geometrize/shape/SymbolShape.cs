@@ -4,30 +4,20 @@ using System.Text;
 
 namespace geometrize.shape
 {
-    public class SymbolShapeDefinition
-    {
-        public int SymbolId { get; set; }
-
-        public (int x, int x2)[] SymbolScanlines { get; set; }
-    }
 
 #pragma warning disable 109, 114, 219, 429, 168, 162
     public class SymbolShape : haxe.lang.HxObject, Shape
     {
-        private static readonly List<SymbolShapeDefinition> symbols = new List<SymbolShapeDefinition>();
-
-        public static void RegisterSymbol(SymbolShapeDefinition definition)
-        {
-            symbols.Add(definition);
-        }
+        private readonly SymbolShapeOptions _symbolOptions;
 
         public SymbolShape()
         {
 
         }
 
-        public SymbolShape(int xBound, int yBound)
+        public SymbolShape(int xBound, int yBound, SymbolShapeOptions symbolOptions)
         {
+            _symbolOptions = symbolOptions;
             x1 = Std.random(xBound);
             y1 = Std.random(yBound);
             int @value = ((x1 + Std.random(32)) + 1);
@@ -49,10 +39,12 @@ namespace geometrize.shape
             this.xBound = xBound;
             this.yBound = yBound;
 
-            if (symbols.Count == 0)
+            if (_symbolOptions.SymbolDefinitions.Count == 0)
                 throw new Exception("No registered symbols");
 
-            symbol = symbols[Std.random(symbols.Count)];
+            symbol = _symbolOptions.SymbolDefinitions[Std.random(_symbolOptions.SymbolDefinitions.Count)];
+            flipX = Std.random(2) != 0;
+            flipY = Std.random(2) != 0;
         }
 
         public int x1;
@@ -68,6 +60,10 @@ namespace geometrize.shape
         public int yBound;
 
         private SymbolShapeDefinition symbol;
+
+        private bool flipX;
+
+        private bool flipY;
 
         public virtual HaxeArray<object> rasterize()
         {
@@ -86,10 +82,22 @@ namespace geometrize.shape
                 {
                     int symbolY = (int)Math.Round((y - y1) * symbolScaleFactorY);
 
+                    if (flipY)
+                    {
+                        symbolY = symbol.SymbolScanlines.Length - 1 - symbolY;
+                    }
+
                     (int symbolX, int symbolX2) = symbol.SymbolScanlines[symbolY];
 
                     if (symbolX != symbolX2)
                     {
+                        if (flipX)
+                        {
+                            var length = symbolX2 - symbolX;
+
+                            (symbolX, symbolX2) = (64 - symbolX - length, 64 - symbolX);
+                        }
+
                         int translatedSymbolX = (int)Math.Round(start + (symbolX / symbolScaleFactorX));
                         int translatedSymbolX2 = (int)Math.Round(start + (symbolX2 / symbolScaleFactorX));
 
@@ -153,7 +161,7 @@ namespace geometrize.shape
 
                     case 2:
                         {
-                            symbol = symbols[Std.random(symbols.Count)];
+                            symbol = _symbolOptions.SymbolDefinitions[Std.random(_symbolOptions.SymbolDefinitions.Count)];
                         }
                         break;
                 }
@@ -164,7 +172,7 @@ namespace geometrize.shape
 
         public virtual Shape clone()
         {
-            return new SymbolShape(this.xBound, this.yBound)
+            return new SymbolShape(this.xBound, this.yBound, _symbolOptions)
             {
                 x1 = this.x1,
                 x2 = this.x2,
@@ -189,6 +197,8 @@ namespace geometrize.shape
                 (this.x1 > this.x2) ? this.x1 : this.x2, 
                 (this.y1 > this.y2) ? this.y1 : this.y2,
                 this.symbol.SymbolId,
+                this.flipX ? 1 : 0,
+                this.flipY ? 1 : 0,
             });
         }
 

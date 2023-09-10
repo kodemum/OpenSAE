@@ -17,28 +17,6 @@ namespace OpenSAE.Core.BitmapConverter
         private readonly BitmapToSymbolArtConverterOptions _options;
         private readonly System.Windows.Media.Color _backgroundColor;
 
-        static GeometrizeBitmapConverter()
-        {
-            foreach (int i in new int[] { 241, 242, 243, 244, 245, 256, 247, 248, 249, 250, 251, 252, 255, 256, 258, 259, 260, 261, 262,
-                263, 268, 321, 322, 329, 330, 331, 332, 333, 334, 335, 336, 337, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357,
-                358, 359, 644, 674, 677, 681, 682, 683, 690 })
-            {
-                var symbol = SymbolUtil.GetById(i);
-                
-                SymbolShape.RegisterSymbol(new SymbolShapeDefinition()
-                {
-                    SymbolId = symbol.Id,
-                    SymbolScanlines = ExtractScanLines(symbol),
-                });
-
-                RotatedSymbolShape.RegisterSymbol(new SymbolShapeDefinition()
-                {
-                    SymbolId = symbol.Id,
-                    SymbolScanlines = ExtractScanLines(symbol),
-                });
-            }
-        }
-
         private static (int x, int x2)[] ExtractScanLines(Symbol symbol)
         {
             byte[] rawPixelData = new byte[symbol.Image.PixelWidth * symbol.Image.PixelHeight * 4];
@@ -55,7 +33,7 @@ namespace OpenSAE.Core.BitmapConverter
                 {
                     int pos = (y * symbol.Image.PixelWidth + x) * 4;
 
-                    bool isOpaque = rawPixelData[pos + 3] > 128;
+                    bool isOpaque = rawPixelData[pos + 3] > 196;
 
                     if (isOpaque)
                     {
@@ -154,6 +132,22 @@ namespace OpenSAE.Core.BitmapConverter
             Bitmap bitmap = Bitmap.createFromBytes(_originalImage.Width, _originalImage.Height, new haxe.io.Bytes(imageData.Length, imageData));
 
             var commonColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
+            var symbolOptions = new SymbolShapeOptions()
+            {
+                SymbolDefinitions = _options.ShapeSymbolsToUse.Select(x => new SymbolShapeDefinition()
+                {
+                    SymbolId = x.Id,
+                    SymbolScanlines = ExtractScanLines(x),
+                    HorizontallySymmetric = x.Flags.HasFlag(SymbolFlag.HorizontallySymmetric) || x.Flags.HasFlag(SymbolFlag.Symmetric),
+                    VerticallySymmetric = x.Flags.HasFlag(SymbolFlag.VerticallySymmetric) || x.Flags.HasFlag(SymbolFlag.Symmetric),
+                }).ToList()
+            };
+
+            if ((_options.ShapeTypes.Contains(ShapeType.Symbols) || _options.ShapeTypes.Contains(ShapeType.Rotated_Symbols))
+                && _options.ShapeSymbolsToUse.Count == 0)
+            {
+                return;
+            }
 
             Model geometrize = new(bitmap, GeometrizeUtil.ColorToInt(commonColor));
 
@@ -176,7 +170,8 @@ namespace OpenSAE.Core.BitmapConverter
                         new HaxeArray<int>(_options.ShapeTypes.Select(x => (int)x).ToArray()),
                         (int)Math.Round(_options.SymbolOpacity * 255),
                         _options.ShapesPerStep,
-                        _options.MutationsPerStep);
+                        _options.MutationsPerStep,
+                        symbolOptions);
 
                     for (int i = 0; i < items.length; i++)
                     {
@@ -324,7 +319,15 @@ namespace OpenSAE.Core.BitmapConverter
                 new System.Windows.Point(x2, y1)
             };
 
-            if (shape.Type == ShapeType.Rotated_Symbols)
+            if (shape.Points.Length == 7)
+            {
+                if (shape.Points[5] == 1)
+                    vertices = SymbolManipulationHelper.FlipX(vertices);
+
+                if (shape.Points[6] == 1)
+                    vertices = SymbolManipulationHelper.FlipY(vertices);
+            }
+            else if (shape.Type == ShapeType.Rotated_Symbols)
             {
                 vertices = SymbolManipulationHelper.Rotate(vertices, shape.Points[5] / 180 * Math.PI);
             }

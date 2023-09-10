@@ -233,7 +233,7 @@ namespace geometrize
         }
 
 
-        public static State bestRandomState(global::HaxeArray<int> shapes, int alpha, int n, global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, global::geometrize.bitmap.Bitmap buffer, double lastScore)
+        public static State bestRandomState(global::HaxeArray<int> shapes, int alpha, int n, global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, global::geometrize.bitmap.Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
         {
             object lockObj = new object();
 
@@ -242,7 +242,7 @@ namespace geometrize
 
             Parallel.For(0, n, (i) =>
             {
-                State state = new State(shape.ShapeFactory.randomShapeOf(shapes, current.width, current.height), alpha, target, current, buffer);
+                State state = new State(shape.ShapeFactory.randomShapeOf(shapes, current.width, current.height, symbolOptions), alpha, target, current, buffer);
                 double energy = state.energy(lastScore);
 
                 lock (lockObj)
@@ -260,9 +260,9 @@ namespace geometrize
         }
 
 
-        public static State bestHillClimbState(global::HaxeArray<int> shapes, int alpha, int n, int age, global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, global::geometrize.bitmap.Bitmap buffer, double lastScore)
+        public static State bestHillClimbState(global::HaxeArray<int> shapes, int alpha, int n, int age, global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, global::geometrize.bitmap.Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
         {
-            State state = global::geometrize.Core.bestRandomState(shapes, alpha, n, target, current, buffer, lastScore);
+            State state = global::geometrize.Core.bestRandomState(shapes, alpha, n, target, current, buffer, lastScore, symbolOptions);
             state = global::geometrize.Core.hillClimb(state, age, lastScore);
             return state;
         }
@@ -300,8 +300,6 @@ namespace geometrize
                         bestState = state1.clone();
                         age = -1;
                     }
-					
-					 ++ age;
                 }
 
                 return bestState;
