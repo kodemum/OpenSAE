@@ -27,7 +27,7 @@ namespace OpenSAE.Models
         private const string OpenFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
         private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
-        internal const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
+        internal const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif;*.webp|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif|WEBP image (*.webp)|*.webp";
         private const string ClipboardItemFormat = "OpenSAE.Item";
         private const double DefaultSymbolUnitWidth = 240;
         public const double MinimumSymbolUnitWidth = 24;
