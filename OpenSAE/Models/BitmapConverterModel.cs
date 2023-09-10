@@ -7,6 +7,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -14,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace OpenSAE.Models
@@ -31,6 +33,9 @@ namespace OpenSAE.Models
         private bool _lockSymbolCount;
         private bool _isLoading;
         private double _loadProgress = 0;
+        private double _score;
+        private byte[]? _currentImageData;
+        private BitmapImage? _currentImage;
         private readonly Dispatcher _dispatcher;
 
         public SymbolArtModel? CurrentSymbolArt
@@ -116,6 +121,45 @@ namespace OpenSAE.Models
         {
             get => _loadProgress;
             set => SetProperty(ref _loadProgress, value);
+        }
+
+        public double Score
+        {
+            get => _score;
+            set => SetProperty(ref _score, value);
+        }
+
+        public BitmapImage? CurrentImage
+        {
+            get => _currentImage;
+            set => SetProperty(ref _currentImage, value);
+        }
+
+        public byte[]? ImageData
+        {
+            get => _currentImageData;
+            set
+            {
+                if (SetProperty(ref _currentImageData, value))
+                {
+                    if (value != null)
+                    {
+                        var ms = new MemoryStream(value);
+
+                        BitmapImage image = new();
+
+                        image.BeginInit();
+                        image.StreamSource = ms;
+                        image.EndInit();
+
+                        CurrentImage = image;
+                    }
+                    else
+                    {
+                        CurrentImage = null;
+                    }
+                }
+            }
         }
 
         public IRelayCommand BrowseCommand { get; }
@@ -243,13 +287,26 @@ namespace OpenSAE.Models
                             _currentGroup = new SymbolArtGroupModel(CurrentSymbolArt.Undo, new SymbolArtGroup() { Visible = true }, CurrentSymbolArt);
 
                             CurrentSymbolArt.Children.Add(_currentGroup);
+                            ImageData = null;
                         });
 
                         token.ThrowIfCancellationRequested();
 
+                        Action<Image>? imageCallback = Options.ShowViewPort ? (image) =>
+                        {
+                            using var ms = new MemoryStream();
+                            image.SaveAsPng(ms);
+
+                            _dispatcher.Invoke(() => ImageData = ms.ToArray());
+                        } : null;
+
                         using var converter = new GeometrizeBitmapConverter(BitmapFilename, Options.GetOptions());
 
-                        converter.Convert(AddLayer, token, new Progress<double>(x => LoadProgress = x));
+                        converter.Convert(AddLayer, token, new Progress<GeometrizeProgress>(x =>
+                        {
+                            LoadProgress = x.Percentage;
+                            Score = x.Score;
+                        }), imageCallback);
 
                         _dispatcher.Invoke(() =>
                         {

@@ -9,5 +9,7 @@
         Rotated_Ellipse = 4,
         Circle = 5,
         Line = 6,
+        Symbols = 7,
+        Rotated_Symbols = 8,
     }
 }

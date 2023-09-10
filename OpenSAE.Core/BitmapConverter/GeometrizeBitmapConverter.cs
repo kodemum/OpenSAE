@@ -1,5 +1,6 @@
 ﻿using geometrize;
 using geometrize.bitmap;
+using geometrize.shape;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -15,6 +16,73 @@ namespace OpenSAE.Core.BitmapConverter
         private readonly double _yOffset;
         private readonly BitmapToSymbolArtConverterOptions _options;
         private readonly System.Windows.Media.Color _backgroundColor;
+
+        static GeometrizeBitmapConverter()
+        {
+            foreach (int i in new int[] { 241, 242, 243, 244, 245, 256, 247, 248, 249, 250, 251, 252, 255, 256, 258, 259, 260, 261, 262,
+                263, 268, 321, 322, 329, 330, 331, 332, 333, 334, 335, 336, 337, 346, 347, 348, 349, 350, 351, 352, 353, 354, 355, 356, 357,
+                358, 359, 644, 674, 677, 681, 682, 683, 690 })
+            {
+                var symbol = SymbolUtil.GetById(i);
+                
+                SymbolShape.RegisterSymbol(new SymbolShapeDefinition()
+                {
+                    SymbolId = symbol.Id,
+                    SymbolScanlines = ExtractScanLines(symbol),
+                });
+
+                RotatedSymbolShape.RegisterSymbol(new SymbolShapeDefinition()
+                {
+                    SymbolId = symbol.Id,
+                    SymbolScanlines = ExtractScanLines(symbol),
+                });
+            }
+        }
+
+        private static (int x, int x2)[] ExtractScanLines(Symbol symbol)
+        {
+            byte[] rawPixelData = new byte[symbol.Image.PixelWidth * symbol.Image.PixelHeight * 4];
+
+            symbol.Image.CopyPixels(rawPixelData, symbol.Image.PixelWidth * 4, 0);
+
+            (int x, int x2)[] results = new (int x, int x2)[symbol.Image.PixelHeight];
+
+            for (int y = 0; y < symbol.Image.PixelHeight; y++)
+            {
+                int? targetX = null, targetX2 = null;
+
+                for (int x = 0; x < symbol.Image.PixelWidth; x++)
+                {
+                    int pos = (y * symbol.Image.PixelWidth + x) * 4;
+
+                    bool isOpaque = rawPixelData[pos + 3] > 128;
+
+                    if (isOpaque)
+                    {
+                        if (targetX is null)
+                        {
+                            targetX = x;
+                            targetX2 = x;
+                        }
+                        else
+                        {
+                            targetX2 = x;
+                        }
+                    }
+                    else
+                    {
+                        if (targetX is not null)
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                results[y] = (targetX ?? 0, targetX2 ?? 0);
+            }
+
+            return results;
+        }
 
         public GeometrizeBitmapConverter(string filename, BitmapToSymbolArtConverterOptions options)
         {
@@ -74,7 +142,7 @@ namespace OpenSAE.Core.BitmapConverter
 
         public object Filename { get; }
 
-        public void Convert(Action<SymbolArtLayer> layerDone, CancellationToken token, IProgress<double>? progress = null)
+        public void Convert(Action<SymbolArtLayer> layerDone, CancellationToken token, IProgress<GeometrizeProgress>? progress = null, Action<Image>? inProgressImageCallback = null)
         {
             if (_options.ShapeTypes.Length == 0)
                 return;
@@ -114,12 +182,32 @@ namespace OpenSAE.Core.BitmapConverter
                     {
                         layerDone.Invoke(ToLayer(GeometrizeUtil.ConvertShape(items[i]), _options.SymbolOpacity));
 
+                        if (inProgressImageCallback != null)
+                        {
+                            inProgressImageCallback.Invoke(Image.LoadPixelData(IntToByteArray(geometrize.current.data), bitmap.width, bitmap.height));
+                        }
+
                         count++;
                     }
                 }
 
-                progress?.Report((double)count / _options.MaxSymbolCount * 100);
+                progress?.Report(new GeometrizeProgress() { Percentage = (double)count / _options.MaxSymbolCount * 100, Score = geometrize.score });
             }
+        }
+
+        private Abgr32[] IntToByteArray(int[] image)
+        {
+            Abgr32[] result = new Abgr32[image.Length];
+
+            unchecked
+            {
+                for (int i = 0; i < image.Length; i++)
+                {
+                    result[i] = new Abgr32((uint)image[i]);
+                }
+            }
+
+            return result;
         }
 
         private SymbolArtLayer ToLayer(GeometrizeShape shape, double opacity)
@@ -132,6 +220,7 @@ namespace OpenSAE.Core.BitmapConverter
                 ShapeType.Circle => ConvertCircle(shape),
                 ShapeType.Rectangle or ShapeType.Rotated_Rectangle => ConvertRectangle(shape),
                 ShapeType.Ellipse or ShapeType.Rotated_Ellipse => ConvertEllipse(shape),
+                ShapeType.Symbols or ShapeType.Rotated_Symbols => ConvertSymbol(shape),
                 _ => throw new NotImplementedException($"Shape {shape.Type} is not supported."),
             };
 
@@ -208,6 +297,41 @@ namespace OpenSAE.Core.BitmapConverter
             return (240, vertices);
         }
 
+        private (int SymbolId, System.Windows.Point[] Vertices) ConvertSymbol(GeometrizeShape shape)
+        {
+            if (shape.Points.Length < 5)
+                throw new InvalidOperationException("Symbol rectangles must have at least five points");
+
+            double x1 = shape.Points[0], y1 = shape.Points[1], x2 = shape.Points[2], y2 = shape.Points[3];
+
+            int symbolId = (int)shape.Points[4];
+
+            x1 *= _scale;
+            y1 *= _scale;
+            x2 *= _scale;
+            y2 *= _scale;
+
+            x1 -= _xOffset;
+            x2 -= _xOffset;
+            y1 -= _yOffset;
+            y2 -= _yOffset;
+
+            var vertices = new System.Windows.Point[]
+            {
+                new System.Windows.Point(x1, y1),
+                new System.Windows.Point(x1, y2),
+                new System.Windows.Point(x2, y2),
+                new System.Windows.Point(x2, y1)
+            };
+
+            if (shape.Type == ShapeType.Rotated_Symbols)
+            {
+                vertices = SymbolManipulationHelper.Rotate(vertices, shape.Points[5] / 180 * Math.PI);
+            }
+
+            return (symbolId - 1, vertices);
+        }
+
         private (int SymbolId, System.Windows.Point[] Vertices) ConvertRectangle(GeometrizeShape shape)
         {
             if (shape.Type == ShapeType.Rectangle && shape.Points.Length != 4)
@@ -256,5 +380,12 @@ namespace OpenSAE.Core.BitmapConverter
         {
             _originalImage.Dispose();
         }
+    }
+
+    public class GeometrizeProgress
+    {
+        public double Score { get; set; }
+
+        public double Percentage { get; set; }
     }
 }

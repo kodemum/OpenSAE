@@ -4,13 +4,13 @@ namespace OpenSAE.Core.BitmapConverter
 {
     public class BitmapToSymbolArtConverterOptions
     {
-        public int ResizeImageHeight { get; set; } = 256;
+        public int ResizeImageHeight { get; set; } = 384;
 
         public bool RespectEdges { get; set; } = true;
 
         public double SymbolOpacity { get; set; } = 1d / 7 * 5;
 
-        public int ShapesPerStep { get; set; } = 150;
+        public int ShapesPerStep { get; set; } = 1200;
 
         public int MutationsPerStep { get; set; } = 170;
 
@@ -18,7 +18,7 @@ namespace OpenSAE.Core.BitmapConverter
 
         public bool IncludeBackground { get; set; } = true;
 
-        public ShapeType[] ShapeTypes { get; set; } = new ShapeType[] { ShapeType.Rotated_Rectangle, ShapeType.Ellipse };
+        public ShapeType[] ShapeTypes { get; set; } = new ShapeType[] { ShapeType.Rotated_Ellipse, ShapeType.Symbols };
 
         public Color BackgroundColor { get; set; }
             = Colors.White;

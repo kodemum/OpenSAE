@@ -67,7 +67,7 @@
                             <Slider Minimum="1" Maximum="7" Value="{Binding Options.SymbolOpacity, Converter={StaticResource alphaConverter}}" Margin="0 5" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
                             <TextBlock Text="Shapes per step" Margin="0 0 0 3" />
                             <TextBox Text="{Binding Options.ShapesPerStep}" />
-                            <Slider Value="{Binding Options.ShapesPerStep}" Minimum="10" Maximum="600" Margin="0 5" TickFrequency="5" IsSnapToTickEnabled="True" LargeChange="50" />
+                            <Slider Value="{Binding Options.ShapesPerStep}" Minimum="10" Maximum="4000" Margin="0 5" TickFrequency="5" IsSnapToTickEnabled="True" LargeChange="50" />
                             <TextBlock Text="Mutations per step" Margin="0 0 0 3" />
                             <TextBox Text="{Binding Options.MutationsPerStep}" />
                             <Slider Value="{Binding Options.MutationsPerStep}" Minimum="10" Maximum="600" Margin="0 5" TickFrequency="5" IsSnapToTickEnabled="True" LargeChange="50" />
@@ -81,11 +81,13 @@
                             <CheckBox IsChecked="{Binding Options.EnableRectangleShape}" Content="Rectangles" Margin="0 5" />
                             <CheckBox IsChecked="{Binding Options.EnableRotatedEllipseShape}" Content="Rotated ellipses" Margin="0 5" />
                             <CheckBox IsChecked="{Binding Options.EnableRotatedRectangleShape}" Content="Rotated rectangles" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableSymbolShape}" Content="Symbols" Margin="0 5" />
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="Just for fun">
+                    <GroupBox Header="Debug">
                         <StackPanel>
+                            <CheckBox IsChecked="{Binding Options.ShowViewPort}" Content="Show render viewport" Margin="0 5" />
                             <TextBlock Text="Max symbol count" Margin="0 0 0 3" />
                             <TextBox Text="{Binding Options.MaxSymbolCount}" />
                         </StackPanel>
@@ -97,7 +99,7 @@
         <StackPanel DockPanel.Dock="Bottom">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5">
                 <TextBlock FontSize="24" FontWeight="Bold" TextAlignment="Center">
-                    <Run Text="{Binding LayerCount, Mode=OneWay}" /> / 225 symbols
+                    <Run Text="{Binding LayerCount, Mode=OneWay}" /> / 225 symbols (score: <Run Text="{Binding Score, Mode=OneWay, StringFormat={}{0:0.0000}}" />)
                 </TextBlock>
                 <TextBlock TextAlignment="Center" FontWeight="Bold" TextWrapping="Wrap">
                     <TextBlock.Style>
@@ -139,6 +141,8 @@
                 ShowBoundingBox="True"
                 ShowGuides="False"
                 />
+
+            <Image Source="{Binding CurrentImage}" Width="256" Height="256" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
             <ProgressBar Width="250" Height="10"  VerticalAlignment="Bottom" Margin="10" Value="{Binding LoadProgress}" Visibility="{Binding IsLoading, Converter={StaticResource booleanToVisibilityConverter}}" />
         </Grid>

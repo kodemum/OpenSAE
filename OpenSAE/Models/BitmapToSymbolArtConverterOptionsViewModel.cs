@@ -17,6 +17,7 @@ namespace OpenSAE.Models
         private int _maxSymbolCount;
         private bool _includeBackground;
         private Color _backgroundColor;
+        private bool _showViewPort;
 
         private int _mutationsPerStep;
         private List<ShapeType> _shapeTypes;
@@ -95,6 +96,12 @@ namespace OpenSAE.Models
             set => SetShapeType(ShapeType.Circle, value);
         }
 
+        public bool EnableSymbolShape
+        {
+            get => HasShapeType(ShapeType.Symbols);
+            set => SetShapeType(ShapeType.Symbols, value);
+        }
+
         public int MaxSymbolCount
         {
             get => _maxSymbolCount;
@@ -111,6 +118,12 @@ namespace OpenSAE.Models
         {
             get => _backgroundColor;
             set => SetProperty(ref _backgroundColor, value);
+        }
+
+        public bool ShowViewPort
+        {
+            get => _showViewPort;
+            set => SetProperty(ref _showViewPort, value);
         }
 
         private bool HasShapeType(ShapeType type) => _shapeTypes.Contains(type);

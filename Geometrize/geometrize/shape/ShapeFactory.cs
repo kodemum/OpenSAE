@@ -60,48 +60,21 @@ namespace geometrize.shape {
 					{
 						return new global::geometrize.shape.Line(((int) (xBound) ), ((int) (yBound) ));
 					}
-					
-					
-				}
+
+					case 7:
+					{
+						return new SymbolShape(xBound, yBound);
+					}
+                }
 				
 				return null;
 			}
 		}
 		
 		
-		public static global::geometrize.shape.Shape randomShape(int xBound, int yBound) {
-			unchecked {
-				global::HaxeArray<int> a = new global::HaxeArray<int>(new int[]{((int) (0) ), ((int) (1) ), ((int) (2) ), ((int) (3) ), ((int) (4) ), ((int) (5) ), ((int) (6) )});
-				if ( ! ((( ( a != null ) && ( a.length > 0 ) ))) ) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: a != null && a.length > 0")) );
-				}
-				
-				int upper = ( a.length - 1 );
-				if (( 0 > upper )) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: lower <= upper")) );
-				}
-				
-				return global::geometrize.shape.ShapeFactory.create(a[((int) (global::System.Math.Floor(((double) (( (( upper + 1 )) * global::HaxeMath.rand.NextDouble() )) ))) )], xBound, yBound);
-			}
+		public static Shape randomShapeOf(HaxeArray<int> types, int xBound, int yBound) {
+            return create(types[HaxeMath.rand.Next(types.length)], xBound, yBound);
 		}
-		
-		
-		public static global::geometrize.shape.Shape randomShapeOf(global::HaxeArray<int> types, int xBound, int yBound) {
-			unchecked {
-				if ( ! ((( ( types != null ) && ( types.length > 0 ) ))) ) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: a != null && a.length > 0")) );
-				}
-				
-				int upper = ( types.length - 1 );
-				if (( 0 > upper )) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: lower <= upper")) );
-				}
-				
-				return global::geometrize.shape.ShapeFactory.create(types[((int) (global::System.Math.Floor(((double) (( (( upper + 1 )) * global::HaxeMath.rand.NextDouble() )) ))) )], xBound, yBound);
-			}
-		}
-		
-		
 	}
 }
 
