@@ -17,13 +17,13 @@ namespace OpenSAE.Core.BitmapConverter
         private readonly BitmapToSymbolArtConverterOptions _options;
         private readonly System.Windows.Media.Color _backgroundColor;
 
-        private static (int x, int x2)[] ExtractScanLines(Symbol symbol)
+        private static byte[,] ExtractScanLines(Symbol symbol)
         {
             byte[] rawPixelData = new byte[symbol.Image.PixelWidth * symbol.Image.PixelHeight * 4];
 
             symbol.Image.CopyPixels(rawPixelData, symbol.Image.PixelWidth * 4, 0);
 
-            (int x, int x2)[] results = new (int x, int x2)[symbol.Image.PixelHeight];
+            byte[,] results = new byte[symbol.Image.PixelWidth, symbol.Image.PixelHeight];
 
             for (int y = 0; y < symbol.Image.PixelHeight; y++)
             {
@@ -33,30 +33,8 @@ namespace OpenSAE.Core.BitmapConverter
                 {
                     int pos = (y * symbol.Image.PixelWidth + x) * 4;
 
-                    bool isOpaque = rawPixelData[pos + 3] > 196;
-
-                    if (isOpaque)
-                    {
-                        if (targetX is null)
-                        {
-                            targetX = x;
-                            targetX2 = x;
-                        }
-                        else
-                        {
-                            targetX2 = x;
-                        }
-                    }
-                    else
-                    {
-                        if (targetX is not null)
-                        {
-                            break;
-                        }
-                    }
+                    results[y,x] = rawPixelData[pos + 3];
                 }
-
-                results[y] = (targetX ?? 0, targetX2 ?? 0);
             }
 
             return results;
@@ -319,16 +297,19 @@ namespace OpenSAE.Core.BitmapConverter
                 new System.Windows.Point(x2, y1)
             };
 
-            if (shape.Points.Length == 7)
+            if (shape.Type == ShapeType.Symbols)
             {
-                if (shape.Points[5] == 1)
+                if (shape.Points[5] > 0)
                     vertices = SymbolManipulationHelper.FlipX(vertices);
 
-                if (shape.Points[6] == 1)
+                if (shape.Points[6] > 0)
                     vertices = SymbolManipulationHelper.FlipY(vertices);
             }
             else if (shape.Type == ShapeType.Rotated_Symbols)
             {
+                if (shape.Points[6] > 0)
+                    vertices = SymbolManipulationHelper.FlipX(vertices);
+
                 vertices = SymbolManipulationHelper.Rotate(vertices, shape.Points[5] / 180 * Math.PI);
             }
 

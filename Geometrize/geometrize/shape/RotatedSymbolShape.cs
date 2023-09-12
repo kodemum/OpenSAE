@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace geometrize.shape
@@ -37,6 +38,9 @@ namespace geometrize.shape
 
             symbol = _symbolOptions.SymbolDefinitions[Std.random(_symbolOptions.SymbolDefinitions.Count)];
             angle = Std.random(359);
+
+            if (!symbol.HorizontallySymmetric && !symbol.VerticallySymmetric)
+                flip = Std.random(2) != 0;
         }
 
         public int x1;
@@ -52,6 +56,8 @@ namespace geometrize.shape
         public int xBound;
 
         public int yBound;
+
+        public bool flip;
 
         private SymbolShapeDefinition symbol;
 
@@ -115,9 +121,12 @@ namespace geometrize.shape
                         int scaledX = (int)Math.Floor(nx * symbolScaleFactorX);
                         int scaledY = (int)Math.Floor(ny * symbolScaleFactorY);
 
-                        var scanLine = symbol.SymbolScanlines[scaledY];
+                        if (flip)
+                        {
+                            scaledX = 63 - scaledX;
+                        }
 
-                        if (scanLine.x <= scaledX && scanLine.x2 >= scaledX)
+                        if (symbol.SymbolScanlines[scaledY, scaledX] > 192)
                         {
                             if (startX == null)
                             {
@@ -127,6 +136,15 @@ namespace geometrize.shape
                             else
                             {
                                 endX = x;
+                            }
+                        }
+                        else
+                        {
+                            if (startX != null && endX != null && y > 0 && y < yBound)
+                            {
+                                lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                                startX = null;
+                                endX = null;
                             }
                         }
                     }
@@ -148,7 +166,9 @@ namespace geometrize.shape
 
         public virtual void mutate()
         {
-            switch (HaxeMath.rand.Next(4))
+            int option = HaxeMath.rand.Next(symbol.HorizontallySymmetric || symbol.VerticallySymmetric ? 4 : 5);
+            
+            switch (option)
             {
                 case 0:
                     int centerX = (x1 + x2) / 2;
@@ -183,12 +203,12 @@ namespace geometrize.shape
                         y1 = y2 + height;
                     break;
 
-                //case 3:
-                //    symbol = symbols[Std.random(symbols.Count)];
-                //    break;
-
                 case 3:
                     angle = Math.Clamp(angle - 4 + HaxeMath.rand.Next(9), 0, 259);
+                    break;
+
+                case 4:
+                    flip = !flip;
                     break;
             }
 
@@ -229,6 +249,7 @@ namespace geometrize.shape
                 (y1 > y2) ? y1 : y2,
                 symbol.SymbolId,
                 angle,
+                flip ? 1 : 0
             });
         }
 

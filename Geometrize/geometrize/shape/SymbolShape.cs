@@ -1,4 +1,5 @@
-﻿using System;
+﻿using geometrize.rasterizer;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -80,29 +81,45 @@ namespace geometrize.shape
             {
                 for (int y = y1; y <= y2; y++)
                 {
+                    int? startX = null, endX = null;
+
                     int symbolY = (int)Math.Round((y - y1) * symbolScaleFactorY);
 
                     if (flipY)
-                    {
-                        symbolY = symbol.SymbolScanlines.Length - 1 - symbolY;
-                    }
+                        symbolY = 63 - symbolY;
 
-                    (int symbolX, int symbolX2) = symbol.SymbolScanlines[symbolY];
-
-                    if (symbolX != symbolX2)
+                    for (int x = x1; x <= x2; x++)
                     {
+                        int symbolX = (int)Math.Round((x - x1) * symbolScaleFactorX);
+
                         if (flipX)
+                            symbolX = 63 - symbolX;
+
+                        if (symbol.SymbolScanlines[symbolY, symbolX] > 192)
                         {
-                            var length = symbolX2 - symbolX;
-
-                            (symbolX, symbolX2) = (64 - symbolX - length, 64 - symbolX);
+                            if (startX == null)
+                            {
+                                startX = x;
+                                endX = x;
+                            }
+                            else
+                            {
+                                endX = x;
+                            }
                         }
-
-                        int translatedSymbolX = (int)Math.Round(start + (symbolX / symbolScaleFactorX));
-                        int translatedSymbolX2 = (int)Math.Round(start + (symbolX2 / symbolScaleFactorX));
-
-                        lines.push(new rasterizer.Scanline(y, translatedSymbolX, translatedSymbolX2));
+                        else
+                        {
+                            if (startX != null && endX != null && y > 0 && y < yBound)
+                            {
+                                lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                                startX = null;
+                                endX = null;
+                            }
+                        }
                     }
+
+                    if (startX != null && endX != null && y > 0 && y < yBound)
+                        lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
                 }
             }
 

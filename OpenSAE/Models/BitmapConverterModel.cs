@@ -201,7 +201,7 @@ namespace OpenSAE.Models
 
             Options = new BitmapToSymbolArtConverterOptionsViewModel();
             Options.PropertyChanged += (_, __) => Reload();
-            AvailableSymbols = new(SymbolUtil.SymbolsUsableByBitmapConverter);
+            AvailableSymbols = new(SymbolUtil.List);
 
             _dispatcher = Dispatcher.CurrentDispatcher;
         }

@@ -4,7 +4,7 @@
     {
         public int SymbolId { get; set; }
 
-        public (int x, int x2)[] SymbolScanlines { get; set; }
+        public byte[,] SymbolScanlines { get; set; }
 
         public bool HorizontallySymmetric { get; set; }
 
