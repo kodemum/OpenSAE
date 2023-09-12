@@ -227,7 +227,14 @@ namespace OpenSAE.Models
             {
                 if (_selectedSymbol != null)
                 {
+                    var index = Options.ShapeSymbolsToUse.IndexOf(_selectedSymbol);
+
                     Options.ShapeSymbolsToUse.Remove(_selectedSymbol);
+
+                    if (index != -1 && Options.ShapeSymbolsToUse.Count > 0)
+                    {
+                        SelectedSymbol = index < Options.ShapeSymbolsToUse.Count ? Options.ShapeSymbolsToUse[index] : Options.ShapeSymbolsToUse.Last();
+                    }
                 }
             }
         }

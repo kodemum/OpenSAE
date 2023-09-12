@@ -59,5 +59,10 @@ namespace OpenSAE
                 }
             }
         }
+
+        private void ListBoxScroll_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            _model.SymbolCommand.Execute("add");
+        }
     }
 }
