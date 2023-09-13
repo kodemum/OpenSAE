@@ -5,523 +5,153 @@ using geometrize.rasterizer;
 using System;
 using System.Collections.Generic;
 
-namespace geometrize.shape {
-	public class Triangle : global::haxe.lang.HxObject, global::geometrize.shape.Shape {
-		
-		public Triangle(global::haxe.lang.EmptyObject empty) {
-		}
-		
-		
-		public Triangle(int xBound, int yBound) {
-			global::geometrize.shape.Triangle.__hx_ctor_geometrize_shape_Triangle(this, xBound, yBound);
-		}
-		
-		
-		protected static void __hx_ctor_geometrize_shape_Triangle(global::geometrize.shape.Triangle __hx_this, int xBound, int yBound) {
-			unchecked {
-				__hx_this.x1 = global::Std.random(xBound);
-				__hx_this.y1 = global::Std.random(yBound);
-				__hx_this.x2 = ( __hx_this.x1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-				__hx_this.y2 = ( __hx_this.y1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-				__hx_this.x3 = ( __hx_this.x1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-				__hx_this.y3 = ( __hx_this.y1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-				__hx_this.xBound = xBound;
-				__hx_this.yBound = yBound;
-			}
-		}
-		
-		
-		public int x1;
-		
-		public int y1;
-		
-		public int x2;
-		
-		public int y2;
-		
-		public int x3;
-		
-		public int y3;
-		
-		public int xBound;
-		
-		public int yBound;
-		
-		public virtual IReadOnlyList<Scanline> rasterize()
-		{
-			return Scanline.trim(Rasterizer.scanlinesForPolygon(new Point[] {
-					new Point(x1, y1),
-					new Point(x2, y2),
-					new Point(x3, y3)
-				}), this.xBound, this.yBound);
-		}
-		
-		
-		public virtual void mutate() {
-			unchecked {
-				int r = global::Std.random(3);
-				switch (r) {
-					case 0:
-					{
-						int @value = ( this.x1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max = ( this.xBound - 1 );
-						if (( 0 > max )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.x1 = ( (( @value < 0 )) ? (0) : (( (( @value > max )) ? (max) : (@value) )) );
-						int value1 = ( this.y1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max1 = ( this.yBound - 1 );
-						if (( 0 > max1 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.y1 = ( (( value1 < 0 )) ? (0) : (( (( value1 > max1 )) ? (max1) : (value1) )) );
-						break;
-					}
-					
-					
-					case 1:
-					{
-						int value2 = ( this.x2 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max2 = ( this.xBound - 1 );
-						if (( 0 > max2 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.x2 = ( (( value2 < 0 )) ? (0) : (( (( value2 > max2 )) ? (max2) : (value2) )) );
-						int value3 = ( this.y2 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max3 = ( this.yBound - 1 );
-						if (( 0 > max3 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.y2 = ( (( value3 < 0 )) ? (0) : (( (( value3 > max3 )) ? (max3) : (value3) )) );
-						break;
-					}
-					
-					
-					case 2:
-					{
-						int value4 = ( this.x3 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max4 = ( this.xBound - 1 );
-						if (( 0 > max4 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.x3 = ( (( value4 < 0 )) ? (0) : (( (( value4 > max4 )) ? (max4) : (value4) )) );
-						int value5 = ( this.y3 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max5 = ( this.yBound - 1 );
-						if (( 0 > max5 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.y3 = ( (( value5 < 0 )) ? (0) : (( (( value5 > max5 )) ? (max5) : (value5) )) );
-						break;
-					}
-					
-					
-				}
-				
-			}
-		}
-		
-		
-		public virtual global::geometrize.shape.Shape clone() {
-			global::geometrize.shape.Triangle triangle = new global::geometrize.shape.Triangle(((int) (this.xBound) ), ((int) (this.yBound) ));
-			triangle.x1 = this.x1;
-			triangle.y1 = this.y1;
-			triangle.x2 = this.x2;
-			triangle.y2 = this.y2;
-			triangle.x3 = this.x3;
-			triangle.y3 = this.y3;
-			return triangle;
-		}
-		
-		
-		public virtual int getType() {
-			unchecked {
-				return ((int) (2) );
-			}
-		}
-		
-		
-		public virtual global::HaxeArray<double> getRawShapeData() {
-			return new global::HaxeArray<double>(new double[]{((double) (this.x1) ), ((double) (this.y1) ), ((double) (this.x2) ), ((double) (this.y2) ), ((double) (this.x3) ), ((double) (this.y3) )});
-		}
-		
-		
-		public virtual string getSvgShapeData() {
-			return global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat("<polygon points=\"", global::haxe.lang.Runtime.toString(this.x1)), ","), global::haxe.lang.Runtime.toString(this.y1)), " "), global::haxe.lang.Runtime.toString(this.x2)), ","), global::haxe.lang.Runtime.toString(this.y2)), " "), global::haxe.lang.Runtime.toString(this.x3)), ","), global::haxe.lang.Runtime.toString(this.y3)), "\" "), global::geometrize.exporter.SvgExporter.SVG_STYLE_HOOK), "/>");
-		}
-		
-		
-		public override double __hx_setField_f(string field, int hash, double @value, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 727238917:
-					{
-						this.yBound = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 1157459110:
-					{
-						this.xBound = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 27034:
-					{
-						this.y3 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 26811:
-					{
-						this.x3 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 27033:
-					{
-						this.y2 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 26810:
-					{
-						this.x2 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 27032:
-					{
-						this.y1 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 26809:
-					{
-						this.x1 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					default:
-					{
-						return base.__hx_setField_f(field, hash, @value, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override object __hx_setField(string field, int hash, object @value, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 727238917:
-					{
-						this.yBound = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 1157459110:
-					{
-						this.xBound = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 27034:
-					{
-						this.y3 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 26811:
-					{
-						this.x3 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 27033:
-					{
-						this.y2 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 26810:
-					{
-						this.x2 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 27032:
-					{
-						this.y1 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 26809:
-					{
-						this.x1 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					default:
-					{
-						return base.__hx_setField(field, hash, @value, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override object __hx_getField(string field, int hash, bool throwErrors, bool isCheck, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 1870080157:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "getSvgShapeData", 1870080157)) );
-					}
-					
-					
-					case 538995865:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "getRawShapeData", 538995865)) );
-					}
-					
-					
-					case 529244784:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "getType", 529244784)) );
-					}
-					
-					
-					case 1214452573:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "clone", 1214452573)) );
-					}
-					
-					
-					case 1069478790:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "mutate", 1069478790)) );
-					}
-					
-					
-					case 508245239:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "rasterize", 508245239)) );
-					}
-					
-					
-					case 727238917:
-					{
-						return this.yBound;
-					}
-					
-					
-					case 1157459110:
-					{
-						return this.xBound;
-					}
-					
-					
-					case 27034:
-					{
-						return this.y3;
-					}
-					
-					
-					case 26811:
-					{
-						return this.x3;
-					}
-					
-					
-					case 27033:
-					{
-						return this.y2;
-					}
-					
-					
-					case 26810:
-					{
-						return this.x2;
-					}
-					
-					
-					case 27032:
-					{
-						return this.y1;
-					}
-					
-					
-					case 26809:
-					{
-						return this.x1;
-					}
-					
-					
-					default:
-					{
-						return base.__hx_getField(field, hash, throwErrors, isCheck, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override double __hx_getField_f(string field, int hash, bool throwErrors, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 727238917:
-					{
-						return ((double) (this.yBound) );
-					}
-					
-					
-					case 1157459110:
-					{
-						return ((double) (this.xBound) );
-					}
-					
-					
-					case 27034:
-					{
-						return ((double) (this.y3) );
-					}
-					
-					
-					case 26811:
-					{
-						return ((double) (this.x3) );
-					}
-					
-					
-					case 27033:
-					{
-						return ((double) (this.y2) );
-					}
-					
-					
-					case 26810:
-					{
-						return ((double) (this.x2) );
-					}
-					
-					
-					case 27032:
-					{
-						return ((double) (this.y1) );
-					}
-					
-					
-					case 26809:
-					{
-						return ((double) (this.x1) );
-					}
-					
-					
-					default:
-					{
-						return base.__hx_getField_f(field, hash, throwErrors, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override object __hx_invokeField(string field, int hash, object[] dynargs) {
-			unchecked {
-				switch (hash) {
-					case 1870080157:
-					{
-						return this.getSvgShapeData();
-					}
-					
-					
-					case 538995865:
-					{
-						return this.getRawShapeData();
-					}
-					
-					
-					case 529244784:
-					{
-						return this.getType();
-					}
-					
-					
-					case 1214452573:
-					{
-						return this.clone();
-					}
-					
-					
-					case 1069478790:
-					{
-						this.mutate();
-						break;
-					}
-					
-					
-					case 508245239:
-					{
-						return this.rasterize();
-					}
-					
-					
-					default:
-					{
-						return base.__hx_invokeField(field, hash, dynargs);
-					}
-					
-				}
-				
-				return null;
-			}
-		}
-		
-		
-		public override void __hx_getFields(global::HaxeArray<string> baseArr) {
-			baseArr.push("yBound");
-			baseArr.push("xBound");
-			baseArr.push("y3");
-			baseArr.push("x3");
-			baseArr.push("y2");
-			baseArr.push("x2");
-			baseArr.push("y1");
-			baseArr.push("x1");
-			base.__hx_getFields(baseArr);
-		}
-		
-		
-	}
+namespace geometrize.shape
+{
+    public class Triangle : Shape
+    {
+        public Triangle(int xBound, int yBound)
+        {
+            x1 = global::Std.random(xBound);
+            y1 = global::Std.random(yBound);
+            x2 = (x1 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+            y2 = (y1 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+            x3 = (x1 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+            y3 = (y1 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+            this.xBound = xBound;
+            this.yBound = yBound;
+        }
+
+        public int x1;
+
+        public int y1;
+
+        public int x2;
+
+        public int y2;
+
+        public int x3;
+
+        public int y3;
+
+        public int xBound;
+
+        public int yBound;
+
+        public virtual IReadOnlyList<Scanline> rasterize()
+        {
+            return Scanline.trim(Rasterizer.scanlinesForPolygon(new Point[] {
+                    new Point(x1, y1),
+                    new Point(x2, y2),
+                    new Point(x3, y3)
+                }), this.xBound, this.yBound);
+        }
+
+
+        public virtual void mutate()
+        {
+            unchecked
+            {
+                int r = global::Std.random(3);
+                switch (r)
+                {
+                    case 0:
+                        {
+                            int @value = (this.x1 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+                            int max = (this.xBound - 1);
+                            if ((0 > max))
+                            {
+                                throw new Exception("FAIL: min <= max");
+                            }
+
+                            this.x1 = (((@value < 0)) ? (0) : ((((@value > max)) ? (max) : (@value))));
+                            int value1 = (this.y1 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+                            int max1 = (this.yBound - 1);
+                            if ((0 > max1))
+                            {
+                                throw new Exception("FAIL: min <= max");
+                            }
+
+                            this.y1 = (((value1 < 0)) ? (0) : ((((value1 > max1)) ? (max1) : (value1))));
+                            break;
+                        }
+
+
+                    case 1:
+                        {
+                            int value2 = (this.x2 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+                            int max2 = (this.xBound - 1);
+                            if ((0 > max2))
+                            {
+                                throw new Exception("FAIL: min <= max");
+                            }
+
+                            this.x2 = (((value2 < 0)) ? (0) : ((((value2 > max2)) ? (max2) : (value2))));
+                            int value3 = (this.y2 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+                            int max3 = (this.yBound - 1);
+                            if ((0 > max3))
+                            {
+                                throw new Exception("FAIL: min <= max");
+                            }
+
+                            this.y2 = (((value3 < 0)) ? (0) : ((((value3 > max3)) ? (max3) : (value3))));
+                            break;
+                        }
+
+
+                    case 2:
+                        {
+                            int value4 = (this.x3 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+                            int max4 = (this.xBound - 1);
+                            if ((0 > max4))
+                            {
+                                throw new Exception("FAIL: min <= max");
+                            }
+
+                            this.x3 = (((value4 < 0)) ? (0) : ((((value4 > max4)) ? (max4) : (value4))));
+                            int value5 = (this.y3 + ((-16 + ((int)(global::System.Math.Floor(((double)((33 * global::HaxeMath.rand.NextDouble())))))))));
+                            int max5 = (this.yBound - 1);
+                            if ((0 > max5))
+                            {
+                                throw new Exception("FAIL: min <= max");
+                            }
+
+                            this.y3 = (((value5 < 0)) ? (0) : ((((value5 > max5)) ? (max5) : (value5))));
+                            break;
+                        }
+
+
+                }
+
+            }
+        }
+
+
+        public virtual global::geometrize.shape.Shape clone()
+        {
+            return new Triangle(xBound, yBound)
+            {
+                x1 = x1,
+                y1 = y1,
+                x2 = x2,
+                y2 = y2,
+                x3 = x3,
+                y3 = y3,
+            };
+        }
+
+
+        public virtual int getType() => 2;
+
+        public virtual double[] getRawShapeData()
+        {
+            return new double[]
+            {
+                x1, y1,
+                x2, y2,
+                x3, y3,
+            };
+        }
+    }
 }
 
 

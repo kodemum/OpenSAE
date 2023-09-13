@@ -107,7 +107,7 @@ namespace OpenSAE.Core.BitmapConverter
 
             _originalImage.CopyPixelDataTo(imageData);
 
-            Bitmap bitmap = Bitmap.createFromBytes(_originalImage.Width, _originalImage.Height, new haxe.io.Bytes(imageData.Length, imageData));
+            Bitmap bitmap = Bitmap.createFromByteArray(_originalImage.Width, _originalImage.Height, imageData);
 
             var commonColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
             var symbolOptions = new SymbolShapeOptions()
@@ -144,24 +144,22 @@ namespace OpenSAE.Core.BitmapConverter
                 }
                 else
                 {
-                    var items = geometrize.step(
-                        new HaxeArray<int>(_options.ShapeTypes.Select(x => (int)x).ToArray()),
+                    var shape = geometrize.step(
+                        _options.ShapeTypes.Select(x => (int)x).ToArray(),
                         (int)Math.Round(_options.SymbolOpacity * 255),
                         _options.ShapesPerStep,
                         _options.MutationsPerStep,
                         symbolOptions);
 
-                    for (int i = 0; i < items.length; i++)
+
+                    layerDone.Invoke(ToLayer(GeometrizeUtil.ConvertShape(shape), _options.SymbolOpacity));
+
+                    if (inProgressImageCallback != null)
                     {
-                        layerDone.Invoke(ToLayer(GeometrizeUtil.ConvertShape(items[i]), _options.SymbolOpacity));
-
-                        if (inProgressImageCallback != null)
-                        {
-                            inProgressImageCallback.Invoke(Image.LoadPixelData(IntToByteArray(geometrize.current.data), bitmap.width, bitmap.height));
-                        }
-
-                        count++;
+                        inProgressImageCallback.Invoke(Image.LoadPixelData(IntToByteArray(geometrize.current.data), bitmap.width, bitmap.height));
                     }
+
+                    count++;
                 }
 
                 progress?.Report(new GeometrizeProgress() { Percentage = (double)count / _options.MaxSymbolCount * 100, Score = geometrize.score });

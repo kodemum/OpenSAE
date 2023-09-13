@@ -5,20 +5,17 @@ using geometrize.rasterizer;
 using System.Collections.Generic;
 
 namespace geometrize.shape {
-	public interface Shape : global::haxe.lang.IHxObject {
+	public interface Shape {
 		
 		IReadOnlyList<Scanline> rasterize();
 		
 		void mutate();
 		
-		global::geometrize.shape.Shape clone();
+		Shape clone();
 		
 		int getType();
 		
-		global::HaxeArray<double> getRawShapeData();
-		
-		string getSvgShapeData();
-		
+		double[] getRawShapeData();
 	}
 }
 

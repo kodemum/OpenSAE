@@ -4,454 +4,138 @@
 using geometrize.rasterizer;
 using System.Collections.Generic;
 
-namespace geometrize.shape {
-	public class Line : global::haxe.lang.HxObject, global::geometrize.shape.Shape {
-		
-		public Line(global::haxe.lang.EmptyObject empty) {
-		}
-		
-		
-		public Line(int xBound, int yBound) {
-			global::geometrize.shape.Line.__hx_ctor_geometrize_shape_Line(this, xBound, yBound);
-		}
-		
-		
-		protected static void __hx_ctor_geometrize_shape_Line(global::geometrize.shape.Line __hx_this, int xBound, int yBound) {
-			unchecked {
-				__hx_this.x1 = global::Std.random(xBound);
-				__hx_this.y1 = global::Std.random(yBound);
-				int @value = ( ( __hx_this.x1 + global::Std.random(32) ) + 1 );
-				if (( 0 > xBound )) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-				}
-				
-				__hx_this.x2 = ( (( @value < 0 )) ? (0) : (( (( @value > xBound )) ? (xBound) : (@value) )) );
-				int value1 = ( ( __hx_this.y1 + global::Std.random(32) ) + 1 );
-				if (( 0 > yBound )) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-				}
-				
-				__hx_this.y2 = ( (( value1 < 0 )) ? (0) : (( (( value1 > yBound )) ? (yBound) : (value1) )) );
-				__hx_this.xBound = xBound;
-				__hx_this.yBound = yBound;
-			}
-		}
-		
-		
-		public int x1;
-		
-		public int y1;
-		
-		public int x2;
-		
-		public int y2;
-		
-		public int xBound;
-		
-		public int yBound;
-		
-		public virtual IReadOnlyList<Scanline> rasterize() {
-			var lines = new List<Scanline>();
-			var points = Rasterizer.bresenham(this.x1, this.y1, this.x2, this.y2);
+namespace geometrize.shape
+{
+    public class Line : Shape
+    {
+        public Line(int xBound, int yBound)
+        {
+            x1 = Std.random(xBound);
+            y1 = Std.random(yBound);
+            int @value = ((x1 + Std.random(32)) + 1);
+            if ((0 > xBound))
+            {
+                throw new System.Exception("FAIL: min <= max");
+            }
 
-			foreach (var point in points)
-			{
-				lines.Add(new Scanline(point.Y, point.X, point.X));
-			}
-			
-			return Scanline.trim(lines, this.xBound, this.yBound);
-		}
-		
-		
-		public virtual void mutate() {
-			unchecked {
-				int r = global::Std.random(4);
-				switch (r) {
-					case 0:
-					{
-						int @value = ( this.x1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max = ( this.xBound - 1 );
-						if (( 0 > max )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.x1 = ( (( @value < 0 )) ? (0) : (( (( @value > max )) ? (max) : (@value) )) );
-						int value1 = ( this.y1 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max1 = ( this.yBound - 1 );
-						if (( 0 > max1 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.y1 = ( (( value1 < 0 )) ? (0) : (( (( value1 > max1 )) ? (max1) : (value1) )) );
-						break;
-					}
-					
-					
-					case 1:
-					{
-						int value2 = ( this.x2 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max2 = ( this.xBound - 1 );
-						if (( 0 > max2 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.x2 = ( (( value2 < 0 )) ? (0) : (( (( value2 > max2 )) ? (max2) : (value2) )) );
-						int value3 = ( this.y2 + (( -16 + ((int) (global::System.Math.Floor(((double) (( 33 * global::HaxeMath.rand.NextDouble() )) ))) ) )) );
-						int max3 = ( this.yBound - 1 );
-						if (( 0 > max3 )) {
-							throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: min <= max")) );
-						}
-						
-						this.y2 = ( (( value3 < 0 )) ? (0) : (( (( value3 > max3 )) ? (max3) : (value3) )) );
-						break;
-					}
-					
-					
-				}
-				
-			}
-		}
-		
-		
-		public virtual global::geometrize.shape.Shape clone() {
-			global::geometrize.shape.Line line = new global::geometrize.shape.Line(((int) (this.xBound) ), ((int) (this.yBound) ));
-			line.x1 = this.x1;
-			line.y1 = this.y1;
-			line.x2 = this.x2;
-			line.y2 = this.y2;
-			return line;
-		}
-		
-		
-		public virtual int getType() {
-			unchecked {
-				return ((int) (6) );
-			}
-		}
-		
-		
-		public virtual global::HaxeArray<double> getRawShapeData() {
-			return new global::HaxeArray<double>(new double[]{((double) (this.x1) ), ((double) (this.y1) ), ((double) (this.x2) ), ((double) (this.y2) )});
-		}
-		
-		
-		public virtual string getSvgShapeData() {
-			return global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat("<line x1=\"", global::haxe.lang.Runtime.toString(this.x1)), "\" y1=\""), global::haxe.lang.Runtime.toString(this.y1)), "\" x2=\""), global::haxe.lang.Runtime.toString(this.x2)), "\" y2=\""), global::haxe.lang.Runtime.toString(this.y2)), "\" "), global::geometrize.exporter.SvgExporter.SVG_STYLE_HOOK), " />");
-		}
-		
-		
-		public override double __hx_setField_f(string field, int hash, double @value, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 727238917:
-					{
-						this.yBound = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 1157459110:
-					{
-						this.xBound = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 27033:
-					{
-						this.y2 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 26810:
-					{
-						this.x2 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 27032:
-					{
-						this.y1 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					case 26809:
-					{
-						this.x1 = ((int) (@value) );
-						return @value;
-					}
-					
-					
-					default:
-					{
-						return base.__hx_setField_f(field, hash, @value, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override object __hx_setField(string field, int hash, object @value, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 727238917:
-					{
-						this.yBound = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 1157459110:
-					{
-						this.xBound = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 27033:
-					{
-						this.y2 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 26810:
-					{
-						this.x2 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 27032:
-					{
-						this.y1 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					case 26809:
-					{
-						this.x1 = ((int) (global::haxe.lang.Runtime.toInt(@value)) );
-						return @value;
-					}
-					
-					
-					default:
-					{
-						return base.__hx_setField(field, hash, @value, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override object __hx_getField(string field, int hash, bool throwErrors, bool isCheck, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 1870080157:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "getSvgShapeData", 1870080157)) );
-					}
-					
-					
-					case 538995865:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "getRawShapeData", 538995865)) );
-					}
-					
-					
-					case 529244784:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "getType", 529244784)) );
-					}
-					
-					
-					case 1214452573:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "clone", 1214452573)) );
-					}
-					
-					
-					case 1069478790:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "mutate", 1069478790)) );
-					}
-					
-					
-					case 508245239:
-					{
-						return ((global::haxe.lang.Function) (new global::haxe.lang.Closure(this, "rasterize", 508245239)) );
-					}
-					
-					
-					case 727238917:
-					{
-						return this.yBound;
-					}
-					
-					
-					case 1157459110:
-					{
-						return this.xBound;
-					}
-					
-					
-					case 27033:
-					{
-						return this.y2;
-					}
-					
-					
-					case 26810:
-					{
-						return this.x2;
-					}
-					
-					
-					case 27032:
-					{
-						return this.y1;
-					}
-					
-					
-					case 26809:
-					{
-						return this.x1;
-					}
-					
-					
-					default:
-					{
-						return base.__hx_getField(field, hash, throwErrors, isCheck, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override double __hx_getField_f(string field, int hash, bool throwErrors, bool handleProperties) {
-			unchecked {
-				switch (hash) {
-					case 727238917:
-					{
-						return ((double) (this.yBound) );
-					}
-					
-					
-					case 1157459110:
-					{
-						return ((double) (this.xBound) );
-					}
-					
-					
-					case 27033:
-					{
-						return ((double) (this.y2) );
-					}
-					
-					
-					case 26810:
-					{
-						return ((double) (this.x2) );
-					}
-					
-					
-					case 27032:
-					{
-						return ((double) (this.y1) );
-					}
-					
-					
-					case 26809:
-					{
-						return ((double) (this.x1) );
-					}
-					
-					
-					default:
-					{
-						return base.__hx_getField_f(field, hash, throwErrors, handleProperties);
-					}
-					
-				}
-				
-			}
-		}
-		
-		
-		public override object __hx_invokeField(string field, int hash, object[] dynargs) {
-			unchecked {
-				switch (hash) {
-					case 1870080157:
-					{
-						return this.getSvgShapeData();
-					}
-					
-					
-					case 538995865:
-					{
-						return this.getRawShapeData();
-					}
-					
-					
-					case 529244784:
-					{
-						return this.getType();
-					}
-					
-					
-					case 1214452573:
-					{
-						return this.clone();
-					}
-					
-					
-					case 1069478790:
-					{
-						this.mutate();
-						break;
-					}
-					
-					
-					case 508245239:
-					{
-						return this.rasterize();
-					}
-					
-					
-					default:
-					{
-						return base.__hx_invokeField(field, hash, dynargs);
-					}
-					
-				}
-				
-				return null;
-			}
-		}
-		
-		
-		public override void __hx_getFields(global::HaxeArray<string> baseArr) {
-			baseArr.push("yBound");
-			baseArr.push("xBound");
-			baseArr.push("y2");
-			baseArr.push("x2");
-			baseArr.push("y1");
-			baseArr.push("x1");
-			base.__hx_getFields(baseArr);
-		}
-		
-		
-	}
+            x2 = (((@value < 0)) ? (0) : ((((@value > xBound)) ? (xBound) : (@value))));
+            int value1 = ((y1 + Std.random(32)) + 1);
+            if ((0 > yBound))
+            {
+                throw new System.Exception("FAIL: min <= max");
+            }
+
+            y2 = (((value1 < 0)) ? (0) : ((((value1 > yBound)) ? (yBound) : (value1))));
+            this.xBound = xBound;
+            this.yBound = yBound;
+        }
+
+        public int x1;
+
+        public int y1;
+
+        public int x2;
+
+        public int y2;
+
+        public int xBound;
+
+        public int yBound;
+
+        public virtual IReadOnlyList<Scanline> rasterize()
+        {
+            var lines = new List<Scanline>();
+            var points = Rasterizer.bresenham(this.x1, this.y1, this.x2, this.y2);
+
+            foreach (var point in points)
+            {
+                lines.Add(new Scanline(point.Y, point.X, point.X));
+            }
+
+            return Scanline.trim(lines, this.xBound, this.yBound);
+        }
+
+
+        public virtual void mutate()
+        {
+            unchecked
+            {
+                int r = Std.random(4);
+                switch (r)
+                {
+                    case 0:
+                        {
+                            int @value = (this.x1 + ((-16 + ((int)(System.Math.Floor(((double)((33 * HaxeMath.rand.NextDouble())))))))));
+                            int max = (this.xBound - 1);
+                            if ((0 > max))
+                            {
+                                throw new System.Exception("FAIL: min <= max");
+                            }
+
+                            this.x1 = (((@value < 0)) ? (0) : ((((@value > max)) ? (max) : (@value))));
+                            int value1 = (this.y1 + ((-16 + ((int)(System.Math.Floor(((double)((33 * HaxeMath.rand.NextDouble())))))))));
+                            int max1 = (this.yBound - 1);
+                            if ((0 > max1))
+                            {
+                                throw new System.Exception("FAIL: min <= max");
+                            }
+
+                            this.y1 = (((value1 < 0)) ? (0) : ((((value1 > max1)) ? (max1) : (value1))));
+                            break;
+                        }
+
+
+                    case 1:
+                        {
+                            int value2 = (this.x2 + ((-16 + ((int)(System.Math.Floor(((double)((33 * HaxeMath.rand.NextDouble())))))))));
+                            int max2 = (this.xBound - 1);
+                            if ((0 > max2))
+                            {
+                                throw new System.Exception("FAIL: min <= max");
+                            }
+
+                            this.x2 = (((value2 < 0)) ? (0) : ((((value2 > max2)) ? (max2) : (value2))));
+                            int value3 = (this.y2 + ((-16 + ((int)(System.Math.Floor(((double)((33 * HaxeMath.rand.NextDouble())))))))));
+                            int max3 = (this.yBound - 1);
+                            if ((0 > max3))
+                            {
+                                throw new System.Exception("FAIL: min <= max");
+                            }
+
+                            this.y2 = (((value3 < 0)) ? (0) : ((((value3 > max3)) ? (max3) : (value3))));
+                            break;
+                        }
+
+
+                }
+
+            }
+        }
+
+
+        public virtual Shape clone()
+        {
+            return new Line(xBound, yBound)
+            {
+                x1 = x1,
+                y1 = y1,
+                x2 = x2,
+                y2 = y2
+            };
+        }
+
+
+        public virtual int getType() => 6;
+
+
+        public virtual double[] getRawShapeData()
+        {
+            return new double[]
+            {
+                x1, y1, x2, y2
+            };
+        }
+    }
 }
 
 

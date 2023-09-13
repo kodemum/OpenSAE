@@ -2,37 +2,28 @@
 
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using geometrize.rasterizer;
+using System;
 using System.Collections.Generic;
 
 namespace geometrize.shape
 {
-    public class Ellipse : global::haxe.lang.HxObject, global::geometrize.shape.Shape
+    public class Ellipse : Shape
     {
 
-        public Ellipse(global::haxe.lang.EmptyObject empty)
+        public Ellipse()
         {
         }
 
 
         public Ellipse(int xBound, int yBound)
         {
-            global::geometrize.shape.Ellipse.__hx_ctor_geometrize_shape_Ellipse(this, xBound, yBound);
+            x = global::Std.random(xBound);
+            y = global::Std.random(yBound);
+            rx = global::Std.random(32) + 1;
+            ry = global::Std.random(32) + 1;
+            this.xBound = xBound;
+            this.yBound = yBound;
         }
-
-
-        protected static void __hx_ctor_geometrize_shape_Ellipse(global::geometrize.shape.Ellipse __hx_this, int xBound, int yBound)
-        {
-            unchecked
-            {
-                __hx_this.x = global::Std.random(xBound);
-                __hx_this.y = global::Std.random(yBound);
-                __hx_this.rx = global::Std.random(32) + 1;
-                __hx_this.ry = global::Std.random(32) + 1;
-                __hx_this.xBound = xBound;
-                __hx_this.yBound = yBound;
-            }
-        }
-
 
         public int x;
 
@@ -104,7 +95,7 @@ namespace geometrize.shape
                             int max = this.xBound - 1;
                             if (0 > max)
                             {
-                                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: min <= max");
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.x = (@value < 0) ? 0 : ((@value > max) ? max : @value);
@@ -112,7 +103,7 @@ namespace geometrize.shape
                             int max1 = this.yBound - 1;
                             if (0 > max1)
                             {
-                                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: min <= max");
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.y = (value1 < 0) ? 0 : ((value1 > max1) ? max1 : value1);
@@ -126,7 +117,7 @@ namespace geometrize.shape
                             int max2 = this.xBound - 1;
                             if (1 > max2)
                             {
-                                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: min <= max");
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.rx = (value2 < 1) ? 1 : ((value2 > max2) ? max2 : value2);
@@ -140,7 +131,7 @@ namespace geometrize.shape
                             int max3 = this.xBound - 1;
                             if (1 > max3)
                             {
-                                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: min <= max");
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.ry = (value3 < 1) ? 1 : ((value3 > max3) ? max3 : value3);
@@ -154,365 +145,31 @@ namespace geometrize.shape
         }
 
 
-        public virtual global::geometrize.shape.Shape clone()
+        public virtual Shape clone()
         {
-            global::geometrize.shape.Ellipse ellipse = new global::geometrize.shape.Ellipse((int)this.xBound, (int)this.yBound);
-            ellipse.x = this.x;
-            ellipse.y = this.y;
-            ellipse.rx = this.rx;
-            ellipse.ry = this.ry;
-            return ellipse;
+            return new Ellipse(xBound, yBound)
+            {
+                x = this.x,
+                y = this.y,
+                rx = this.rx,
+                ry = this.ry
+            };
         }
 
 
         public virtual int getType()
         {
-            unchecked
+            return (int)3;
+        }
+
+
+        public virtual double[] getRawShapeData()
+        {
+            return new double[]
             {
-                return (int)3;
-            }
+                x, y, rx, ry
+            };
         }
-
-
-        public virtual global::HaxeArray<double> getRawShapeData()
-        {
-            return new global::HaxeArray<double>(new double[] { (double)this.x, (double)this.y, (double)this.rx, (double)this.ry });
-        }
-
-
-        public virtual string getSvgShapeData()
-        {
-            return global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat("<ellipse cx=\"", global::haxe.lang.Runtime.toString(this.x)), "\" cy=\""), global::haxe.lang.Runtime.toString(this.y)), "\" rx=\""), global::haxe.lang.Runtime.toString(this.rx)), "\" ry=\""), global::haxe.lang.Runtime.toString(this.ry)), "\" "), global::geometrize.exporter.SvgExporter.SVG_STYLE_HOOK), " />");
-        }
-
-
-        public override double __hx_setField_f(string field, int hash, double @value, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 727238917:
-                        {
-                            this.yBound = (int)@value;
-                            return @value;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            this.xBound = (int)@value;
-                            return @value;
-                        }
-
-
-                    case 25543:
-                        {
-                            this.ry = (int)@value;
-                            return @value;
-                        }
-
-
-                    case 25542:
-                        {
-                            this.rx = (int)@value;
-                            return @value;
-                        }
-
-
-                    case 121:
-                        {
-                            this.y = (int)@value;
-                            return @value;
-                        }
-
-
-                    case 120:
-                        {
-                            this.x = (int)@value;
-                            return @value;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_setField_f(field, hash, @value, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override object __hx_setField(string field, int hash, object @value, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 727238917:
-                        {
-                            this.yBound = (int)global::haxe.lang.Runtime.toInt(@value);
-                            return @value;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            this.xBound = (int)global::haxe.lang.Runtime.toInt(@value);
-                            return @value;
-                        }
-
-
-                    case 25543:
-                        {
-                            this.ry = (int)global::haxe.lang.Runtime.toInt(@value);
-                            return @value;
-                        }
-
-
-                    case 25542:
-                        {
-                            this.rx = (int)global::haxe.lang.Runtime.toInt(@value);
-                            return @value;
-                        }
-
-
-                    case 121:
-                        {
-                            this.y = (int)global::haxe.lang.Runtime.toInt(@value);
-                            return @value;
-                        }
-
-
-                    case 120:
-                        {
-                            this.x = (int)global::haxe.lang.Runtime.toInt(@value);
-                            return @value;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_setField(field, hash, @value, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override object __hx_getField(string field, int hash, bool throwErrors, bool isCheck, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 1870080157:
-                        {
-                            return (global::haxe.lang.Function)new global::haxe.lang.Closure(this, "getSvgShapeData", 1870080157);
-                        }
-
-
-                    case 538995865:
-                        {
-                            return (global::haxe.lang.Function)new global::haxe.lang.Closure(this, "getRawShapeData", 538995865);
-                        }
-
-
-                    case 529244784:
-                        {
-                            return (global::haxe.lang.Function)new global::haxe.lang.Closure(this, "getType", 529244784);
-                        }
-
-
-                    case 1214452573:
-                        {
-                            return (global::haxe.lang.Function)new global::haxe.lang.Closure(this, "clone", 1214452573);
-                        }
-
-
-                    case 1069478790:
-                        {
-                            return (global::haxe.lang.Function)new global::haxe.lang.Closure(this, "mutate", 1069478790);
-                        }
-
-
-                    case 508245239:
-                        {
-                            return (global::haxe.lang.Function)new global::haxe.lang.Closure(this, "rasterize", 508245239);
-                        }
-
-
-                    case 727238917:
-                        {
-                            return this.yBound;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            return this.xBound;
-                        }
-
-
-                    case 25543:
-                        {
-                            return this.ry;
-                        }
-
-
-                    case 25542:
-                        {
-                            return this.rx;
-                        }
-
-
-                    case 121:
-                        {
-                            return this.y;
-                        }
-
-
-                    case 120:
-                        {
-                            return this.x;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_getField(field, hash, throwErrors, isCheck, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override double __hx_getField_f(string field, int hash, bool throwErrors, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 727238917:
-                        {
-                            return (double)this.yBound;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            return (double)this.xBound;
-                        }
-
-
-                    case 25543:
-                        {
-                            return (double)this.ry;
-                        }
-
-
-                    case 25542:
-                        {
-                            return (double)this.rx;
-                        }
-
-
-                    case 121:
-                        {
-                            return (double)this.y;
-                        }
-
-
-                    case 120:
-                        {
-                            return (double)this.x;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_getField_f(field, hash, throwErrors, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override object __hx_invokeField(string field, int hash, object[] dynargs)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 1870080157:
-                        {
-                            return this.getSvgShapeData();
-                        }
-
-
-                    case 538995865:
-                        {
-                            return this.getRawShapeData();
-                        }
-
-
-                    case 529244784:
-                        {
-                            return this.getType();
-                        }
-
-
-                    case 1214452573:
-                        {
-                            return this.clone();
-                        }
-
-
-                    case 1069478790:
-                        {
-                            this.mutate();
-                            break;
-                        }
-
-
-                    case 508245239:
-                        {
-                            return this.rasterize();
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_invokeField(field, hash, dynargs);
-                        }
-
-                }
-
-                return null;
-            }
-        }
-
-
-        public override void __hx_getFields(global::HaxeArray<string> baseArr)
-        {
-            baseArr.push("yBound");
-            baseArr.push("xBound");
-            baseArr.push("ry");
-            baseArr.push("rx");
-            baseArr.push("y");
-            baseArr.push("x");
-            base.__hx_getFields(baseArr);
-        }
-
-
     }
 }
 

@@ -7,7 +7,7 @@ namespace geometrize.shape
 {
 
 #pragma warning disable 109, 114, 219, 429, 168, 162
-    public class SymbolShape : haxe.lang.HxObject, Shape
+    public class SymbolShape : Shape
     {
         private readonly SymbolShapeOptions _symbolOptions;
 
@@ -25,7 +25,7 @@ namespace geometrize.shape
             int max = (xBound - 1);
             if ((0 > max))
             {
-                throw ((Exception)(haxe.Exception.thrown("FAIL: min <= max")));
+                throw new Exception("FAIL: min <= max");
             }
 
             x2 = (@value < 0) ? 0 : ((@value > max) ? max : @value);
@@ -33,7 +33,7 @@ namespace geometrize.shape
             int max1 = (yBound - 1);
             if ((0 > max1))
             {
-                throw ((Exception)(haxe.Exception.thrown("FAIL: min <= max")));
+                throw new Exception("FAIL: min <= max");
             }
 
             y2 = (value1 < 0) ? 0 : ((value1 > max1) ? max1 : value1);
@@ -138,7 +138,7 @@ namespace geometrize.shape
                             int max = (this.xBound - 1);
                             if ((0 > max))
                             {
-                                throw ((global::System.Exception)(global::haxe.Exception.thrown("FAIL: min <= max")));
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.x1 = (((@value < 0)) ? (0) : ((((@value > max)) ? (max) : (@value))));
@@ -146,7 +146,7 @@ namespace geometrize.shape
                             int max1 = (this.yBound - 1);
                             if ((0 > max1))
                             {
-                                throw ((global::System.Exception)(global::haxe.Exception.thrown("FAIL: min <= max")));
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.y1 = (((value1 < 0)) ? (0) : ((((value1 > max1)) ? (max1) : (value1))));
@@ -160,7 +160,7 @@ namespace geometrize.shape
                             int max2 = (this.xBound - 1);
                             if ((0 > max2))
                             {
-                                throw ((global::System.Exception)(global::haxe.Exception.thrown("FAIL: min <= max")));
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.x2 = (((value2 < 0)) ? (0) : ((((value2 > max2)) ? (max2) : (value2))));
@@ -168,7 +168,7 @@ namespace geometrize.shape
                             int max3 = (this.yBound - 1);
                             if ((0 > max3))
                             {
-                                throw ((global::System.Exception)(global::haxe.Exception.thrown("FAIL: min <= max")));
+                                throw new Exception("FAIL: min <= max");
                             }
 
                             this.y2 = (((value3 < 0)) ? (0) : ((((value3 > max3)) ? (max3) : (value3))));
@@ -207,35 +207,17 @@ namespace geometrize.shape
         }
 
 
-        public virtual HaxeArray<double> getRawShapeData()
+        public virtual double[] getRawShapeData()
         {
-            return new HaxeArray<double>(new double[] {
-                (this.x1 < this.x2) ? this.x1 : this.x2, 
-                (this.y1 < this.y2) ? this.y1 : this.y2, 
-                (this.x1 > this.x2) ? this.x1 : this.x2, 
+            return new double[] {
+                (this.x1 < this.x2) ? this.x1 : this.x2,
+                (this.y1 < this.y2) ? this.y1 : this.y2,
+                (this.x1 > this.x2) ? this.x1 : this.x2,
                 (this.y1 > this.y2) ? this.y1 : this.y2,
                 this.symbol.SymbolId,
                 this.flipX ? 1 : 0,
                 this.flipY ? 1 : 0,
-            });
-        }
-
-
-        public virtual string getSvgShapeData()
-        {
-            int first = this.x1;
-            int second = this.x2;
-            int first1 = this.y1;
-            int second1 = this.y2;
-            int first2 = this.x1;
-            int second2 = this.x2;
-            int first3 = this.x1;
-            int second3 = this.x2;
-            int first4 = this.y1;
-            int second4 = this.y2;
-            int first5 = this.y1;
-            int second5 = this.y2;
-            return global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat("<rect x=\"", global::haxe.lang.Runtime.toString(((((first < second)) ? (first) : (second))))), "\" y=\""), global::haxe.lang.Runtime.toString(((((first1 < second1)) ? (first1) : (second1))))), "\" width=\""), global::haxe.lang.Runtime.toString(((((((first2 > second2)) ? (first2) : (second2))) - ((((first3 < second3)) ? (first3) : (second3))))))), "\" height=\""), global::haxe.lang.Runtime.toString(((((((first4 > second4)) ? (first4) : (second4))) - ((((first5 < second5)) ? (first5) : (second5))))))), "\" "), global::geometrize.exporter.SvgExporter.SVG_STYLE_HOOK), " />");
+            };
         }
     }
 }

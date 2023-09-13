@@ -7,34 +7,18 @@ using System.Collections.Generic;
 
 namespace geometrize.shape
 {
-    public class RotatedEllipse : haxe.lang.HxObject, Shape
+    public class RotatedEllipse : Shape
     {
-
-        public RotatedEllipse(haxe.lang.EmptyObject empty)
-        {
-        }
-
-
         public RotatedEllipse(int xBound, int yBound)
         {
-            __hx_ctor_geometrize_shape_RotatedEllipse(this, xBound, yBound);
+            x = Std.random(xBound);
+            y = Std.random(yBound);
+            rx = (Std.random(32) + 1);
+            ry = (Std.random(32) + 1);
+            angle = Std.random(360);
+            this.xBound = xBound;
+            this.yBound = yBound;
         }
-
-
-        protected static void __hx_ctor_geometrize_shape_RotatedEllipse(RotatedEllipse __hx_this, int xBound, int yBound)
-        {
-            unchecked
-            {
-                __hx_this.x = Std.random(xBound);
-                __hx_this.y = Std.random(yBound);
-                __hx_this.rx = (Std.random(32) + 1);
-                __hx_this.ry = (Std.random(32) + 1);
-                __hx_this.angle = Std.random(360);
-                __hx_this.xBound = xBound;
-                __hx_this.yBound = yBound;
-            }
-        }
-
 
         public int x;
 
@@ -104,397 +88,27 @@ namespace geometrize.shape
 
         public virtual Shape clone()
         {
-            RotatedEllipse ellipse = new RotatedEllipse(((int)(this.xBound)), ((int)(this.yBound)));
-            ellipse.x = this.x;
-            ellipse.y = this.y;
-            ellipse.rx = this.rx;
-            ellipse.ry = this.ry;
-            ellipse.angle = this.angle;
-            return ellipse;
-        }
-
-
-        public virtual int getType()
-        {
-            unchecked
+            return new RotatedEllipse(xBound, yBound)
             {
-                return ((int)(4));
-            }
+                x = x,
+                y = y,
+                rx = rx,
+                ry = ry,
+                angle = angle
+            };
         }
 
 
-        public virtual HaxeArray<double> getRawShapeData()
-        {
-            return new HaxeArray<double>(new double[] { ((double)(this.x)), ((double)(this.y)), ((double)(this.rx)), ((double)(this.ry)), ((double)(this.angle)) });
-        }
+        public virtual int getType() => 4;
 
 
-        public virtual string getSvgShapeData()
+        public virtual double[] getRawShapeData()
         {
-            unchecked
+            return new double[]
             {
-                string s = haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat("<g transform=\"translate(", haxe.lang.Runtime.toString(this.x)), " "), haxe.lang.Runtime.toString(this.y)), ") rotate("), haxe.lang.Runtime.toString(this.angle)), ") scale("), haxe.lang.Runtime.toString(this.rx)), " "), haxe.lang.Runtime.toString(this.ry)), ")\">");
-                s = haxe.lang.Runtime.concat(s, haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat("<ellipse cx=\"", haxe.lang.Runtime.toString(0)), "\" cy=\""), haxe.lang.Runtime.toString(0)), "\" rx=\""), haxe.lang.Runtime.toString(1)), "\" ry=\""), haxe.lang.Runtime.toString(1)), "\" "), exporter.SvgExporter.SVG_STYLE_HOOK), " />"));
-                s = haxe.lang.Runtime.concat(s, "</g>");
-                return s;
-            }
+                x, y, rx, ry, angle
+            };
         }
-
-
-        public override double __hx_setField_f(string field, int hash, double @value, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 727238917:
-                        {
-                            this.yBound = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            this.xBound = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    case 585253843:
-                        {
-                            this.angle = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    case 25543:
-                        {
-                            this.ry = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    case 25542:
-                        {
-                            this.rx = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    case 121:
-                        {
-                            this.y = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    case 120:
-                        {
-                            this.x = ((int)(@value));
-                            return @value;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_setField_f(field, hash, @value, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override object __hx_setField(string field, int hash, object @value, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 727238917:
-                        {
-                            this.yBound = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            this.xBound = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    case 585253843:
-                        {
-                            this.angle = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    case 25543:
-                        {
-                            this.ry = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    case 25542:
-                        {
-                            this.rx = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    case 121:
-                        {
-                            this.y = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    case 120:
-                        {
-                            this.x = ((int)(haxe.lang.Runtime.toInt(@value)));
-                            return @value;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_setField(field, hash, @value, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override object __hx_getField(string field, int hash, bool throwErrors, bool isCheck, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 1870080157:
-                        {
-                            return ((haxe.lang.Function)(new haxe.lang.Closure(this, "getSvgShapeData", 1870080157)));
-                        }
-
-
-                    case 538995865:
-                        {
-                            return ((haxe.lang.Function)(new haxe.lang.Closure(this, "getRawShapeData", 538995865)));
-                        }
-
-
-                    case 529244784:
-                        {
-                            return ((haxe.lang.Function)(new haxe.lang.Closure(this, "getType", 529244784)));
-                        }
-
-
-                    case 1214452573:
-                        {
-                            return ((haxe.lang.Function)(new haxe.lang.Closure(this, "clone", 1214452573)));
-                        }
-
-
-                    case 1069478790:
-                        {
-                            return ((haxe.lang.Function)(new haxe.lang.Closure(this, "mutate", 1069478790)));
-                        }
-
-
-                    case 508245239:
-                        {
-                            return ((haxe.lang.Function)(new haxe.lang.Closure(this, "rasterize", 508245239)));
-                        }
-
-
-                    case 727238917:
-                        {
-                            return this.yBound;
-                        }
-
-
-                    case 1157459110:
-                        {
-                            return this.xBound;
-                        }
-
-
-                    case 585253843:
-                        {
-                            return this.angle;
-                        }
-
-
-                    case 25543:
-                        {
-                            return this.ry;
-                        }
-
-
-                    case 25542:
-                        {
-                            return this.rx;
-                        }
-
-
-                    case 121:
-                        {
-                            return this.y;
-                        }
-
-
-                    case 120:
-                        {
-                            return this.x;
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_getField(field, hash, throwErrors, isCheck, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override double __hx_getField_f(string field, int hash, bool throwErrors, bool handleProperties)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 727238917:
-                        {
-                            return ((double)(this.yBound));
-                        }
-
-
-                    case 1157459110:
-                        {
-                            return ((double)(this.xBound));
-                        }
-
-
-                    case 585253843:
-                        {
-                            return ((double)(this.angle));
-                        }
-
-
-                    case 25543:
-                        {
-                            return ((double)(this.ry));
-                        }
-
-
-                    case 25542:
-                        {
-                            return ((double)(this.rx));
-                        }
-
-
-                    case 121:
-                        {
-                            return ((double)(this.y));
-                        }
-
-
-                    case 120:
-                        {
-                            return ((double)(this.x));
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_getField_f(field, hash, throwErrors, handleProperties);
-                        }
-
-                }
-
-            }
-        }
-
-
-        public override object __hx_invokeField(string field, int hash, object[] dynargs)
-        {
-            unchecked
-            {
-                switch (hash)
-                {
-                    case 1870080157:
-                        {
-                            return this.getSvgShapeData();
-                        }
-
-
-                    case 538995865:
-                        {
-                            return this.getRawShapeData();
-                        }
-
-
-                    case 529244784:
-                        {
-                            return this.getType();
-                        }
-
-
-                    case 1214452573:
-                        {
-                            return this.clone();
-                        }
-
-
-                    case 1069478790:
-                        {
-                            this.mutate();
-                            break;
-                        }
-
-
-                    case 508245239:
-                        {
-                            return this.rasterize();
-                        }
-
-
-                    default:
-                        {
-                            return base.__hx_invokeField(field, hash, dynargs);
-                        }
-
-                }
-
-                return null;
-            }
-        }
-
-
-        public override void __hx_getFields(HaxeArray<string> baseArr)
-        {
-            baseArr.push("yBound");
-            baseArr.push("xBound");
-            baseArr.push("angle");
-            baseArr.push("ry");
-            baseArr.push("rx");
-            baseArr.push("y");
-            baseArr.push("x");
-            base.__hx_getFields(baseArr);
-        }
-
-
     }
 }
 

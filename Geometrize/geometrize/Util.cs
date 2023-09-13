@@ -5,74 +5,77 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace geometrize {
-	public class Util : global::haxe.lang.HxObject {
-		
-		protected static void __hx_ctor_geometrize_Util(global::geometrize.Util __hx_this) {
-		}
-
-		public static (int min, int max) GetMinMax(IReadOnlyList<int> items)
-		{
-			if (items.Count == 0)
+namespace geometrize
+{
+    internal static class Util
+    {
+        public static (int min, int max) GetMinMax(IReadOnlyList<int> items)
+        {
+            if (items.Count == 0)
                 throw new ArgumentException("Items must have a least one value", nameof(items));
 
-            int min = items[0]; 
-			int max = items[0];
+            int min = items[0];
+            int max = items[0];
 
             for (int i = 1; i < items.Count; i++)
-			{
+            {
                 int v = items[i];
-                
-				if (v < min)
-					min = v;
 
-				if (v > max)
-					max = v;
-			}
+                if (v < min)
+                    min = v;
 
-			return (min, max);
-		}
-		
-		
-		public static int getAverageImageColor(global::geometrize.bitmap.Bitmap image) {
-			unchecked {
-				if (( image == null )) {
-					throw ((global::System.Exception) (global::haxe.Exception.thrown("FAIL: image != null")) );
-				}
-				
-				int totalRed = 0;
-				int totalGreen = 0;
-				int totalBlue = 0;
-				{
-					int _g = 0;
-					int _g1 = image.width;
-					while (( _g < _g1 )) {
-						int x = _g++;
-						{
-							int _g2 = 0;
-							int _g3 = image.height;
-							while (( _g2 < _g3 )) {
-								int y = _g2++;
-								int pixel = ((int[]) (image.data) )[( ( image.width * y ) + x )];
-								totalRed += ( ( ((int) (pixel) ) >> 24 ) & 255 );
-								totalGreen += ( ( ((int) (pixel) ) >> 16 ) & 255 );
-								totalBlue += ( ( ((int) (pixel) ) >> 8 ) & 255 );
-							}
-							
-						}
-						
-					}
-					
-				}
-				
-				int size = ( image.width * image.height );
-				int red = ( totalRed / size );
-				int green = ( totalGreen / size );
-				int blue = ( totalBlue / size );
-				return ( ( ( (( (( (( red < 0 )) ? (0) : (( (( red > 255 )) ? (255) : (red) )) )) << 24 )) + (( (( (( green < 0 )) ? (0) : (( (( green > 255 )) ? (255) : (green) )) )) << 16 )) ) + (( (( (( blue < 0 )) ? (0) : (( (( blue > 255 )) ? (255) : (blue) )) )) << 8 )) ) + 255 );
-			}
-		}
-	}
+                if (v > max)
+                    max = v;
+            }
+
+            return (min, max);
+        }
+
+
+        public static int getAverageImageColor(bitmap.Bitmap image)
+        {
+            if (image is null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            unchecked
+            {
+                int totalRed = 0;
+                int totalGreen = 0;
+                int totalBlue = 0;
+                {
+                    int _g = 0;
+                    int _g1 = image.width;
+                    while ((_g < _g1))
+                    {
+                        int x = _g++;
+                        {
+                            int _g2 = 0;
+                            int _g3 = image.height;
+                            while ((_g2 < _g3))
+                            {
+                                int y = _g2++;
+                                int pixel = ((int[])(image.data))[((image.width * y) + x)];
+                                totalRed += ((((int)(pixel)) >> 24) & 255);
+                                totalGreen += ((((int)(pixel)) >> 16) & 255);
+                                totalBlue += ((((int)(pixel)) >> 8) & 255);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                int size = (image.width * image.height);
+                int red = (totalRed / size);
+                int green = (totalGreen / size);
+                int blue = (totalBlue / size);
+                return (((((((((red < 0)) ? (0) : ((((red > 255)) ? (255) : (red))))) << 24)) + ((((((green < 0)) ? (0) : ((((green > 255)) ? (255) : (green))))) << 16))) + ((((((blue < 0)) ? (0) : ((((blue > 255)) ? (255) : (blue))))) << 8))) + 255);
+            }
+        }
+    }
 }
 
 

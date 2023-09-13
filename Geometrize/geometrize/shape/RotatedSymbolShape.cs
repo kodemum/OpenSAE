@@ -8,7 +8,7 @@ using System.Text;
 namespace geometrize.shape
 {
 #pragma warning disable 109, 114, 219, 429, 168, 162
-    public class RotatedSymbolShape : haxe.lang.HxObject, Shape
+    public class RotatedSymbolShape : Shape
     {
         private readonly SymbolShapeOptions _symbolOptions;
 
@@ -239,9 +239,9 @@ namespace geometrize.shape
         }
 
 
-        public virtual HaxeArray<double> getRawShapeData()
+        public virtual double[] getRawShapeData()
         {
-            return new HaxeArray<double>(new double[] {
+            return new double[] {
                 (x1 < x2) ? x1 : x2,
                 (y1 < y2) ? y1 : y2,
                 (x1 > x2) ? x1 : x2,
@@ -249,25 +249,7 @@ namespace geometrize.shape
                 symbol.SymbolId,
                 angle,
                 flip ? 1 : 0
-            });
-        }
-
-
-        public virtual string getSvgShapeData()
-        {
-            int first = x1;
-            int second = x2;
-            int first1 = y1;
-            int second1 = y2;
-            int first2 = x1;
-            int second2 = x2;
-            int first3 = x1;
-            int second3 = x2;
-            int first4 = y1;
-            int second4 = y2;
-            int first5 = y1;
-            int second5 = y2;
-            return haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat(haxe.lang.Runtime.concat("<rect x=\"", haxe.lang.Runtime.toString((first < second) ? first : second)), "\" y=\""), haxe.lang.Runtime.toString((first1 < second1) ? first1 : second1)), "\" width=\""), haxe.lang.Runtime.toString(((first2 > second2) ? first2 : second2) - ((first3 < second3) ? first3 : second3))), "\" height=\""), haxe.lang.Runtime.toString(((first4 > second4) ? first4 : second4) - ((first5 < second5) ? first5 : second5))), "\" "), exporter.SvgExporter.SVG_STYLE_HOOK), " />");
+            };
         }
     }
 }

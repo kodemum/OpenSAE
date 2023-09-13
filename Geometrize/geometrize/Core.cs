@@ -2,52 +2,36 @@
 
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using geometrize.rasterizer;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace geometrize
 {
-    public class Core : global::haxe.lang.HxObject
+    public class Core
     {
-
-        public Core(global::haxe.lang.EmptyObject empty)
-        {
-        }
-
-
-        public Core()
-        {
-            global::geometrize.Core.__hx_ctor_geometrize_Core(this);
-        }
-
-
-        protected static void __hx_ctor_geometrize_Core(global::geometrize.Core __hx_this)
-        {
-        }
-
-
-        public static int computeColor(global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, IEnumerable<Scanline> lines, int alpha)
+        public static int computeColor(bitmap.Bitmap target, bitmap.Bitmap current, IEnumerable<Scanline> lines, int alpha)
         {
             unchecked
             {
                 if (target == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: target != null");
+                    throw new Exception("FAIL: target != null");
                 }
 
                 if (current == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: current != null");
+                    throw new Exception("FAIL: current != null");
                 }
 
                 if (lines == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: lines != null");
+                    throw new Exception("FAIL: lines != null");
                 }
 
                 if (alpha < 0)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: alpha >= 0");
+                    throw new Exception("FAIL: alpha >= 0");
                 }
 
                 int totalRed = 0;
@@ -87,18 +71,18 @@ namespace geometrize
         }
 
 
-        public static double differenceFull(global::geometrize.bitmap.Bitmap first, global::geometrize.bitmap.Bitmap second)
+        public static double differenceFull(bitmap.Bitmap first, bitmap.Bitmap second)
         {
             unchecked
             {
                 if (first == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: first != null");
+                    throw new Exception("FAIL: first != null");
                 }
 
                 if (second == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: second != null");
+                    throw new Exception("FAIL: second != null");
                 }
 
                 {
@@ -106,7 +90,7 @@ namespace geometrize
                     int expected = second.width;
                     if (actual != expected)
                     {
-                        throw (global::System.Exception)global::haxe.Exception.thrown(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat("FAIL: values are not equal (expected: ", global::haxe.lang.Runtime.toString(expected)), ", actual: "), global::haxe.lang.Runtime.toString(actual)), ")"));
+                        throw new Exception(string.Concat(string.Concat(string.Concat(string.Concat("FAIL: values are not equal (expected: ", expected.ToString(), ", actual: "), actual.ToString(), ")"))));
                     }
 
                 }
@@ -116,7 +100,7 @@ namespace geometrize
                     int expected1 = second.height;
                     if (actual1 != expected1)
                     {
-                        throw (global::System.Exception)global::haxe.Exception.thrown(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat(global::haxe.lang.Runtime.concat("FAIL: values are not equal (expected: ", global::haxe.lang.Runtime.toString(expected1)), ", actual: "), global::haxe.lang.Runtime.toString(actual1)), ")"));
+                        throw new Exception(string.Concat(string.Concat(string.Concat(string.Concat("FAIL: values are not equal (expected: ", expected1.ToString()), ", actual: "), actual1.ToString()), ")"));
                     }
 
                 }
@@ -151,7 +135,7 @@ namespace geometrize
 
                 }
 
-                return global::System.Math.Sqrt(total / (width * height * 4.0)) / 255;
+                return System.Math.Sqrt(total / (width * height * 4.0)) / 255;
             }
         }
 
@@ -162,28 +146,28 @@ namespace geometrize
             {
                 if (target == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: target != null");
+                    throw new Exception("FAIL: target != null");
                 }
 
                 if (before == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: before != null");
+                    throw new Exception("FAIL: before != null");
                 }
 
                 if (after == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: after != null");
+                    throw new Exception("FAIL: after != null");
                 }
 
                 if (lines == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: lines != null");
+                    throw new Exception("FAIL: lines != null");
                 }
 
                 int width = target.width;
                 int height = target.height;
                 int rgbaCount = width * height * 4;
-                double total = global::System.Math.Pow(score * 255, 2) * rgbaCount;
+                double total = System.Math.Pow(score * 255, 2) * rgbaCount;
 
                 foreach (var line in lines)
                 {
@@ -212,12 +196,12 @@ namespace geometrize
                     }
                 }
 
-                return global::System.Math.Sqrt(total / rgbaCount) / 255;
+                return System.Math.Sqrt(total / rgbaCount) / 255;
             }
         }
 
 
-        public static State bestRandomState(global::HaxeArray<int> shapes, int alpha, int n, global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, global::geometrize.bitmap.Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
+        public static State bestRandomState(int[] shapes, int alpha, int n, bitmap.Bitmap target, bitmap.Bitmap current, bitmap.Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
         {
             object lockObj = new object();
 
@@ -243,11 +227,11 @@ namespace geometrize
         }
 
 
-        public static State bestHillClimbState(global::HaxeArray<int> shapes, int alpha, int n, int age, global::geometrize.bitmap.Bitmap target, global::geometrize.bitmap.Bitmap current, global::geometrize.bitmap.Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
+        public static State bestHillClimbState(int[] shapes, int alpha, int n, int age, bitmap.Bitmap target, bitmap.Bitmap current, bitmap.Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
         {
-            State state = global::geometrize.Core.bestRandomState(shapes, alpha, n, target, current, buffer, lastScore, symbolOptions);
+            State state = bestRandomState(shapes, alpha, n, target, current, buffer, lastScore, symbolOptions);
             System.Diagnostics.Debug.WriteLine("Best random state:     {0}", state.energy(lastScore));
-            state = global::geometrize.Core.hillClimb(state, age, lastScore);
+            state = hillClimb(state, age, lastScore);
             System.Diagnostics.Debug.WriteLine("Best hill climb state: {0}", state.energy(lastScore));
             return state;
         }
@@ -259,12 +243,12 @@ namespace geometrize
             {
                 if (state == null)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: state != null");
+                    throw new Exception("FAIL: state != null");
                 }
 
                 if (maxAge < 0)
                 {
-                    throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: maxAge >= 0");
+                    throw new Exception("FAIL: maxAge >= 0");
                 }
 
                 state = state.clone();
@@ -300,22 +284,22 @@ namespace geometrize
         {
             if (shape == null)
             {
-                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: shape != null");
+                throw new Exception("FAIL: shape != null");
             }
 
             if (target == null)
             {
-                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: target != null");
+                throw new Exception("FAIL: target != null");
             }
 
             if (current == null)
             {
-                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: current != null");
+                throw new Exception("FAIL: current != null");
             }
 
             if (buffer == null)
             {
-                throw (global::System.Exception)global::haxe.Exception.thrown("FAIL: buffer != null");
+                throw new Exception("FAIL: buffer != null");
             }
 
             var lines = shape.rasterize();
@@ -324,8 +308,6 @@ namespace geometrize
             Rasterizer.drawLines(buffer, color, lines);
             return differencePartial(target, current, buffer, score, lines);
         }
-
-
     }
 }
 
