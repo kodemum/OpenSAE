@@ -3,7 +3,7 @@
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using System;
 
-namespace geometrize.shape
+namespace Geometrize.Shape
 {
     public class Circle : Ellipse
     {
@@ -13,7 +13,7 @@ namespace geometrize.shape
             ry = rx;
         }
 
-        public override void mutate()
+        public override void Mutate()
         {
             unchecked
             {
@@ -64,7 +64,7 @@ namespace geometrize.shape
         }
 
 
-        public override Shape clone()
+        public override IShape Clone()
         {
             return new Circle(xBound, yBound)
             {
@@ -75,10 +75,7 @@ namespace geometrize.shape
             };
         }
 
-
-        public override int getType() => 5;
-
-        public override double[] getRawShapeData()
+        public override double[] GetRawShapeData()
         {
             return new double[]
             {

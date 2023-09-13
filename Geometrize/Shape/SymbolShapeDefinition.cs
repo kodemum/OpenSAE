@@ -1,4 +1,4 @@
-﻿namespace geometrize.shape
+﻿namespace Geometrize.Shape
 {
     public class SymbolShapeDefinition
     {

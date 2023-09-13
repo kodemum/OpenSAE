@@ -1,13 +1,13 @@
-﻿using geometrize.shape;
+﻿using Geometrize.Shape;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace geometrize
+namespace Geometrize
 {
     public class ShapeAddResult
     {
-        public Shape Shape {  get; set; }
+        public IShape Shape {  get; set; }
 
         public double Score { get; set; }
 

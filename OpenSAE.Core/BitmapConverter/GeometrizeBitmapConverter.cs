@@ -1,10 +1,10 @@
-﻿using geometrize;
-using geometrize.bitmap;
-using geometrize.shape;
+﻿using Geometrize;
+using Geometrize.Shape;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace OpenSAE.Core.BitmapConverter
 {
@@ -27,8 +27,6 @@ namespace OpenSAE.Core.BitmapConverter
 
             for (int y = 0; y < symbol.Image.PixelHeight; y++)
             {
-                int? targetX = null, targetX2 = null;
-
                 for (int x = 0; x < symbol.Image.PixelWidth; x++)
                 {
                     int pos = (y * symbol.Image.PixelWidth + x) * 4;
@@ -107,7 +105,7 @@ namespace OpenSAE.Core.BitmapConverter
 
             _originalImage.CopyPixelDataTo(imageData);
 
-            Bitmap bitmap = Bitmap.createFromByteArray(_originalImage.Width, _originalImage.Height, imageData);
+            Bitmap bitmap = Bitmap.CreateFromByteArray(_originalImage.Width, _originalImage.Height, imageData);
 
             var commonColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
             var symbolOptions = new SymbolShapeOptions()
@@ -137,14 +135,24 @@ namespace OpenSAE.Core.BitmapConverter
                 {
                     // background is always 100% opaque
                     layerDone.Invoke(ToLayer(
-                        new GeometrizeShape(ShapeType.Rectangle, commonColor, 0, new double[] { 0, 0, _originalImage.Width, _originalImage.Height }),
-                        1));
+                        new ShapeAddResult()
+                        {
+                            Shape = new Geometrize.Shape.Rectangle(_originalImage.Width, _originalImage.Height)
+                            {
+                                x1 = 0,
+                                y1 = 0,
+                                x2 = _originalImage.Width,
+                                y2 = _originalImage.Height,
+                            },
+                            Color = GeometrizeUtil.ColorToInt(commonColor),
+                            Score = -1,
+                        }, 1));
 
                     count++;
                 }
                 else
                 {
-                    var shape = geometrize.step(
+                    var shape = geometrize.Step(
                         _options.ShapeTypes.Select(x => (int)x).ToArray(),
                         (int)Math.Round(_options.SymbolOpacity * 255),
                         _options.ShapesPerStep,
@@ -152,7 +160,7 @@ namespace OpenSAE.Core.BitmapConverter
                         symbolOptions);
 
 
-                    layerDone.Invoke(ToLayer(GeometrizeUtil.ConvertShape(shape), _options.SymbolOpacity));
+                    layerDone.Invoke(ToLayer(shape, _options.SymbolOpacity));
 
                     if (inProgressImageCallback != null)
                     {
@@ -181,24 +189,38 @@ namespace OpenSAE.Core.BitmapConverter
             return result;
         }
 
-        private SymbolArtLayer ToLayer(GeometrizeShape shape, double opacity)
+        private SymbolArtLayer ToLayer(ShapeAddResult shape, double opacity)
         {
             System.Windows.Point[] vertices;
             int symbolId;
 
-            (symbolId, vertices) = shape.Type switch
+            if (shape.Shape is Circle circle)
             {
-                ShapeType.Circle => ConvertCircle(shape),
-                ShapeType.Rectangle or ShapeType.Rotated_Rectangle => ConvertRectangle(shape),
-                ShapeType.Ellipse or ShapeType.Rotated_Ellipse => ConvertEllipse(shape),
-                ShapeType.Symbols or ShapeType.Rotated_Symbols => ConvertSymbol(shape),
-                _ => throw new NotImplementedException($"Shape {shape.Type} is not supported."),
-            };
+                (symbolId, vertices) = ConvertCircle(circle);
+            }
+            else if (shape.Shape is Ellipse ellipse)
+            {
+                (symbolId, vertices) = ConvertEllipse(ellipse);
+            }
+            else if (shape.Shape is Geometrize.Shape.Rectangle rectangle)
+            {
+                (symbolId, vertices) = ConvertRectangle(rectangle);
+            }
+            else if (shape.Shape is SymbolShape symbol)
+            {
+                (symbolId, vertices) = ConvertSymbol(symbol);
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported shape type");
+            }
+
+            var color = GeometrizeUtil.IntToColor(shape.Color);
 
             return new SymbolArtLayer()
             {
                 Alpha = opacity,
-                Color = SymbolArtColorHelper.RemoveCurve(shape.Color),
+                Color = SymbolArtColorHelper.RemoveCurve(color),
                 Visible = true,
                 SymbolId = symbolId,
                 Vertex1 = vertices[0],
@@ -208,12 +230,9 @@ namespace OpenSAE.Core.BitmapConverter
             };
         }
 
-        private (int SymbolId, System.Windows.Point[] Vertices) ConvertCircle(GeometrizeShape shape)
+        private (int SymbolId, System.Windows.Point[] Vertices) ConvertCircle(Circle shape)
         {
-            if (shape.Points.Length != 3)
-                throw new InvalidOperationException("Circles must have three points");
-
-            double x = shape.Points[0], y = shape.Points[1], rx = shape.Points[2];
+            double x = shape.x, y = shape.y, rx = shape.rx;
 
             x *= _scale;
             y *= _scale;
@@ -235,14 +254,9 @@ namespace OpenSAE.Core.BitmapConverter
             });
         }
 
-        private (int SymbolId, System.Windows.Point[] Vertices) ConvertEllipse(GeometrizeShape shape)
+        private (int SymbolId, System.Windows.Point[] Vertices) ConvertEllipse(Ellipse shape)
         {
-            if (shape.Type == ShapeType.Ellipse && shape.Points.Length != 4)
-                throw new InvalidOperationException("Ellipses must have FOUR POINTS");
-            else if (shape.Type == ShapeType.Rotated_Ellipse && shape.Points.Length != 5)
-                throw new InvalidOperationException("Rotated ellipses must have five points");
-
-            double centerX = shape.Points[0], centerY = shape.Points[1], radiusX = shape.Points[2], radiusY = shape.Points[3];
+            double centerX = shape.x, centerY = shape.y, radiusX = shape.rx, radiusY = shape.ry;
 
             centerX *= _scale;
             centerY *= _scale;
@@ -260,22 +274,17 @@ namespace OpenSAE.Core.BitmapConverter
                 new System.Windows.Point(centerX + radiusX, centerY - radiusY)
             };
 
-            if (shape.Type == ShapeType.Rotated_Ellipse)
-            {
-                vertices = SymbolManipulationHelper.Rotate(vertices, shape.Points[4] / 180 * Math.PI);
-            }
+            if (shape is RotatedEllipse rotatedEllipse)
+                vertices = SymbolManipulationHelper.Rotate(vertices, (double)rotatedEllipse.angle / 180 * Math.PI);
 
             return (240, vertices);
         }
 
-        private (int SymbolId, System.Windows.Point[] Vertices) ConvertSymbol(GeometrizeShape shape)
+        private (int SymbolId, System.Windows.Point[] Vertices) ConvertSymbol(SymbolShape shape)
         {
-            if (shape.Points.Length < 5)
-                throw new InvalidOperationException("Symbol rectangles must have at least five points");
+            double x1 = shape.x1, y1 = shape.y1, x2 = shape.x2, y2 = shape.y2;
 
-            double x1 = shape.Points[0], y1 = shape.Points[1], x2 = shape.Points[2], y2 = shape.Points[3];
-
-            int symbolId = (int)shape.Points[4];
+            int symbolId = shape.symbol.SymbolId;
 
             x1 *= _scale;
             y1 *= _scale;
@@ -295,33 +304,20 @@ namespace OpenSAE.Core.BitmapConverter
                 new System.Windows.Point(x2, y1)
             };
 
-            if (shape.Type == ShapeType.Symbols)
-            {
-                if (shape.Points[5] > 0)
-                    vertices = SymbolManipulationHelper.FlipX(vertices);
+            if (shape.flipX)
+                vertices = SymbolManipulationHelper.FlipX(vertices);
 
-                if (shape.Points[6] > 0)
-                    vertices = SymbolManipulationHelper.FlipY(vertices);
-            }
-            else if (shape.Type == ShapeType.Rotated_Symbols)
-            {
-                if (shape.Points[6] > 0)
-                    vertices = SymbolManipulationHelper.FlipX(vertices);
-
-                vertices = SymbolManipulationHelper.Rotate(vertices, shape.Points[5] / 180 * Math.PI);
-            }
+            if (shape is RotatedSymbolShape rotatedSymbol)
+                vertices = SymbolManipulationHelper.Rotate(vertices, (double)rotatedSymbol.angle / 180 * Math.PI);
+            else if (shape.flipY)
+                vertices = SymbolManipulationHelper.FlipY(vertices);
 
             return (symbolId - 1, vertices);
         }
 
-        private (int SymbolId, System.Windows.Point[] Vertices) ConvertRectangle(GeometrizeShape shape)
+        private (int SymbolId, System.Windows.Point[] Vertices) ConvertRectangle(Geometrize.Shape.Rectangle shape)
         {
-            if (shape.Type == ShapeType.Rectangle && shape.Points.Length != 4)
-                throw new InvalidOperationException("Rectangles must have FOUR POINTS");
-            else if (shape.Type == ShapeType.Rotated_Rectangle && shape.Points.Length != 5)
-                throw new InvalidOperationException("Rotated rectangles must have five points");
-
-            double x1 = shape.Points[0], y1 = shape.Points[1], x2 = shape.Points[2], y2 = shape.Points[3];
+            double x1 = shape.x1, y1 = shape.y1, x2 = shape.x2, y2 = shape.y2;
 
             x1 *= _scale;
             y1 *= _scale;
@@ -350,10 +346,8 @@ namespace OpenSAE.Core.BitmapConverter
                 new System.Windows.Point(x2, y1)
             };
 
-            if (shape.Type == ShapeType.Rotated_Rectangle)
-            {
-                vertices = SymbolManipulationHelper.Rotate(vertices, shape.Points[4] / 180 * Math.PI);
-            }
+            if (shape is RotatedRectangle rotatedRect)
+                vertices = SymbolManipulationHelper.Rotate(vertices, (double)rotatedRect.angle / 180 * Math.PI);
 
             return (242, vertices);
         }

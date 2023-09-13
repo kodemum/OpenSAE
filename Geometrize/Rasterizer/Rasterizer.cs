@@ -3,12 +3,12 @@
 using System;
 using System.Collections.Generic;
 
-namespace geometrize.rasterizer
+namespace Geometrize.Rasterizer
 {
     public static class Rasterizer
     {
 
-        public static void drawLines(bitmap.Bitmap image, int c, IEnumerable<Scanline> lines)
+        public static void DrawLines(Bitmap image, int c, IEnumerable<Scanline> lines)
         {
             unchecked
             {
@@ -69,7 +69,7 @@ namespace geometrize.rasterizer
             }
         }
 
-        public static void copyLines(bitmap.Bitmap destination, bitmap.Bitmap source, IEnumerable<Scanline> lines)
+        public static void CopyLines(Bitmap destination, Bitmap source, IEnumerable<Scanline> lines)
         {
             unchecked
             {
@@ -99,7 +99,7 @@ namespace geometrize.rasterizer
         }
 
 
-        public static List<Point> bresenham(int x1, int y1, int x2, int y2)
+        public static List<Point> Bresenham(int x1, int y1, int x2, int y2)
         {
             unchecked
             {
@@ -157,7 +157,7 @@ namespace geometrize.rasterizer
         }
 
 
-        public static List<Scanline> scanlinesForPolygon(IReadOnlyList<Point> points)
+        public static List<Scanline> ScanlinesForPolygon(IReadOnlyList<Point> points)
         {
             var lines = new List<Scanline>();
             var edges = new List<Point>();
@@ -166,7 +166,7 @@ namespace geometrize.rasterizer
             {
                 var p1 = points[i];
                 var p2 = (i == points.Count - 1) ? points[0] : points[i + 1];
-                var p1p2 = bresenham(p1.X, p1.Y, p2.X, p2.Y);
+                var p1p2 = Bresenham(p1.X, p1.Y, p2.X, p2.Y);
 
                 edges.AddRange(p1p2);
             }

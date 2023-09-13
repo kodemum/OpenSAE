@@ -1,15 +1,15 @@
-﻿using geometrize.rasterizer;
+﻿using Geometrize.Rasterizer;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace geometrize.shape
+namespace Geometrize.Shape
 {
 
 #pragma warning disable 109, 114, 219, 429, 168, 162
-    public class SymbolShape : Shape
+    public class SymbolShape : IShape
     {
-        private readonly SymbolShapeOptions _symbolOptions;
+        protected readonly SymbolShapeOptions _symbolOptions;
 
         public SymbolShape()
         {
@@ -60,13 +60,13 @@ namespace geometrize.shape
 
         public int yBound;
 
-        private SymbolShapeDefinition symbol;
+        public SymbolShapeDefinition symbol;
 
-        private bool flipX;
+        public bool flipX;
 
-        private bool flipY;
+        public bool flipY;
 
-        public virtual IReadOnlyList<Scanline> rasterize()
+        public virtual IReadOnlyList<Scanline> Rasterize()
         {
             var lines = new List<Scanline>();
 
@@ -125,7 +125,7 @@ namespace geometrize.shape
             return lines;
         }
 
-        public virtual void mutate()
+        public virtual void Mutate()
         {
             unchecked
             {
@@ -186,7 +186,7 @@ namespace geometrize.shape
         }
 
 
-        public virtual Shape clone()
+        public virtual IShape Clone()
         {
             return new SymbolShape(this.xBound, this.yBound, _symbolOptions)
             {
@@ -200,14 +200,7 @@ namespace geometrize.shape
             };
         }
 
-
-        public virtual int getType()
-        {
-            return 7;
-        }
-
-
-        public virtual double[] getRawShapeData()
+        public virtual double[] GetRawShapeData()
         {
             return new double[] {
                 (this.x1 < this.x2) ? this.x1 : this.x2,

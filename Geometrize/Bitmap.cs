@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
-namespace geometrize.bitmap
+namespace Geometrize
 {
     public class Bitmap
     {
-        public static Bitmap createFromByteArray(int w, int h, IReadOnlyList<byte> bytes)
+        public static Bitmap CreateFromByteArray(int w, int h, IReadOnlyList<byte> bytes)
         {
             Bitmap bitmap = new Bitmap();
 
@@ -41,24 +41,24 @@ namespace geometrize.bitmap
 
         public int[] data;
 
-        public int getPixel(int x, int y)
+        public int GetPixel(int x, int y)
         {
-            return this.data[((this.width * y) + x)];
+            return data[width * y + x];
         }
 
 
-        public void setPixel(int x, int y, int color)
+        public void SetPixel(int x, int y, int color)
         {
-            this.data[((this.width * y) + x)] = color;
+            data[width * y + x] = color;
         }
 
 
-        public Bitmap clone()
+        public Bitmap Clone()
         {
             Bitmap bitmap = new Bitmap
             {
-                width = this.width,
-                height = this.height,
+                width = width,
+                height = height,
                 data = new int[data.Length]
             };
 
@@ -68,17 +68,17 @@ namespace geometrize.bitmap
         }
 
 
-        public void fill(int color)
+        public void Fill(int color)
         {
             unchecked
             {
                 int idx = 0;
-                while ((idx < this.data.Length))
+                while (idx < data.Length)
                 {
-                    this.data[idx] = ((color >> 24) & 255);
-                    this.data[(idx + 1)] = ((color >> 16) & 255);
-                    this.data[(idx + 2)] = ((color >> 8) & 255);
-                    this.data[(idx + 3)] = (color & 255);
+                    data[idx] = color >> 24 & 255;
+                    data[idx + 1] = color >> 16 & 255;
+                    data[idx + 2] = color >> 8 & 255;
+                    data[idx + 3] = color & 255;
                     idx += 4;
                 }
 

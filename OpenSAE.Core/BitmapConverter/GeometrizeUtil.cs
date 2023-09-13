@@ -9,15 +9,5 @@ namespace OpenSAE.Core.BitmapConverter
 
         public static System.Windows.Media.Color IntToColor(int color)
             => System.Windows.Media.Color.FromArgb((byte)(color & 255), (byte)((color >> 24) & 255), (byte)((color >> 16) & 255), (byte)((color >> 8) & 255));
-
-        public static GeometrizeShape ConvertShape(geometrize.ShapeAddResult source)
-        {
-            var points = source.Shape.getRawShapeData();
-
-            var type = (ShapeType)source.Shape.getType();
-            var color = IntToColor(source.Color);
-
-            return new GeometrizeShape(type, color, source.Score, points);
-        }
     }
 }

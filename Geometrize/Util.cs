@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace geometrize
+namespace Geometrize
 {
     internal static class Util
     {
@@ -32,7 +32,7 @@ namespace geometrize
         }
 
 
-        public static int getAverageImageColor(bitmap.Bitmap image)
+        public static int GetAverageImageColor(Bitmap image)
         {
             if (image is null)
             {
@@ -47,19 +47,19 @@ namespace geometrize
                 {
                     int _g = 0;
                     int _g1 = image.width;
-                    while ((_g < _g1))
+                    while (_g < _g1)
                     {
                         int x = _g++;
                         {
                             int _g2 = 0;
                             int _g3 = image.height;
-                            while ((_g2 < _g3))
+                            while (_g2 < _g3)
                             {
                                 int y = _g2++;
-                                int pixel = ((int[])(image.data))[((image.width * y) + x)];
-                                totalRed += ((((int)(pixel)) >> 24) & 255);
-                                totalGreen += ((((int)(pixel)) >> 16) & 255);
-                                totalBlue += ((((int)(pixel)) >> 8) & 255);
+                                int pixel = ((int[])image.data)[(image.width * y) + x];
+                                totalRed += (((int)pixel) >> 24) & 255;
+                                totalGreen += (((int)pixel) >> 16) & 255;
+                                totalBlue += (((int)pixel) >> 8) & 255;
                             }
 
                         }
@@ -68,11 +68,11 @@ namespace geometrize
 
                 }
 
-                int size = (image.width * image.height);
-                int red = (totalRed / size);
-                int green = (totalGreen / size);
-                int blue = (totalBlue / size);
-                return (((((((((red < 0)) ? (0) : ((((red > 255)) ? (255) : (red))))) << 24)) + ((((((green < 0)) ? (0) : ((((green > 255)) ? (255) : (green))))) << 16))) + ((((((blue < 0)) ? (0) : ((((blue > 255)) ? (255) : (blue))))) << 8))) + 255);
+                int size = image.width * image.height;
+                int red = totalRed / size;
+                int green = totalGreen / size;
+                int blue = totalBlue / size;
+                return (((red < 0) ? 0 : ((red > 255) ? 255 : red)) << 24) + (((green < 0) ? 0 : ((green > 255) ? 255 : green)) << 16) + (((blue < 0) ? 0 : ((blue > 255) ? 255 : blue)) << 8) + 255;
             }
         }
     }

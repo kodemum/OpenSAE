@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace geometrize.rasterizer
+namespace Geometrize.Rasterizer
 {
     public class Scanline
     {
@@ -16,12 +16,12 @@ namespace geometrize.rasterizer
             this.x2 = x2;
         }
 
-        public static List<Scanline> trim(List<Scanline> scanlines, int w, int h)
+        public static List<Scanline> Trim(List<Scanline> scanlines, int w, int h)
         {
-            return scanlines.Where(x => trimHelper(x, w, h)).ToList();
+            return scanlines.Where(x => TrimHelper(x, w, h)).ToList();
         }
 
-        public static bool trimHelper(Scanline line, int w, int h)
+        public static bool TrimHelper(Scanline line, int w, int h)
         {
             unchecked
             {

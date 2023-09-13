@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace geometrize
+namespace Geometrize
 {
     public struct Point
     {

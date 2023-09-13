@@ -1,67 +1,28 @@
-﻿using geometrize.rasterizer;
+﻿using Geometrize.Rasterizer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace geometrize.shape
+namespace Geometrize.Shape
 {
 #pragma warning disable 109, 114, 219, 429, 168, 162
-    public class RotatedSymbolShape : Shape
+    public class RotatedSymbolShape : SymbolShape
     {
-        private readonly SymbolShapeOptions _symbolOptions;
-
         public RotatedSymbolShape()
         {
 
         }
 
         public RotatedSymbolShape(int xBound, int yBound, SymbolShapeOptions symbolOptions)
+            : base(xBound, yBound, symbolOptions) 
         {
-            _symbolOptions = symbolOptions;
-            int x = Std.random(xBound);
-            int y = Std.random(yBound);
-            int width = Std.random(64) + 1;
-            int height = Std.random(64) + 1;
-
-            x1 = Math.Clamp(x - (width / 2), 0, xBound - 1);
-            y1 = Math.Clamp(y - (height / 2), 0, yBound - 1);
-            x2 = Math.Clamp(x + (width / 2), 0, xBound - 1);
-            y2 = Math.Clamp(y + (height / 2), 0, yBound - 1);
-
-            this.xBound = xBound;
-            this.yBound = yBound;
-
-            if (_symbolOptions.SymbolDefinitions.Count == 0)
-                throw new Exception("No registered symbols");
-
-            symbol = _symbolOptions.SymbolDefinitions[Std.random(_symbolOptions.SymbolDefinitions.Count)];
-            angle = Std.random(359);
-
-            if (!symbol.HorizontallySymmetric && !symbol.VerticallySymmetric)
-                flip = Std.random(2) != 0;
         }
-
-        public int x1;
-
-        public int y1;
-
-        public int x2;
-
-        public int y2;
 
         public int angle;
 
-        public int xBound;
-
-        public int yBound;
-
-        public bool flip;
-
-        private SymbolShapeDefinition symbol;
-
-        public IReadOnlyList<Scanline> rasterize()
+        public override IReadOnlyList<Scanline> Rasterize()
         {
             double rads = angle * HaxeMath.PI / 180.0;
             double c = Math.Cos(rads);
@@ -121,7 +82,7 @@ namespace geometrize.shape
                         int scaledX = (int)Math.Floor(nx * symbolScaleFactorX);
                         int scaledY = (int)Math.Floor(ny * symbolScaleFactorY);
 
-                        if (flip)
+                        if (flipX)
                         {
                             scaledX = 63 - scaledX;
                         }
@@ -164,7 +125,7 @@ namespace geometrize.shape
             return lines;
         }
 
-        public virtual void mutate()
+        public override void Mutate()
         {
             switch (HaxeMath.rand.Next(4))
             {
@@ -206,7 +167,7 @@ namespace geometrize.shape
                     break;
 
                 case 4:
-                    flip = !flip;
+                    flipX = !flipX;
                     break;
             }
 
@@ -218,7 +179,7 @@ namespace geometrize.shape
         }
 
 
-        public virtual Shape clone()
+        public override IShape Clone()
         {
             return new RotatedSymbolShape(xBound, yBound, _symbolOptions)
             {
@@ -228,18 +189,11 @@ namespace geometrize.shape
                 y2 = y2,
                 angle = angle,
                 symbol = symbol,
-                flip = flip,
+                flipX = flipX,
             };
         }
 
-
-        public virtual int getType()
-        {
-            return 8;
-        }
-
-
-        public virtual double[] getRawShapeData()
+        public override double[] GetRawShapeData()
         {
             return new double[] {
                 (x1 < x2) ? x1 : x2,
@@ -248,7 +202,7 @@ namespace geometrize.shape
                 (y1 > y2) ? y1 : y2,
                 symbol.SymbolId,
                 angle,
-                flip ? 1 : 0
+                flipX ? 1 : 0
             };
         }
     }
