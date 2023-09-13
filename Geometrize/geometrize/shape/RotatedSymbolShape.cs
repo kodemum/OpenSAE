@@ -61,7 +61,7 @@ namespace geometrize.shape
 
         private SymbolShapeDefinition symbol;
 
-        public HaxeArray<object> rasterize()
+        public IReadOnlyList<Scanline> rasterize()
         {
             double rads = angle * HaxeMath.PI / 180.0;
             double c = Math.Cos(rads);
@@ -97,7 +97,7 @@ namespace geometrize.shape
             int maxY = Math.Max(uly, Math.Max(bly, Math.Max(ury, bry)));
             int maxX = Math.Max(ulx, Math.Max(blx, Math.Max(urx, brx)));
 
-            HaxeArray<object> lines = new HaxeArray<object>(new object[] { });
+            var lines = new List<Scanline>();
 
             double symbolScaleFactorY = 63d / height;
             double symbolScaleFactorX = 63d / width;
@@ -142,7 +142,7 @@ namespace geometrize.shape
                         {
                             if (startX != null && endX != null && y > 0 && y < yBound)
                             {
-                                lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                                lines.Add(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
                                 startX = null;
                                 endX = null;
                             }
@@ -158,7 +158,7 @@ namespace geometrize.shape
                 }
 
                 if (startX != null && endX != null && y > 0 && y < yBound)
-                    lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                    lines.Add(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
             }
 
             return lines;
@@ -166,9 +166,7 @@ namespace geometrize.shape
 
         public virtual void mutate()
         {
-            int option = HaxeMath.rand.Next(symbol.HorizontallySymmetric || symbol.VerticallySymmetric ? 4 : 5);
-            
-            switch (option)
+            switch (HaxeMath.rand.Next(4))
             {
                 case 0:
                     int centerX = (x1 + x2) / 2;
@@ -204,7 +202,7 @@ namespace geometrize.shape
                     break;
 
                 case 3:
-                    angle = Math.Clamp(angle - 4 + HaxeMath.rand.Next(9), 0, 259);
+                    angle = Math.Clamp(angle - 4 + HaxeMath.rand.Next(9), 0, 180);
                     break;
 
                 case 4:
@@ -230,6 +228,7 @@ namespace geometrize.shape
                 y2 = y2,
                 angle = angle,
                 symbol = symbol,
+                flip = flip,
             };
         }
 

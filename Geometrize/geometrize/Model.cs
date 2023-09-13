@@ -91,7 +91,7 @@ namespace geometrize {
 			}
 
             bitmap.Bitmap before = bitmap;
-            HaxeArray<object> lines = shape.rasterize();
+            var lines = shape.rasterize();
 			int color = Core.computeColor(this.target, this.current, lines, alpha);
             rasterizer.Rasterizer.drawLines(this.current, color, lines);
 			this.score = Core.differencePartial(this.target, before, this.current, this.score, lines);

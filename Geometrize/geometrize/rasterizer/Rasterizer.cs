@@ -2,13 +2,14 @@
 
 
 using System;
+using System.Collections.Generic;
 
 namespace geometrize.rasterizer
 {
     public static class Rasterizer
     {
 
-        public static void drawLines(bitmap.Bitmap image, int c, HaxeArray<object> lines)
+        public static void drawLines(bitmap.Bitmap image, int c, IEnumerable<Scanline> lines)
         {
             unchecked
             {
@@ -40,13 +41,12 @@ namespace geometrize.rasterizer
                 int sa = c & 255;
                 sa |= sa << 8;
 
-                for (int i = 0; i < lines.length; i++)
+                foreach (var line in lines)
                 {
-                    Scanline line = (Scanline)lines[i];
                     int y = line.y;
                     int ma = 65535;
                     int m = 65535;
-                    int a = (m - sa) * 257;
+                    int a = (int)(double)((m - (sa * (((double)ma) / m))) * 257);
 
                     for (int x = line.x1; x < line.x2 + 1; x++)
                     {
@@ -55,23 +55,22 @@ namespace geometrize.rasterizer
                         int dg = (d >> 16) & 255;
                         int db = (d >> 8) & 255;
                         int da = d & 255;
-                        int r = ((int)(((double)((dr * a) + (sr * ma))) / m)) >> 8;
-                        int g = ((int)(((double)((dg * a) + (sg * ma))) / m)) >> 8;
-                        int b = ((int)(((double)((db * a) + (sb * ma))) / m)) >> 8;
-                        int a1 = ((int)(((double)((da * a) + (sa * ma))) / m)) >> 8;
+                        byte r = (byte)(((int)(((double)((dr * a) + (sr * ma))) / m)) >> 8);
+                        byte g = (byte)(((int)(((double)((dg * a) + (sg * ma))) / m)) >> 8);
+                        byte b = (byte)(((int)(((double)((db * a) + (sb * ma))) / m)) >> 8);
+                        byte a1 = (byte)(((int)(((double)((da * a) + (sa * ma))) / m)) >> 8);
 
-                        image.data[(image.width * y) + x] =
-                            ((r > 255) ? 255 : r << 24) +
-                            ((g > 255) ? 255 : g << 16) +
-                            ((b > 255) ? 255 : b << 8) +
-                            ((a1 > 255) ? 255 : a1);
+                        image.data[(image.width * y) + x] = 
+                            (((r < 0) ? 0 : ((r > 255) ? 255 : ((int)r))) << 24) + 
+                            (((g < 0) ? 0 : ((g > 255) ? 255 : ((int)g))) << 16) + 
+                            (((b < 0) ? 0 : ((b > 255) ? 255 : ((int)b))) << 8) + 
+                            ((a1 < 0) ? 0 : ((a1 > 255) ? 255 : ((int)a1)));
                     }
                 }
             }
         }
 
-
-        public static void copyLines(bitmap.Bitmap destination, bitmap.Bitmap source, HaxeArray<object> lines)
+        public static void copyLines(bitmap.Bitmap destination, bitmap.Bitmap source, IEnumerable<Scanline> lines)
         {
             unchecked
             {
@@ -90,10 +89,8 @@ namespace geometrize.rasterizer
                     throw (Exception)haxe.Exception.thrown("FAIL: lines != null");
                 }
 
-                for (int i = 0; i < lines.length; i++)
+                foreach (var line in lines)
                 {
-                    Scanline line = (Scanline)lines[i];
-                    
                     for (int x = line.x1; x < line.x2 + 1; x++)
                     {
                         destination.data[(destination.width * line.y) + x] = source.data[(source.width * line.y) + x];
@@ -103,7 +100,7 @@ namespace geometrize.rasterizer
         }
 
 
-        public static HaxeArray<object> bresenham(int x1, int y1, int x2, int y2)
+        public static List<Point> bresenham(int x1, int y1, int x2, int y2)
         {
             unchecked
             {
@@ -113,8 +110,12 @@ namespace geometrize.rasterizer
                 int dy = y2 - y1;
                 int iy = ((dy > 0) ? 1 : 0) - ((dy < 0) ? 1 : 0);
                 dy = ((dy < 0) ? (-dy) : dy) << 1;
-                HaxeArray<object> points = new HaxeArray<object>(new object[] { });
-                points.push(new haxe.lang.DynamicObject(new int[] { }, new object[] { }, new int[] { 120, 121 }, new double[] { x1, y1 }));
+
+                var points = new List<Point>
+                {
+                    new Point(x1, y1)
+                };
+
                 if (dx >= dy)
                 {
                     int error = dy - (dx >> 1);
@@ -128,7 +129,8 @@ namespace geometrize.rasterizer
 
                         error += dy;
                         x1 += ix;
-                        points.push(new haxe.lang.DynamicObject(new int[] { }, new object[] { }, new int[] { 120, 121 }, new double[] { x1, y1 }));
+
+                        points.Add(new Point(x1, y1));
                     }
 
                 }
@@ -145,7 +147,8 @@ namespace geometrize.rasterizer
 
                         error1 += dx;
                         y1 += iy;
-                        points.push(new haxe.lang.DynamicObject(new int[] { }, new object[] { }, new int[] { 120, 121 }, new double[] { x1, y1 }));
+
+                        points.Add(new Point(x1, y1));
                     }
 
                 }
@@ -155,94 +158,40 @@ namespace geometrize.rasterizer
         }
 
 
-        public static HaxeArray<object> scanlinesForPolygon(HaxeArray<object> points)
+        public static List<Scanline> scanlinesForPolygon(IReadOnlyList<Point> points)
         {
-            unchecked
+            var lines = new List<Scanline>();
+            var edges = new List<Point>();
+
+            for (int i = 0; i < points.Count; i++)
             {
-                HaxeArray<object> lines = new HaxeArray<object>(new object[] { });
-                HaxeArray<object> edges = new HaxeArray<object>(new object[] { });
-                {
-                    int _g = 0;
-                    int _g1 = points.length;
-                    while (_g < _g1)
-                    {
-                        int i = _g++;
-                        object p1 = points[i];
-                        object p2 = (i == (points.length - 1)) ? points[0] : points[i + 1];
-                        HaxeArray<object> p1p2 = bresenham((int)haxe.lang.Runtime.getField_f(p1, "x", 120, true), (int)haxe.lang.Runtime.getField_f(p1, "y", 121, true), (int)haxe.lang.Runtime.getField_f(p2, "x", 120, true), (int)haxe.lang.Runtime.getField_f(p2, "y", 121, true));
-                        edges = edges.concat(p1p2);
-                    }
+                var p1 = points[i];
+                var p2 = (i == points.Count - 1) ? points[0] : points[i + 1];
+                var p1p2 = bresenham(p1.X, p1.Y, p2.X, p2.Y);
 
-                }
-
-                haxe.ds.IntMap<object> yToXs = new haxe.ds.IntMap<object>();
-                {
-                    int _g2 = 0;
-                    while (_g2 < edges.length)
-                    {
-                        object point = edges[_g2];
-                        ++_g2;
-                        HaxeArray<int> s = (HaxeArray<int>)HaxeArray<object>.__hx_cast<int>((HaxeArray)yToXs.@get((int)haxe.lang.Runtime.getField_f(point, "y", 121, true)).@value);
-                        if (s != null)
-                        {
-                            _ArraySet.ArraySet_Impl_.@add(s, (int)haxe.lang.Runtime.getField_f(point, "x", 120, true));
-                        }
-                        else
-                        {
-                            s = _ArraySet.ArraySet_Impl_.create(default(HaxeArray<int>));
-                            _ArraySet.ArraySet_Impl_.@add(s, (int)haxe.lang.Runtime.getField_f(point, "x", 120, true));
-                            yToXs.@set((int)haxe.lang.Runtime.getField_f(point, "y", 121, true), s);
-                        }
-
-                    }
-
-                }
-
-                {
-                    object key = new haxe.ds._IntMap.IntMapKeyIterator<object>(yToXs);
-                    while (haxe.lang.Runtime.toBool(haxe.lang.Runtime.callField(key, "hasNext", 407283053, null)))
-                    {
-                        int key1 = haxe.lang.Runtime.toInt(haxe.lang.Runtime.callField(key, "next", 1224901875, null));
-                        HaxeArray<int> a = _ArraySet.ArraySet_Impl_.toArray((HaxeArray<int>)HaxeArray<object>.__hx_cast<int>((HaxeArray)yToXs.@get(key1).@value));
-                        object minMaxElements = null;
-                        if ((a == null) || (a.length == 0))
-                        {
-                            minMaxElements = new haxe.lang.DynamicObject(new int[] { }, new object[] { }, new int[] { 120, 121 }, new double[] { 0, 0 });
-                        }
-                        else
-                        {
-                            int min = a[0];
-                            int max = a[0];
-                            {
-                                int _g3 = 0;
-                                while (_g3 < a.length)
-                                {
-                                    int @value = a[_g3];
-                                    ++_g3;
-                                    if (min > @value)
-                                    {
-                                        min = @value;
-                                    }
-
-                                    if (max < @value)
-                                    {
-                                        max = @value;
-                                    }
-
-                                }
-
-                            }
-
-                            minMaxElements = new haxe.lang.DynamicObject(new int[] { }, new object[] { }, new int[] { 120, 121 }, new double[] { min, max });
-                        }
-
-                        lines.push(new Scanline(key1, (int)haxe.lang.Runtime.getField_f(minMaxElements, "x", 120, true), (int)haxe.lang.Runtime.getField_f(minMaxElements, "y", 121, true)));
-                    }
-
-                }
-
-                return lines;
+                edges.AddRange(p1p2);
             }
+
+            var yToXs = new Dictionary<int, List<int>>();
+            foreach (var point in edges)
+            {
+                if (!yToXs.TryGetValue(point.Y, out var xList))
+                {
+                    xList = new List<int>();
+                    yToXs[point.Y] = xList;
+                }
+
+                xList.Add(point.X);
+            }
+
+            foreach (int y in yToXs.Keys)
+            {
+                (int min, int max) = Util.GetMinMax(yToXs[y]);
+
+                lines.Add(new Scanline(y, min, max));
+            }
+
+            return lines;
         }
     }
 }

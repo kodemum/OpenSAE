@@ -66,13 +66,12 @@ namespace geometrize.shape
 
         private bool flipY;
 
-        public virtual HaxeArray<object> rasterize()
+        public virtual IReadOnlyList<Scanline> rasterize()
         {
-            HaxeArray<object> lines = new HaxeArray<object>(new object[] { });
+            var lines = new List<Scanline>();
 
             int height = y2 > y1 ? y2 - y1 : y1 - y2;
             int width = x2 > x1 ? x2 - x1 : x1 - x2;
-            int start = x2 > x1 ? x1 : x2;
 
             double symbolScaleFactorY = 63d / height;
             double symbolScaleFactorX = 63d / width;
@@ -111,7 +110,7 @@ namespace geometrize.shape
                         {
                             if (startX != null && endX != null && y > 0 && y < yBound)
                             {
-                                lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                                lines.Add(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
                                 startX = null;
                                 endX = null;
                             }
@@ -119,7 +118,7 @@ namespace geometrize.shape
                     }
 
                     if (startX != null && endX != null && y > 0 && y < yBound)
-                        lines.push(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                        lines.Add(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
                 }
             }
 
@@ -196,6 +195,8 @@ namespace geometrize.shape
                 y1 = this.y1,
                 y2 = this.y2,
                 symbol = this.symbol,
+                flipX = this.flipX,
+                flipY = this.flipY,
             };
         }
 
