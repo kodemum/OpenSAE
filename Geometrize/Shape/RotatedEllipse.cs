@@ -21,21 +21,21 @@ namespace Geometrize.Shape
         {
             int pointCount = 20;
             var points = new List<Point>();
-            double rads = (this.angle * ((HaxeMath.PI / 180.0)));
-            double c = Math.Cos(((double)(rads)));
-            double s = Math.Sin(((double)(rads)));
+            double rads = angle * (HaxeMath.PI / 180.0);
+            double c = Math.Cos((double)rads);
+            double s = Math.Sin((double)rads);
 
             for (int i = 0; i < pointCount; i++)
             {
-                double rot = (((360.0 / pointCount) * i) * ((HaxeMath.PI / 180.0)));
-                double crx = (this.rx * Math.Cos(((double)(rot))));
-                double cry = (this.ry * Math.Sin(((double)(rot))));
-                int tx = ((int)((((crx * c) - (cry * s)) + this.x)));
-                int ty = ((int)((((crx * s) + (cry * c)) + this.y)));
+                double rot = 360.0 / pointCount * i * (HaxeMath.PI / 180.0);
+                double crx = rx * Math.Cos((double)rot);
+                double cry = ry * Math.Sin((double)rot);
+                int tx = (int)((crx * c) - (cry * s) + x);
+                int ty = (int)((crx * s) + (cry * c) + y);
                 points.Add(new Point(tx, ty));
             }
 
-            return Scanline.Trim(Rasterizer.Rasterizer.ScanlinesForPolygon(points), this.xBound, this.yBound);
+            return Scanline.Trim(Rasterizer.Rasterizer.ScanlinesForPolygon(points), xBound, yBound);
         }
 
 
@@ -60,8 +60,8 @@ namespace Geometrize.Shape
 
                     case 3:
                         {
-                            int value4 = (this.angle + ((-4 + ((int)(Math.Floor(((double)((9 * HaxeMath.rand.NextDouble())))))))));
-                            this.angle = (((value4 < 0)) ? (0) : ((((value4 > 360)) ? (360) : (value4))));
+                            int value4 = angle + -4 + ((int)Math.Floor((double)(9 * HaxeMath.rand.NextDouble())));
+                            angle = (value4 < 0) ? 0 : ((value4 > 360) ? 360 : value4);
                             break;
                         }
                 }
