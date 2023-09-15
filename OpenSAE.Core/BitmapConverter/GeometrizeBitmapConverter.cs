@@ -3,6 +3,7 @@ using Geometrize.Shape;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
+using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
@@ -31,7 +32,7 @@ namespace OpenSAE.Core.BitmapConverter
                 {
                     int pos = (y * symbol.Image.PixelWidth + x) * 4;
 
-                    results[y,x] = rawPixelData[pos + 3];
+                    results[y, x] = rawPixelData[pos + 3];
                 }
             }
 
@@ -127,7 +128,7 @@ namespace OpenSAE.Core.BitmapConverter
 
             Model geometrize = new(bitmap, GeometrizeUtil.ColorToInt(commonColor));
 
-            for (int count = 0; count < _options.MaxSymbolCount; )
+            for (int count = 0; count < _options.MaxSymbolCount; count++)
             {
                 token.ThrowIfCancellationRequested();
 
@@ -147,27 +148,25 @@ namespace OpenSAE.Core.BitmapConverter
                             Color = GeometrizeUtil.ColorToInt(commonColor),
                             Score = -1,
                         }, 1));
-
-                    count++;
                 }
                 else
                 {
+                    var opacity = count < _options.InitialShapeCountWithFullOpacity ? 1 : _options.SymbolOpacity;
+
                     var shape = geometrize.Step(
                         _options.ShapeTypes.Select(x => (int)x).ToArray(),
-                        (int)Math.Round(_options.SymbolOpacity * 255),
+                        (int)Math.Round(opacity * 255),
                         _options.ShapesPerStep,
                         _options.MutationsPerStep,
-                        symbolOptions);
+                        symbolOptions,
+                        token);
 
-
-                    layerDone.Invoke(ToLayer(shape, _options.SymbolOpacity));
+                    layerDone.Invoke(ToLayer(shape, opacity));
 
                     if (inProgressImageCallback != null)
                     {
                         inProgressImageCallback.Invoke(Image.LoadPixelData(IntToByteArray(geometrize.current.data), bitmap.width, bitmap.height));
                     }
-
-                    count++;
                 }
 
                 progress?.Report(new GeometrizeProgress() { Percentage = (double)count / _options.MaxSymbolCount * 100, Score = geometrize.score });

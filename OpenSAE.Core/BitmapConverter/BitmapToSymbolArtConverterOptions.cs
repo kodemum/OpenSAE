@@ -10,7 +10,7 @@ namespace OpenSAE.Core.BitmapConverter
 
         public double SymbolOpacity { get; set; } = 1d / 7 * 5;
 
-        public int ShapesPerStep { get; set; } = 1200;
+        public int ShapesPerStep { get; set; } = 1600;
 
         public int MutationsPerStep { get; set; } = 170;
 
@@ -21,6 +21,8 @@ namespace OpenSAE.Core.BitmapConverter
         public ShapeType[] ShapeTypes { get; set; } = new ShapeType[] { ShapeType.Rotated_Ellipse, ShapeType.Rotated_Symbols };
 
         public List<Symbol> ShapeSymbolsToUse { get; set; } = new();
+
+        public int InitialShapeCountWithFullOpacity { get; set; } = 20;
 
         public Color BackgroundColor { get; set; }
             = Colors.White;

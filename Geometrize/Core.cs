@@ -4,6 +4,7 @@
 using Geometrize.Rasterizer;
 using Geometrize.Shape;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -86,6 +87,9 @@ namespace Geometrize
                     throw new Exception("FAIL: second != null");
                 }
 
+                if (second.overlay != null)
+                    second += second.overlay;
+
                 {
                     int actual = first.width;
                     int expected = second.width;
@@ -165,6 +169,9 @@ namespace Geometrize
                     throw new Exception("FAIL: lines != null");
                 }
 
+                if (after.overlay != null)
+                    after += after.overlay;
+
                 int width = target.width;
                 int height = target.height;
                 int rgbaCount = width * height * 4;
@@ -202,16 +209,24 @@ namespace Geometrize
         }
 
 
-        public static State BestRandomState(int[] shapes, int alpha, int n, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
+        public static State BestRandomState(int[] shapes, int alpha, int n, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions, System.Threading.CancellationToken token)
         {
             object lockObj = new object();
 
             double bestEnergy = 0;
             State bestState = null;
 
-            Parallel.For(0, n, (i) =>
+            ConcurrentBag<Bitmap> buffers = new ConcurrentBag<Bitmap>();
+
+            Parallel.For(0, n, new ParallelOptions() { CancellationToken = token }, (i) =>
             {
-                State state = new State(ShapeFactory.randomShapeOf(shapes, current.width, current.height, symbolOptions), alpha, target, current, buffer);
+                if (!buffers.TryTake(out Bitmap myBuffer))
+                {
+                    myBuffer = Bitmap.CreateTransparent(target.width, target.height);
+                    myBuffer.overlay = buffer.overlay;
+                }
+
+                State state = new State(ShapeFactory.randomShapeOf(shapes, current.width, current.height, symbolOptions), alpha, target, current, myBuffer);
                 double energy = state.energy(lastScore);
 
                 lock (lockObj)
@@ -222,23 +237,23 @@ namespace Geometrize
                         bestState = state;
                     }
                 }
+
+                buffers.Add(myBuffer);
             });
 
             return bestState;
         }
 
 
-        public static State BestHillClimbState(int[] shapes, int alpha, int n, int age, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions)
+        public static State BestHillClimbState(int[] shapes, int alpha, int n, int age, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions, System.Threading.CancellationToken token)
         {
-            State state = BestRandomState(shapes, alpha, n, target, current, buffer, lastScore, symbolOptions);
-            System.Diagnostics.Debug.WriteLine("Best random state:     {0}", state.energy(lastScore));
-            state = HillClimb(state, age, lastScore);
-            System.Diagnostics.Debug.WriteLine("Best hill climb state: {0}", state.energy(lastScore));
+            State state = BestRandomState(shapes, alpha, n, target, current, buffer, lastScore, symbolOptions, token);
+            state = HillClimb(state, age, lastScore, token);
             return state;
         }
 
 
-        public static State HillClimb(State state, int maxAge, double lastScore)
+        public static State HillClimb(State state, int maxAge, double lastScore, System.Threading.CancellationToken token)
         {
             unchecked
             {
@@ -262,7 +277,7 @@ namespace Geometrize
                 {
                     State undo = state.mutate();
                     double energy = state.energy(lastScore);
-                    if (energy >= bestEnergy)
+                    if (energy >= bestEnergy || double.IsNaN(energy))
                     {
                         state = undo;
                     }
@@ -274,6 +289,8 @@ namespace Geometrize
                     }
 
                     age++;
+
+                    token.ThrowIfCancellationRequested();
                 }
 
                 return bestState;

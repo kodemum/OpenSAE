@@ -3,6 +3,11 @@
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using Geometrize.Rasterizer;
 using Geometrize.Shape;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.Serialization;
+using System.Threading;
 
 namespace Geometrize
 {
@@ -15,39 +20,13 @@ namespace Geometrize
 
             this.target = target;
 
-            Bitmap bitmap = new Bitmap
-            {
-                width = width,
-                height = height,
-                data = (new int[(width * height)])
-            };
-
-            int i = 0;
-            while ((i < bitmap.data.Length))
-            {
-                bitmap.data[i] = backgroundColor;
-                ++i;
-            }
-
-            current = bitmap;
-            Bitmap bitmap1 = new Bitmap
-            {
-                width = width,
-                height = height,
-                data = (new int[(width * height)])
-            };
-
-            int i1 = 0;
-            while ((i1 < bitmap1.data.Length))
-            {
-                bitmap1.data[i1] = backgroundColor;
-                ++i1;
-            }
-
-            buffer = bitmap1;
+            current = Bitmap.CreateFromSolidColor(width, height, backgroundColor);
+            buffer = current.Clone();
             score = Core.DifferenceFull(target, current);
+            this.backgroundColor = backgroundColor;
         }
 
+        public int backgroundColor;
 
         public int width;
 
@@ -61,13 +40,110 @@ namespace Geometrize
 
         public double score;
 
-        public virtual ShapeAddResult Step(int[] shapeTypes, int alpha, int n, int age, SymbolShapeOptions symbolOptions)
-        {
-            State state = Core.BestHillClimbState(shapeTypes, alpha, n, age, this.target, this.current, this.buffer, this.score, symbolOptions);
+        public int stateCount => states.Count;
 
-            return AddShape(state.shape, state.alpha);
+        private List<ShapeAddResult> states = new List<ShapeAddResult>();
+
+        public virtual ShapeAddResult Step(int[] shapeTypes, int alpha, int n, int age, SymbolShapeOptions symbolOptions, CancellationToken token)
+        {
+            State state = Core.BestHillClimbState(shapeTypes, alpha, n, age, this.target, this.current, this.buffer, this.score, symbolOptions, token);
+
+            var shape = AddShape(state.shape, state.alpha);
+
+            states.Add(shape);
+
+            return shape;
         }
 
+        //public virtual ShapeAddResult StepAtIndex(int index, int[] shapeTypes, int alpha, int n, int age, SymbolShapeOptions symbolOptions, CancellationToken token)
+        //{
+        //    Bitmap backup = current.Clone();
+        //    double backupScore = score;
+        //    var belowTarget = Bitmap.CreateFromSolidColor(width, height, backgroundColor);
+        //    var targetOverlay = Bitmap.CreateFromSolidColor(width, height, 0);
+
+        //    // draw all shapes before the target
+        //    for (int i = 0; i < index; i++)
+        //    {
+        //        Rasterizer.Rasterizer.DrawLines(belowTarget, states[i].Color, states[i].Shape.Rasterize());
+
+        //        token.ThrowIfCancellationRequested();
+        //    }
+
+        //    // draw all shapes after the target
+        //    for (int i = index + 1; i < states.Count; i++)
+        //    {
+        //        Rasterizer.Rasterizer.DrawLines(targetOverlay, states[i].Color, states[i].Shape.Rasterize());
+
+        //        token.ThrowIfCancellationRequested();
+        //    }
+
+        //    var buffer = Bitmap.CreateTransparent(width, height);
+
+        //    State state = Core.BestHillClimbState(shapeTypes, alpha, n, age, target, belowTarget, buffer, backupScore, symbolOptions, token);
+
+        //    var newShape = AddShape(state.shape, state.alpha);
+
+        //    current = state.current + targetOverlay;
+
+        //    score = Core.DifferenceFull(target, current);
+
+        //    if (score >= backupScore)
+        //    {
+        //        // we did no better, restore state
+        //        current = backup;
+        //        score = backupScore;
+
+        //        return null;
+        //    }
+        //    else
+        //    {
+        //        // improvement - replace shape
+        //        states[index] = newShape;
+
+        //        Debug.WriteLine($"Improved shape at index {index}");
+
+        //        return newShape;
+        //    }
+        //}
+
+        //public bool RemoveStateIfBelowThreshold(int stateId, double threshold = 0.2)
+        //{
+        //    Bitmap mutableState = Bitmap.CreateFromSolidColor(width, height, backgroundColor);
+
+        //    for (int i = 0; i < states.Count; i++)
+        //    {
+        //        if (i != stateId)
+        //        {
+        //            var state = states[i];
+        //            var lines = state.shape.Rasterize();
+        //            Rasterizer.Rasterizer.DrawLines(mutableState, stateColors[i], lines);
+        //        }
+        //    }
+
+        //    // if the score without the state is higher (that is to say, the image is further from the target)
+        //    // then it means that the state does have an effect on the image score and is thus visible
+        //    double scoreWithoutState = Core.DifferenceFull(target, mutableState);
+
+        //    double diff = (scoreWithoutState - score) * 10000;
+
+        //    Debug.WriteLine($"State {stateId} diff: {diff}");
+
+        //    if (diff <= threshold)
+        //    {
+        //        states.RemoveAt(stateId);
+        //        stateColors.RemoveAt(stateId);
+
+        //        current = mutableState;
+        //        score = scoreWithoutState;
+                
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //}
 
         public virtual ShapeAddResult AddShape(IShape shape, int alpha)
         {
@@ -76,23 +152,7 @@ namespace Geometrize
                 throw new System.Exception("FAIL: shape != null");
             }
 
-            Bitmap _this = this.current;
-            Bitmap bitmap = new Bitmap
-            {
-                width = _this.width,
-                height = _this.height,
-                data = (new int[_this.data.Length])
-            };
-            {
-                int _g = 0;
-                int _g1 = _this.data.Length;
-                while ((_g < _g1))
-                {
-                    int i = _g++;
-                    bitmap.data[i] = _this.data[i];
-                }
-
-            }
+            Bitmap bitmap = this.current.Clone();
 
             Bitmap before = bitmap;
             var lines = shape.Rasterize();

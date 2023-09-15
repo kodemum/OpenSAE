@@ -3,7 +3,6 @@
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 
 namespace Geometrize
 {
@@ -34,12 +33,32 @@ namespace Geometrize
             return bitmap;
         }
 
+        public static Bitmap CreateFromSolidColor(int width, int height, int color)
+        {
+            Bitmap bitmap = new Bitmap
+            {
+                width = width,
+                height = height,
+                data = (new int[(width * height)])
+            };
+
+            if (color != 0)
+                Array.Fill(bitmap.data, color);
+
+            return bitmap;
+        }
+
+        public static Bitmap CreateTransparent(int width, int height)
+            => CreateFromSolidColor(width, height, 0);
+
 
         public int width;
 
         public int height;
 
         public int[] data;
+
+        public Bitmap overlay;
 
         public int GetPixel(int x, int y)
         {
@@ -67,22 +86,67 @@ namespace Geometrize
             return bitmap;
         }
 
-
-        public void Fill(int color)
+        public static Bitmap operator +(Bitmap left, Bitmap right)
         {
-            unchecked
-            {
-                int idx = 0;
-                while (idx < data.Length)
-                {
-                    data[idx] = color >> 24 & 255;
-                    data[idx + 1] = color >> 16 & 255;
-                    data[idx + 2] = color >> 8 & 255;
-                    data[idx + 3] = color & 255;
-                    idx += 4;
-                }
+            if (left.height != right.height || left.width != right.width)
+                throw new InvalidOperationException($"Bitmaps must be same size. left is {left.width}x{left.height}, right is {right.width}x{right.height}");
 
+            var result = left.Clone();
+
+            for (int y = 0; y < left.height; y++)
+            {
+                for (int x = 0; x < left.width; x++)
+                {
+                    var pos = y * left.width + x;
+
+                    int leftPixel = left.data[pos];
+                    int rightPixel = right.data[pos];
+
+                    left.data[pos] = Add(leftPixel, rightPixel);
+                }
             }
+
+            return result;
+        }
+
+        private static int Add(int c, int d)
+        {
+            int sr = (c >> 24) & 255;
+            sr |= sr << 8;
+            sr *= c & 255;
+            sr /= 255;
+
+            int sg = (c >> 16) & 255;
+            sg |= sg << 8;
+            sg *= c & 255;
+            sg /= 255;
+
+            int sb = (c >> 8) & 255;
+            sb |= sb << 8;
+            sb *= c & 255;
+            sb /= 255;
+
+            int sa = c & 255;
+            sa |= sa << 8;
+
+            int ma = 65535;
+            int m = 65535;
+            int a = (int)(double)((m - (sa * (((double)ma) / m))) * 257);
+
+            int dr = (d >> 24) & 255;
+            int dg = (d >> 16) & 255;
+            int db = (d >> 8) & 255;
+            int da = d & 255;
+            byte r = (byte)(((int)(((double)((dr * a) + (sr * ma))) / m)) >> 8);
+            byte g = (byte)(((int)(((double)((dg * a) + (sg * ma))) / m)) >> 8);
+            byte b = (byte)(((int)(((double)((db * a) + (sb * ma))) / m)) >> 8);
+            byte a1 = (byte)(((int)(((double)((da * a) + (sa * ma))) / m)) >> 8);
+
+            return
+                (((r < 0) ? 0 : ((r > 255) ? 255 : r)) << 24) +
+                (((g < 0) ? 0 : ((g > 255) ? 255 : g)) << 16) +
+                (((b < 0) ? 0 : ((b > 255) ? 255 : b)) << 8) +
+                ((a1 < 0) ? 0 : ((a1 > 255) ? 255 : a1));
         }
     }
 }
