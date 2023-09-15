@@ -15,7 +15,7 @@ namespace OpenSAE.Core
         public static IEnumerable<Symbol> SymbolsUsableByBitmapConverter => _symbols.Where(x => x.Flags.HasFlag(SymbolFlag.UsedForBitmapConverter));
 
         public static IEnumerable<Symbol> DefaultSymbolsForBitmapConverter =>
-            new int[] { 263, 286, 287, 334, 336, 346, 348, 428, 430, 432, 435 }.Select(x => Require(x));
+            new int[] { 263, 334, 336, 346, 348, }.Select(x => Require(x));
 
         /// <summary>
         /// Dictionary of symbol id
