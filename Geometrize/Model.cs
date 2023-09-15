@@ -3,6 +3,7 @@
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using Geometrize.Rasterizer;
 using Geometrize.Shape;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +14,7 @@ namespace Geometrize
 {
     public class Model
     {
-        public Model(Bitmap target, int backgroundColor)
+        public Model(Bitmap target, Rgba32 backgroundColor)
         {
             width = target.width;
             height = target.height;
@@ -26,7 +27,7 @@ namespace Geometrize
             this.backgroundColor = backgroundColor;
         }
 
-        public int backgroundColor;
+        public Rgba32 backgroundColor;
 
         public int width;
 
@@ -156,7 +157,7 @@ namespace Geometrize
 
             Bitmap before = bitmap;
             var lines = shape.Rasterize();
-            int color = Core.ComputeColor(this.target, this.current, lines, alpha);
+            var color = Core.ComputeColor(this.target, this.current, lines, alpha);
             Rasterizer.Rasterizer.DrawLines(this.current, color, lines);
             this.score = Core.DifferencePartial(this.target, before, this.current, this.score, lines);
 

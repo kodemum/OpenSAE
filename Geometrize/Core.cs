@@ -3,6 +3,7 @@
 #pragma warning disable 109, 114, 219, 429, 168, 162
 using Geometrize.Rasterizer;
 using Geometrize.Shape;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace Geometrize
 {
     internal static class Core
     {
-        public static int ComputeColor(Bitmap target, Bitmap current, IEnumerable<Scanline> lines, int alpha)
+        public static Rgba32 ComputeColor(Bitmap target, Bitmap current, IEnumerable<Scanline> lines, int alpha)
         {
             unchecked
             {
@@ -36,11 +37,11 @@ namespace Geometrize
                     throw new Exception("FAIL: alpha >= 0");
                 }
 
-                int totalRed = 0;
-                int totalGreen = 0;
-                int totalBlue = 0;
+                long totalRed = 0;
+                long totalGreen = 0;
+                long totalBlue = 0;
                 int count = 0;
-                int a = (int)(double)(65535 / alpha);
+                int a = (int)(65535d / alpha);
 
                 foreach (var line in lines)
                 {
@@ -48,102 +49,54 @@ namespace Geometrize
 
                     for (int x = line.x1; x < line.x2 + 1; x++)
                     {
-                        int t = target.data[(target.width * y) + x];
-                        int c = current.data[(current.width * y) + x];
-                        totalRed += ((((t >> 24) & 255) - ((c >> 24) & 255)) * a) + (((c >> 24) & 255) * 257);
-                        totalGreen += ((((t >> 16) & 255) - ((c >> 16) & 255)) * a) + (((c >> 16) & 255) * 257);
-                        totalBlue += ((((t >> 8) & 255) - ((c >> 8) & 255)) * a) + (((c >> 8) & 255) * 257);
+                        var t = target.data[(target.width * y) + x];
+                        var c = current.data[(current.width * y) + x];
+                        totalRed += ((t.R - c.R) * a) + (c.R * 257);
+                        totalGreen += ((t.G - c.G) * a) + (c.G * 257);
+                        totalBlue += ((t.B - c.B) * a) + (c.B * 257);
                         ++count;
                     }
                 }
 
                 if (count == 0)
                 {
-                    return 0;
+                    return new Rgba32(0, 0, 0, 0);
                 }
 
-                int @value = (totalRed / count) >> 8;
-                int r = (@value < 0) ? 0 : ((@value > 255) ? 255 : @value);
-                int value1 = (totalGreen / count) >> 8;
-                int g = (value1 < 0) ? 0 : ((value1 > 255) ? 255 : value1);
-                int value2 = (totalBlue / count) >> 8;
-                int b = (value2 < 0) ? 0 : ((value2 > 255) ? 255 : value2);
-                return (((r < 0) ? 0 : ((r > 255) ? 255 : r)) << 24) + (((g < 0) ? 0 : ((g > 255) ? 255 : g)) << 16) + (((b < 0) ? 0 : ((b > 255) ? 255 : b)) << 8) + ((alpha < 0) ? 0 : ((alpha > 255) ? 255 : alpha));
+                byte r = (byte)((totalRed / count) >> 8);
+                byte g = (byte)((totalGreen / count) >> 8);
+                byte b = (byte)((totalBlue / count) >> 8);
+
+                return new Rgba32(r, g, b, (byte)alpha);
             }
         }
 
 
         public static double DifferenceFull(Bitmap first, Bitmap second)
         {
-            unchecked
+            if (second.overlay != null)
+                second += second.overlay;
+
+            double total = 0;
+
+            for (int y = 0; y < first.height; y++)
             {
-                if (first == null)
+                for (int x = 0; x < first.width; x++)
                 {
-                    throw new Exception("FAIL: first != null");
+                    var f = first.data[(first.width * y) + x];
+                    var s = second.data[(second.width * y) + x];
+
+                    int dr = f.R - s.R;
+                    int dg = f.G - s.G;
+                    int db = f.B - s.B;
+                    int da = f.A - s.A;
+
+                    total += (dr * dr) + (dg * dg) + (db * db) + (da * da);
                 }
-
-                if (second == null)
-                {
-                    throw new Exception("FAIL: second != null");
-                }
-
-                if (second.overlay != null)
-                    second += second.overlay;
-
-                {
-                    int actual = first.width;
-                    int expected = second.width;
-                    if (actual != expected)
-                    {
-                        throw new Exception(string.Concat(string.Concat(string.Concat(string.Concat("FAIL: values are not equal (expected: ", expected.ToString(), ", actual: "), actual.ToString(), ")"))));
-                    }
-
-                }
-
-                {
-                    int actual1 = first.height;
-                    int expected1 = second.height;
-                    if (actual1 != expected1)
-                    {
-                        throw new Exception(string.Concat(string.Concat(string.Concat(string.Concat("FAIL: values are not equal (expected: ", expected1.ToString()), ", actual: "), actual1.ToString()), ")"));
-                    }
-
-                }
-
-                double total = 0;
-                int width = first.width;
-                int height = first.height;
-                {
-                    int _g = 0;
-                    int _g1 = height;
-                    while (_g < _g1)
-                    {
-                        int y = _g++;
-                        {
-                            int _g2 = 0;
-                            int _g3 = width;
-                            while (_g2 < _g3)
-                            {
-                                int x = _g2++;
-                                int f = first.data[(first.width * y) + x];
-                                int s = second.data[(second.width * y) + x];
-                                int dr = ((f >> 24) & 255) - ((s >> 24) & 255);
-                                int dg = ((f >> 16) & 255) - ((s >> 16) & 255);
-                                int db = ((f >> 8) & 255) - ((s >> 8) & 255);
-                                int da = (f & 255) - (s & 255);
-                                total += (dr * dr) + (dg * dg) + (db * db) + (da * da);
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                return System.Math.Sqrt(total / (width * height * 4.0)) / 255;
             }
-        }
 
+            return Math.Sqrt(total / (first.width * first.height * 4.0)) / 255;
+        }
 
         public static double DifferencePartial(Bitmap target, Bitmap before, Bitmap after, double score, IEnumerable<Scanline> lines)
         {
@@ -186,17 +139,18 @@ namespace Geometrize
                         while (_g1 < _g2)
                         {
                             int x = _g1++;
-                            int t = target.data[(target.width * y) + x];
-                            int b = before.data[(before.width * y) + x];
-                            int a = after.data[(after.width * y) + x];
-                            int dtbr = ((t >> 24) & 255) - ((b >> 24) & 255);
-                            int dtbg = ((t >> 16) & 255) - ((b >> 16) & 255);
-                            int dtbb = ((t >> 8) & 255) - ((b >> 8) & 255);
-                            int dtba = (t & 255) - (b & 255);
-                            int dtar = ((t >> 24) & 255) - ((a >> 24) & 255);
-                            int dtag = ((t >> 16) & 255) - ((a >> 16) & 255);
-                            int dtab = ((t >> 8) & 255) - ((a >> 8) & 255);
-                            int dtaa = (t & 255) - (a & 255);
+                            var t = target.data[(target.width * y) + x];
+                            var b = before.data[(before.width * y) + x];
+                            var a = after.data[(after.width * y) + x];
+
+                            int dtbr = t.R - b.R;
+                            int dtbg = t.G - b.G;
+                            int dtbb = t.B - b.B;
+                            int dtba = t.A - b.A;
+                            int dtar = t.R - a.R;
+                            int dtag = t.G - a.G;
+                            int dtab = t.B - a.B;
+                            int dtaa = t.A - a.A;
                             total -= (dtbr * dtbr) + (dtbg * dtbg) + (dtbb * dtbb) + (dtba * dtba);
                             total += (dtar * dtar) + (dtag * dtag) + (dtab * dtab) + (dtaa * dtaa);
                         }
@@ -272,7 +226,7 @@ namespace Geometrize
                 double bestEnergy = state.energy(lastScore);
 
                 int age = 0;
-                
+
                 while (age < maxAge)
                 {
                     State undo = state.mutate();
@@ -321,9 +275,12 @@ namespace Geometrize
             }
 
             var lines = shape.Rasterize();
-            int color = ComputeColor(target, current, lines, alpha);
-            Rasterizer.Rasterizer.CopyLines(buffer, current, lines);
-            Rasterizer.Rasterizer.DrawLines(buffer, color, lines);
+            if (lines.Count > 0)
+            {
+                var color = ComputeColor(target, current, lines, alpha);
+                Rasterizer.Rasterizer.CopyLines(buffer, current, lines);
+                Rasterizer.Rasterizer.DrawLines(buffer, color, lines);
+            }
             return DifferencePartial(target, current, buffer, score, lines);
         }
     }

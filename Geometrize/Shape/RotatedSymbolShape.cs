@@ -18,6 +18,7 @@ namespace Geometrize.Shape
         public RotatedSymbolShape(int xBound, int yBound, SymbolShapeOptions symbolOptions)
             : base(xBound, yBound, symbolOptions) 
         {
+            angle = Std.random(359);
         }
 
         public int angle;

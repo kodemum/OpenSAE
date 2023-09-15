@@ -1,4 +1,5 @@
 ﻿using Geometrize.Shape;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +12,6 @@ namespace Geometrize
 
         public double Score { get; set; }
 
-        public int Color { get; set; }
+        public Rgba32 Color { get; set; }
     }
 }

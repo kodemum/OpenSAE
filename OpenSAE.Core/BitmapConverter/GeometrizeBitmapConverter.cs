@@ -102,11 +102,7 @@ namespace OpenSAE.Core.BitmapConverter
             if (_options.ShapeTypes.Length == 0)
                 return;
 
-            byte[] imageData = new byte[_originalImage.Width * _originalImage.Height * 4];
-
-            _originalImage.CopyPixelDataTo(imageData);
-
-            Bitmap bitmap = Bitmap.CreateFromByteArray(_originalImage.Width, _originalImage.Height, imageData);
+            Bitmap bitmap = Bitmap.CreateFromImage(_originalImage);
 
             var commonColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
             var symbolOptions = new SymbolShapeOptions()
@@ -126,7 +122,7 @@ namespace OpenSAE.Core.BitmapConverter
                 return;
             }
 
-            Model geometrize = new(bitmap, GeometrizeUtil.ColorToInt(commonColor));
+            Model geometrize = new(bitmap, commonColor.ToRgba32());
 
             for (int count = 0; count < _options.MaxSymbolCount; count++)
             {
@@ -145,7 +141,7 @@ namespace OpenSAE.Core.BitmapConverter
                                 x2 = _originalImage.Width,
                                 y2 = _originalImage.Height,
                             },
-                            Color = GeometrizeUtil.ColorToInt(commonColor),
+                            Color = commonColor.ToRgba32(),
                             Score = -1,
                         }, 1));
                 }
@@ -165,7 +161,7 @@ namespace OpenSAE.Core.BitmapConverter
 
                     if (inProgressImageCallback != null)
                     {
-                        inProgressImageCallback.Invoke(Image.LoadPixelData(IntToByteArray(geometrize.current.data), bitmap.width, bitmap.height));
+                        inProgressImageCallback.Invoke(Image.LoadPixelData(geometrize.current.data, bitmap.width, bitmap.height));
                     }
                 }
 
@@ -214,12 +210,10 @@ namespace OpenSAE.Core.BitmapConverter
                 throw new InvalidOperationException("Unsupported shape type");
             }
 
-            var color = GeometrizeUtil.IntToColor(shape.Color);
-
             return new SymbolArtLayer()
             {
                 Alpha = opacity,
-                Color = SymbolArtColorHelper.RemoveCurve(color),
+                Color = SymbolArtColorHelper.RemoveCurve(shape.Color.ToMediaColor()),
                 Visible = true,
                 SymbolId = symbolId,
                 Vertex1 = vertices[0],

@@ -19,24 +19,17 @@ namespace Geometrize.Shape
         public SymbolShape(int xBound, int yBound, SymbolShapeOptions symbolOptions)
         {
             _symbolOptions = symbolOptions;
-            x1 = Std.random(xBound);
-            y1 = Std.random(yBound);
-            int @value = ((x1 + Std.random(32)) + 1);
-            int max = (xBound - 1);
-            if ((0 > max))
-            {
-                throw new Exception("FAIL: min <= max");
-            }
 
-            x2 = (@value < 0) ? 0 : ((@value > max) ? max : @value);
-            int value1 = ((y1 + Std.random(32)) + 1);
-            int max1 = (yBound - 1);
-            if ((0 > max1))
-            {
-                throw new Exception("FAIL: min <= max");
-            }
+            var x = Std.random(xBound);
+            var y = Std.random(yBound);
+            var rx = Std.random(32) + 1;
+            var ry = Std.random(32) + 1;
 
-            y2 = (value1 < 0) ? 0 : ((value1 > max1) ? max1 : value1);
+            x1 = x - rx;
+            x2 = x + rx;
+            y1 = y - ry;
+            y2 = y + ry;
+
             this.xBound = xBound;
             this.yBound = yBound;
 
