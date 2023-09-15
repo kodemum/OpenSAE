@@ -109,7 +109,7 @@ namespace Geometrize
             return result;
         }
 
-        private static int Add(int c, int d)
+        public static int Add(int c, int d)
         {
             int sr = (c >> 24) & 255;
             sr |= sr << 8;

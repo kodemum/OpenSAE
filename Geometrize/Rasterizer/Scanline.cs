@@ -55,6 +55,8 @@ namespace Geometrize.Rasterizer
         public int x1;
 
         public int x2;
+
+        public byte[] transparencyData;
     }
 }
 

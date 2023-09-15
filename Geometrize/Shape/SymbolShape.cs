@@ -87,6 +87,11 @@ namespace Geometrize.Shape
                     if (flipY)
                         symbolY = 63 - symbolY;
 
+                    if (x2 < x1)
+                        continue;
+
+                    byte[] transparencyData = new byte[x2 - x1 + 1];
+
                     for (int x = x1; x <= x2; x++)
                     {
                         int symbolX = (int)Math.Round((x - x1) * symbolScaleFactorX);
@@ -94,31 +99,28 @@ namespace Geometrize.Shape
                         if (flipX)
                             symbolX = 63 - symbolX;
 
-                        if (symbol.SymbolScanlines[symbolY, symbolX] > 192)
+                        var transparency = symbol.SymbolScanlines[symbolY, symbolX];
+
+                        transparencyData[x - x1] = transparency;
+
+                        if (startX == null)
                         {
-                            if (startX == null)
-                            {
-                                startX = x;
-                                endX = x;
-                            }
-                            else
-                            {
-                                endX = x;
-                            }
+                            startX = x;
+                            endX = x;
                         }
                         else
                         {
-                            if (startX != null && endX != null && y > 0 && y < yBound)
-                            {
-                                lines.Add(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
-                                startX = null;
-                                endX = null;
-                            }
+                            endX = x;
                         }
                     }
 
                     if (startX != null && endX != null && y > 0 && y < yBound)
-                        lines.Add(new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1)));
+                    {
+                        var line = new Scanline(y, Math.Min(startX.Value, xBound - 1), Math.Min(endX.Value, xBound - 1));
+                        line.transparencyData = transparencyData;
+
+                        lines.Add(line);
+                    }
                 }
             }
 

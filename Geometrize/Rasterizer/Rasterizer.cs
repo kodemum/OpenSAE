@@ -8,7 +8,7 @@ namespace Geometrize.Rasterizer
     public static class Rasterizer
     {
 
-        public static void DrawLines(Bitmap image, int c, IEnumerable<Scanline> lines)
+        public static void DrawLines(Bitmap image, int color, IEnumerable<Scanline> lines)
         {
             unchecked
             {
@@ -22,22 +22,22 @@ namespace Geometrize.Rasterizer
                     throw new Exception("FAIL: lines != null");
                 }
 
-                int sr = (c >> 24) & 255;
+                int sr = (color >> 24) & 255;
                 sr |= sr << 8;
-                sr *= c & 255;
+                sr *= color & 255;
                 sr /= 255;
 
-                int sg = (c >> 16) & 255;
+                int sg = (color >> 16) & 255;
                 sg |= sg << 8;
-                sg *= c & 255;
+                sg *= color & 255;
                 sg /= 255;
 
-                int sb = (c >> 8) & 255;
+                int sb = (color >> 8) & 255;
                 sb |= sb << 8;
-                sb *= c & 255;
+                sb *= color & 255;
                 sb /= 255;
 
-                int sa = c & 255;
+                int sa = color & 255;
                 sa |= sa << 8;
 
                 foreach (var line in lines)
@@ -49,6 +49,16 @@ namespace Geometrize.Rasterizer
 
                     for (int x = line.x1; x < line.x2 + 1; x++)
                     {
+                        if (line.transparencyData != null)
+                        {
+                            sa = line.transparencyData[x - line.x1];
+
+                            int colorWithModeratedTransparency = color - (color & 255) + sa;
+
+                            image.data[(image.width * y) + x] = Bitmap.Add(colorWithModeratedTransparency, image.data[(image.width * y) + x]);
+                            continue;
+                        }
+
                         int d = image.data[(image.width * y) + x];
                         int dr = (d >> 24) & 255;
                         int dg = (d >> 16) & 255;
