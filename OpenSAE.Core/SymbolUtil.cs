@@ -1,4 +1,6 @@
-﻿namespace OpenSAE.Core
+﻿using System.IO;
+
+namespace OpenSAE.Core
 {
     public static class SymbolUtil
     {
@@ -91,6 +93,7 @@
                 new Symbol(63, ",", 0.65, "Comma", SymbolGroup.Punctuation),
                 new Symbol(64, ".", 0.65, "Period", SymbolGroup.Punctuation, SymbolFlag.UsedForBitmapConverter),
                 new Symbol(65, "!", 0.65, "Exclamation point", SymbolGroup.Punctuation),
+                new Symbol(66, "?", 0.15, "Question mark", SymbolGroup.Punctuation),
                 new Symbol(67, "@", 0.15, "At symbol", SymbolGroup.Punctuation),
                 new Symbol(68, "&", 0.20, "Ampersand", SymbolGroup.Punctuation),
                 new Symbol(69, "%", 0.15, "Percentage symbol", SymbolGroup.Punctuation),
@@ -379,9 +382,16 @@
                 new Symbol(692, "Game symbol 52", SymbolGroup.GameSymbols),
                 new Symbol(693, "Skull-crossbones", SymbolGroup.GameSymbols),
                 new Symbol(694, "Game exclamation", SymbolGroup.GameSymbols),
-                new Symbol(695, "?", "Game question", SymbolGroup.GameSymbols),
+                new Symbol(695, "Game question", SymbolGroup.GameSymbols),
                 new Symbol(696, "Game heart", SymbolGroup.GameSymbols),
                 new Symbol(697, "Music note", SymbolGroup.GameSymbols),
+                new Symbol(698, "Game shield", SymbolGroup.GameSymbols),
+                new Symbol(699, "Game shield 2", SymbolGroup.GameSymbols),
+                new Symbol(700, "Game emblem", SymbolGroup.GameSymbols),
+                new Symbol(701, "Game star", SymbolGroup.GameSymbols),
+                new Symbol(702, "Game symbol 62", SymbolGroup.GameSymbols),
+                new Symbol(703, "Game symbol 63", SymbolGroup.GameSymbols),
+                new Symbol(704, "Angel wings", SymbolGroup.GameSymbols),
 
                 new Symbol(721, "Game portrait 1", SymbolGroup.GamePortraits),
                 new Symbol(722, "Game portrait 2", SymbolGroup.GamePortraits),
