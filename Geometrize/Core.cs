@@ -209,46 +209,33 @@ namespace Geometrize
 
         public static State HillClimb(State state, int maxAge, double lastScore, System.Threading.CancellationToken token)
         {
-            unchecked
+            state = state.clone();
+            State bestState = state.clone();
+            double bestEnergy = state.energy(lastScore);
+
+            int age = 0;
+
+            while (age < maxAge)
             {
-                if (state == null)
+                State undo = state.mutate();
+                double energy = state.energy(lastScore);
+                if (energy >= bestEnergy || double.IsNaN(energy))
                 {
-                    throw new Exception("FAIL: state != null");
+                    state = undo;
+                }
+                else
+                {
+                    bestEnergy = energy;
+                    bestState = state.clone();
+                    age = -1;
                 }
 
-                if (maxAge < 0)
-                {
-                    throw new Exception("FAIL: maxAge >= 0");
-                }
+                age++;
 
-                state = state.clone();
-                State bestState = state.clone();
-                double bestEnergy = state.energy(lastScore);
-
-                int age = 0;
-
-                while (age < maxAge)
-                {
-                    State undo = state.mutate();
-                    double energy = state.energy(lastScore);
-                    if (energy >= bestEnergy || double.IsNaN(energy))
-                    {
-                        state = undo;
-                    }
-                    else
-                    {
-                        bestEnergy = energy;
-                        bestState = state.clone();
-                        age = -1;
-                    }
-
-                    age++;
-
-                    token.ThrowIfCancellationRequested();
-                }
-
-                return bestState;
+                token.ThrowIfCancellationRequested();
             }
+
+            return bestState;
         }
 
 
