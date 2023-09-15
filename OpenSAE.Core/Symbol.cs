@@ -79,5 +79,7 @@ namespace OpenSAE.Core
         public SymbolGroup Group { get; }
 
         public SymbolFlag Flags { get; }
+
+        public bool HasColor => Group == SymbolGroup.GamePortraits;
     }
 }
