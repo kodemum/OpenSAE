@@ -69,9 +69,9 @@ namespace Geometrize.Shape
         }
 
 
-        public static IShape randomShapeOf(int[] types, int xBound, int yBound, SymbolShapeOptions symbolOptions)
+        public static IShape randomShapeOf(int xBound, int yBound, SymbolShapeOptions symbolOptions)
         {
-            return create(types[HaxeMath.rand.Next(types.Length)], xBound, yBound, symbolOptions);
+            return create(symbolOptions.ShapeTypes[HaxeMath.rand.Next(symbolOptions.ShapeTypes.Length)], xBound, yBound, symbolOptions);
         }
     }
 }

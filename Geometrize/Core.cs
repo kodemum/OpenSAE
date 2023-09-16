@@ -163,7 +163,7 @@ namespace Geometrize
         }
 
 
-        public static State BestRandomState(int[] shapes, int alpha, int n, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions, System.Threading.CancellationToken token)
+        public static State BestRandomState(int alpha, int n, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions, System.Threading.CancellationToken token)
         {
             object lockObj = new object();
 
@@ -180,7 +180,7 @@ namespace Geometrize
                     myBuffer.overlay = buffer.overlay;
                 }
 
-                State state = new State(ShapeFactory.randomShapeOf(shapes, current.width, current.height, symbolOptions), alpha, target, current, myBuffer);
+                State state = new State(ShapeFactory.randomShapeOf(current.width, current.height, symbolOptions), alpha, target, current, myBuffer);
                 double energy = state.energy(lastScore);
 
                 lock (lockObj)
@@ -199,9 +199,9 @@ namespace Geometrize
         }
 
 
-        public static State BestHillClimbState(int[] shapes, int alpha, int n, int age, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions, System.Threading.CancellationToken token)
+        public static State BestHillClimbState(int alpha, int n, int age, Bitmap target, Bitmap current, Bitmap buffer, double lastScore, SymbolShapeOptions symbolOptions, System.Threading.CancellationToken token)
         {
-            State state = BestRandomState(shapes, alpha, n, target, current, buffer, lastScore, symbolOptions, token);
+            State state = BestRandomState(alpha, n, target, current, buffer, lastScore, symbolOptions, token);
             state = HillClimb(state, age, lastScore, token);
             return state;
         }

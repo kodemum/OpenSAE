@@ -107,6 +107,7 @@ namespace OpenSAE.Core.BitmapConverter
             var commonColor = _options.IncludeBackground ? _options.BackgroundColor : Colors.White;
             var symbolOptions = new SymbolShapeOptions()
             {
+                ShapeTypes = _options.ShapeTypes.Select(x => (int)x).ToArray(),
                 SymbolDefinitions = _options.ShapeSymbolsToUse.Select(x => new SymbolShapeDefinition()
                 {
                     SymbolId = x.Id,
@@ -150,7 +151,6 @@ namespace OpenSAE.Core.BitmapConverter
                     var opacity = count < _options.InitialShapeCountWithFullOpacity ? 1 : _options.SymbolOpacity;
 
                     var shape = geometrize.Step(
-                        _options.ShapeTypes.Select(x => (int)x).ToArray(),
                         (int)Math.Round(opacity * 255),
                         _options.ShapesPerStep,
                         _options.MutationsPerStep,

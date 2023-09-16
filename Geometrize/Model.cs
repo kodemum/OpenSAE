@@ -45,9 +45,9 @@ namespace Geometrize
 
         private List<ShapeAddResult> states = new List<ShapeAddResult>();
 
-        public virtual ShapeAddResult Step(int[] shapeTypes, int alpha, int n, int age, SymbolShapeOptions symbolOptions, CancellationToken token)
+        public virtual ShapeAddResult Step(int alpha, int n, int age, SymbolShapeOptions symbolOptions, CancellationToken token)
         {
-            State state = Core.BestHillClimbState(shapeTypes, alpha, n, age, this.target, this.current, this.buffer, this.score, symbolOptions, token);
+            State state = Core.BestHillClimbState(alpha, n, age, this.target, this.current, this.buffer, this.score, symbolOptions, token);
 
             var shape = AddShape(state.shape, state.alpha);
 

@@ -7,6 +7,8 @@ namespace Geometrize
 {
     public class SymbolShapeOptions
     {
+        public int[] ShapeTypes { get; set; }
+
         public List<SymbolShapeDefinition> SymbolDefinitions { get; set; } = new List<SymbolShapeDefinition>();
     }
 }
