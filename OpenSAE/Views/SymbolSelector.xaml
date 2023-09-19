@@ -29,11 +29,29 @@
             </ListBox.ItemsPanel>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Fill="Black" Width="{Binding DataContext.ItemSize, ElementName=symbolSelector}" Height="{Binding DataContext.ItemSize, ElementName=symbolSelector}"
+                    <Rectangle Width="{Binding DataContext.ItemSize, ElementName=symbolSelector}" Height="{Binding DataContext.ItemSize, ElementName=symbolSelector}"
                                ToolTipService.ToolTip="{Binding Description}">
-                        <Rectangle.OpacityMask>
-                            <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
-                        </Rectangle.OpacityMask>
+                        <Rectangle.Style>
+                            <Style TargetType="Rectangle">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasColor}" Value="False">
+                                        <Setter Property="Fill" Value="Black" />
+                                        <Setter Property="OpacityMask">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasColor}" Value="True">
+                                        <Setter Property="Fill">
+                                            <Setter.Value>
+                                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Rectangle.Style>
                     </Rectangle>
                 </DataTemplate>
             </ListBox.ItemTemplate>

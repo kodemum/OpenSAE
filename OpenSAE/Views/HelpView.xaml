@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:OpenSAE.Views"
              mc:Ignorable="d" 
              x:Name="helpView"
-             d:DesignHeight="1500" d:DesignWidth="800">
+             d:DesignHeight="2000" d:DesignWidth="800">
     <StackPanel>
         <StackPanel Orientation="Horizontal">
             <TextBlock Style="{StaticResource titleText}">
@@ -173,63 +173,96 @@
         </TextBlock>
 
         <TextBlock Style="{StaticResource subtitleText}">
-            Backup manager
+            Import bitmap images and convert to symbol arts
         </TextBlock>
         <TextBlock TextWrapping="Wrap">
-            The backup manager attempts to make it easy to save symbol arts you have encountered in-game and import them later. <LineBreak />
-            Open the backup manager by clicking File -> Open backup manager... in the menu.<LineBreak />
-            You may have to manually select the correct PSO2 folder under My Documents.
-            <LineBreak /><LineBreak />
-            The backup manager has four tabs that show:
+            OpenSAE can attempt to automatically generate symbol art from bitmap image files. (PNG, JPG, etc.) <LineBreak />
+            Open the converter by clicking Import bitmap image... in the menu and select an image to import.<LineBreak />
+            <LineBreak />
+            There are several options to set that affect the conversion process:
+        </TextBlock>
+        <StackPanel Margin="5">
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock Margin="5 2" TextWrapping="Wrap">
+                    <Run FontWeight="Bold">Resolution</Run> sets the size that the image will be used at; increasing this allows finer detail to be captured
+                        and generally be more accurate, but will take longer.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock TextWrapping="Wrap" Margin="5 2">
+                    <Run FontWeight="Bold">Background</Run> sets if a background should be used for the symbol art, what color it 
+                    should be, and if the entire symbol art should have this background or only what corresponds to the size of the imported image.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock TextWrapping="Wrap" Margin="5 2">
+                    <Run FontWeight="Bold">Symbol opacity</Run> sets how transparent each symbol is. Different images work better 
+                    with different settings. Photographs often look better with symbols set to be more transparent.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock TextWrapping="Wrap" Margin="5 2">
+                    <Run FontWeight="Bold">Shapes/mutations per step</Run> sets how aggresively the image segmenter should look for 
+                    symbol matches. Increasing this should result in a more accurate result, but increases the processing time.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock TextWrapping="Wrap" Margin="5 2">
+                    <Run FontWeight="Bold">Enabled symbol types</Run> sets the types of symbols that are used to build the symbol art.
+                    Some images work better with different types. Enabling them all doesn't necessarily result in the best result.
+                </TextBlock>
+            </ContentControl>
+            <ContentControl Template="{StaticResource BulletTemplate}">
+                <TextBlock TextWrapping="Wrap" Margin="5 2">
+                    <Run FontWeight="Bold">The symbol count slider</Run> at the bottom allows reducing the number of generated symbols
+                    in case you want to leave space for adding additional symbols.
+                </TextBlock>
+            </ContentControl>
+        </StackPanel>
+
+        <TextBlock>
+            When satisfied with the result, click the <Run FontWeight="Bold">Accept</Run> button to open it in the main editor.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource subtitleText}">
+    Backup manager
+        </TextBlock>
+        <TextBlock TextWrapping="Wrap">
+    The backup manager attempts to make it easy to save symbol arts you have encountered in-game and import them later. <LineBreak />
+    Open the backup manager by clicking File -> Open backup manager... in the menu.<LineBreak />
+    You may have to manually select the correct PSO2 folder under My Documents.
+    <LineBreak /><LineBreak />
+    The backup manager has four tabs that show:
         </TextBlock>
         <StackPanel Margin="5">
             <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">
-                    <Run FontWeight="Bold">Saved in-game:</Run>
-                    Symbol arts that have been saved to the available slots in-game. You can select between multiple user accounts.
+            <Run FontWeight="Bold">Saved in-game:</Run>
+            Symbol arts that have been saved to the available slots in-game. You can select between multiple user accounts.
                 </TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">
-                    <Run FontWeight="Bold">Import in-game:</Run>
-                    Symbol arts in the import folder. These are what you can see and import from within the game.
+            <Run FontWeight="Bold">Import in-game:</Run>
+            Symbol arts in the import folder. These are what you can see and import from within the game.
                 </TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">
-                    <Run FontWeight="Bold">Backup:</Run>
-                    Symbol arts that have been backed up using the backup manager. These are placed under My Documents\OpenSAE\Backup.
+            <Run FontWeight="Bold">Backup:</Run>
+            Symbol arts that have been backed up using the backup manager. These are placed under My Documents\OpenSAE\Backup.
                 </TextBlock>
             </ContentControl>
             <ContentControl Template="{StaticResource BulletTemplate}">
                 <TextBlock Margin="5 2">
-                    <Run FontWeight="Bold">Recently seen in-game:</Run>
-                    Symbol arts that have been recently loaded by the game - this generally corresponds to the recently seen list in game.
+            <Run FontWeight="Bold">Recently seen in-game:</Run>
+            Symbol arts that have been recently loaded by the game - this generally corresponds to the recently seen list in game.
                 </TextBlock>
             </ContentControl>
         </StackPanel>
         <TextBlock TextWrapping="Wrap">
-            You can use the Import, Backup and Delete buttons in the backup manager to backup symbol arts from the various locations, delete them, or
-            copy them to the import folder to be used in the game.
-        </TextBlock>
-
-        <TextBlock Style="{StaticResource subtitleText}">
-            Bitmap to symbol art converter
-        </TextBlock>
-        <TextBlock TextWrapping="Wrap">
-            The bitmap to symbol art converter attempts to automatically generate symbol art from bitmap image files. (PNG, JPG, etc.) <LineBreak />
-            Open the converter by clicking Bitmap image -> symbol art converter... in the menu.<LineBreak />
-            In the window that appears, drag a bitmap image or use the Open File button.
-            <LineBreak /><LineBreak />
-            Most bitmaps do not readily convert to symbol arts due to the low maximum limit on the number of symbols (225). The converter will by default
-            not limit the number of symbols generated, but you can force it to do this by checking the <Run FontWeight="Bold">Restrict symbol count</Run>
-            checkbox. Modifying the <Run FontWeight="Bold">Max colors</Run>, <Run FontWeight="Bold">Resolution</Run> and <Run FontWeight="Bold">Minimum size</Run>
-            options all greatly affect the output symbol art and the number of generated symbols.
-            <LineBreak /><LineBreak />
-            The <Run FontWeight="Bold">Auto-choose</Run> symbol option attempts to change the symbols used in order to better fit the image. This option is slow, however
-            and does not always lead to a better result.
-            <LineBreak /><LineBreak />
-            When satisfied with the result, click the <Run FontWeight="Bold">Accept</Run> button to open it in the main editor.
+    You can use the Import, Backup and Delete buttons in the backup manager to backup symbol arts from the various locations, delete them, or
+    copy them to the import folder to be used in the game.
         </TextBlock>
     </StackPanel>
 </UserControl>

@@ -1,79 +1,43 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using OpenSAE.Core;
 using OpenSAE.Core.BitmapConverter;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Windows.Media;
 
 namespace OpenSAE.Models
 {
-    internal class BitmapToSymbolArtConverterOptionsViewModel : ObservableObject
+    public class BitmapToSymbolArtConverterOptionsViewModel : ObservableObject
     {
         private int _resizeImageHeight;
-        private int _maxColors;
-        private bool _removeWhite;
-        private double _centerYOffset;
-        private double _centerXOffset;
-        private double _offsetSizeYExponent;
-        private double _offsetSizeXExponent;
-        private double _symbolSizeOffsetX;
-        private double _symbolSizeOffsetY;
-        private bool _disableLayering;
-        private bool _smoothResizing;
-        private Symbol _pixelSymbol;
-        private double _symbolSizeThreshold;
-        private bool _autoChooseSymbols;
+        private bool _respectEdges;
+        private double _symbolOpacity;
+        private int _shapesPerStep;
+        private int _maxSymbolCount;
+        private bool _includeBackground;
+        private Color _backgroundColor;
+        private bool _showViewPort;
+
+        private int _mutationsPerStep;
+        private List<ShapeType> _shapeTypes;
 
         public BitmapToSymbolArtConverterOptionsViewModel()
         {
             var defaultOptions = new BitmapToSymbolArtConverterOptions();
-            _symbolSizeOffsetX = defaultOptions.SizeXOffset;
-            _symbolSizeOffsetY = defaultOptions.SizeYOffset;
+            _backgroundColor = defaultOptions.BackgroundColor;
+            _includeBackground = defaultOptions.IncludeBackground;
+            _maxSymbolCount = defaultOptions.MaxSymbolCount;
+            _mutationsPerStep = defaultOptions.MutationsPerStep;
             _resizeImageHeight = defaultOptions.ResizeImageHeight;
-            _maxColors = defaultOptions.MaxColors;
-            _removeWhite = defaultOptions.RemoveWhite;
-            _centerYOffset = defaultOptions.CenterYOffset;
-            _centerXOffset = defaultOptions.CenterXOffset;
-            _offsetSizeYExponent = defaultOptions.OffsetSizeYExponent;
-            _offsetSizeXExponent = defaultOptions.OffsetSizeXExponent;
-            _disableLayering = defaultOptions.DisableLayering;
-            _smoothResizing = defaultOptions.SmoothResizing;
-            _symbolSizeThreshold = defaultOptions.SymbolSizeThreshold;
-            _autoChooseSymbols = defaultOptions.AutoChooseSymbols;
-            _pixelSymbol = SymbolUtil.GetById(681)!;
-        }
+            _respectEdges = defaultOptions.RespectEdges;
+            _shapesPerStep = defaultOptions.ShapesPerStep;
+            _shapeTypes = defaultOptions.ShapeTypes.ToList();
+            _symbolOpacity = defaultOptions.SymbolOpacity;
 
-        public double SymbolSizeOffsetX
-        {
-            get => _symbolSizeOffsetX;
-            set => SetProperty(ref _symbolSizeOffsetX, value);
-        }
-
-        public double SymbolSizeOffsetY
-        {
-            get => _symbolSizeOffsetY;
-            set => SetProperty(ref _symbolSizeOffsetY, value);
-        }
-
-        public double CenterYOffset
-        {
-            get => _centerYOffset;
-            set => SetProperty(ref _centerYOffset, value);
-        }
-
-        public double CenterXOffset
-        {
-            get => _centerXOffset;
-            set => SetProperty(ref _centerXOffset, value);
-        }
-
-        public double OffsetSizeYExponent
-        {
-            get => _offsetSizeYExponent;
-            set => SetProperty(ref _offsetSizeYExponent, value);
-        }
-
-        public double OffsetSizeXExponent
-        {
-            get => _offsetSizeXExponent;
-            set => SetProperty(ref _offsetSizeXExponent, value);
+            ShapeSymbolsToUse = new(SymbolUtil.DefaultSymbolsForBitmapConverter);
+            ShapeSymbolsToUse.CollectionChanged += (_, __) => OnPropertyChanged(nameof(ShapeSymbolsToUse));
         }
 
         public int ResizeImageHeight
@@ -82,66 +46,124 @@ namespace OpenSAE.Models
             set => SetProperty(ref _resizeImageHeight, value);
         }
 
-        public int MaxColors
+        public bool RespectEdges
         {
-            get => _maxColors;
-            set => SetProperty(ref _maxColors, value);
+            get => _respectEdges;
+            set => SetProperty(ref _respectEdges, value);
         }
 
-        public bool RemoveWhite
+        public double SymbolOpacity
         {
-            get => _removeWhite;
-            set => SetProperty(ref _removeWhite, value);
+            get => _symbolOpacity;
+            set => SetProperty(ref _symbolOpacity, value);
         }
 
-        public bool DisableLayering
+        public int ShapesPerStep
         {
-            get => _disableLayering;
-            set => SetProperty(ref _disableLayering, value);
+            get => _shapesPerStep;
+            set => SetProperty(ref _shapesPerStep, value);
         }
 
-        public bool SmoothResizing
+        public int MutationsPerStep
         {
-            get => _smoothResizing;
-            set => SetProperty(ref _smoothResizing, value);
+            get => _mutationsPerStep;
+            set => SetProperty(ref _mutationsPerStep, value);
         }
 
-        public Symbol PixelSymbol
+        public bool EnableRectangleShape
         {
-            get => _pixelSymbol;
-            set => SetProperty(ref _pixelSymbol, value);
+            get => HasShapeType(ShapeType.Rectangle);
+            set => SetShapeType(ShapeType.Rectangle, value);
         }
 
-        public double SymbolSizeThreshold
+        public bool EnableRotatedRectangleShape
         {
-            get => _symbolSizeThreshold;
-            set => SetProperty(ref _symbolSizeThreshold, value);
+            get => HasShapeType(ShapeType.Rotated_Rectangle);
+            set => SetShapeType(ShapeType.Rotated_Rectangle, value);
         }
 
-        public bool AutoChooseSymbols
+        public bool EnableEllipseShape
         {
-            get => _autoChooseSymbols;
-            set => SetProperty(ref _autoChooseSymbols, value);
+            get => HasShapeType(ShapeType.Ellipse);
+            set => SetShapeType(ShapeType.Ellipse, value);
+        }
+
+        public bool EnableRotatedEllipseShape
+        {
+            get => HasShapeType(ShapeType.Rotated_Ellipse);
+            set => SetShapeType(ShapeType.Rotated_Ellipse, value);
+        }
+
+        public bool EnableCircleShape
+        {
+            get => HasShapeType(ShapeType.Circle);
+            set => SetShapeType(ShapeType.Circle, value);
+        }
+
+        public bool EnableSymbolShape
+        {
+            get => HasShapeType(ShapeType.Symbols);
+            set => SetShapeType(ShapeType.Symbols, value);
+        }
+
+        public bool EnableRotatedSymbolShape
+        {
+            get => HasShapeType(ShapeType.Rotated_Symbols);
+            set => SetShapeType(ShapeType.Rotated_Symbols, value);
+        }
+
+        public int MaxSymbolCount
+        {
+            get => _maxSymbolCount;
+            set => SetProperty(ref _maxSymbolCount, value);
+        }
+
+        public bool IncludeBackground
+        {
+            get => _includeBackground;
+            set => SetProperty(ref _includeBackground, value);
+        }
+
+        public Color BackgroundColor
+        {
+            get => _backgroundColor;
+            set => SetProperty(ref _backgroundColor, value);
+        }
+
+        public bool ShowViewPort
+        {
+            get => _showViewPort;
+            set => SetProperty(ref _showViewPort, value);
+        }
+
+        public ObservableCollection<Symbol> ShapeSymbolsToUse { get; }
+
+        private bool HasShapeType(ShapeType type) => _shapeTypes.Contains(type);
+        
+        private void SetShapeType(ShapeType type, bool isSet, [CallerMemberName]string? propertyName = null)
+        {
+            if (isSet && !HasShapeType(type))
+                _shapeTypes.Add(type);
+            else if (!isSet)
+                _shapeTypes.Remove(type);
+
+            OnPropertyChanged(propertyName);
         }
 
         public BitmapToSymbolArtConverterOptions GetOptions()
         {
             return new BitmapToSymbolArtConverterOptions()
             {
+                BackgroundColor = _backgroundColor,
+                IncludeBackground = _includeBackground,
+                MaxSymbolCount = _maxSymbolCount,
+                MutationsPerStep = _mutationsPerStep,
                 ResizeImageHeight = _resizeImageHeight,
-                MaxColors = _maxColors,
-                SizeXOffset = _symbolSizeOffsetX,
-                SizeYOffset = _symbolSizeOffsetY,
-                RemoveWhite = _removeWhite,
-                CenterYOffset = _centerYOffset,
-                CenterXOffset = _centerXOffset,
-                OffsetSizeYExponent = _offsetSizeYExponent,
-                OffsetSizeXExponent = _offsetSizeXExponent,
-                DisableLayering = _disableLayering,
-                SmoothResizing = _smoothResizing,
-                PixelSymbol = PixelSymbol.Id - 1,
-                SymbolSizeThreshold = _symbolSizeThreshold,
-                AutoChooseSymbols = _autoChooseSymbols
+                RespectEdges = _respectEdges,
+                ShapesPerStep = _shapesPerStep,
+                ShapeTypes = _shapeTypes.ToArray(),
+                SymbolOpacity = _symbolOpacity,
+                ShapeSymbolsToUse = ShapeSymbolsToUse.ToList(),
             };
         }
     }

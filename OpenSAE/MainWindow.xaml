@@ -167,11 +167,11 @@
                 <MenuItem Header="_Browse..." Click="OpenBrowseWindow_Click" />
                 <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S" Template="{StaticResource iconMenuItem}" Icon="{StaticResource saveIcon}" />
                 <MenuItem Header="_Save as..." Command="{Binding SaveAsCommand}" InputGestureText="Ctrl+Alt+S" />
+                <MenuItem Header="_Import bitmap image..." Command="{Binding ImportCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <MenuItem Header="E_xport to game..." Command="{Binding CurrentItemCommand}" CommandParameter="export" InputGestureText="Ctrl+Alt+Shift+S" />
                 <MenuItem Header="Export as _bitmap image..." Command="{Binding CurrentItemCommand}" CommandParameter="exportBitmap" Template="{StaticResource iconMenuItem}" Icon="{StaticResource pictureIcon}" />
                 <Separator />
                 <MenuItem Header="Open _backup manager..." Click="OpenBackupManagerWindow_Click" />
-                <MenuItem Header="Bitmap image -> symbol art converter..." Click="MenuItem_BitmapConverter_Click" />
                 <Separator />
                 <MenuItem Header="_Recent files" ItemsSource="{Binding RecentFiles}">
                     <MenuItem.ItemTemplate>

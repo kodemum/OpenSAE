@@ -27,7 +27,7 @@ namespace OpenSAE.Models
         private const string OpenFormatFilter = "Symbol art files (*.saml,*.sar)|*.saml;*.sar|SAML symbol art (*.saml)|*.saml|SAR symbol art (*.sar)|*.sar";
         private const string SaveFormatFilter = "SAML symbol art (*.saml)|*.saml";
         private const string ExportFormatFilter = "SAR symbol art (*.sar)|*.sar";
-        internal const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif";
+        internal const string BitmapFormatFilter = "Bitmap images (*.png,*.jpg...)|*.jpg;*.jpeg;*.png;*.gif;*.bmp;*.tif;*.webp|PNG image (*.png)|*.png|JPEG image (*.jpg)|*.jpg;*.jpeg|GIF image (*.gif)|*.gif|BMP image (*.bmp)|*.bmp|TIFF image (*.tif)|*.tif|WEBP image (*.webp)|*.webp";
         private const string ClipboardItemFormat = "OpenSAE.Item";
         private const double DefaultSymbolUnitWidth = 240;
         public const double MinimumSymbolUnitWidth = 24;
@@ -51,6 +51,8 @@ namespace OpenSAE.Models
 
         public event EventHandler? ExitRequested;
 
+        public event EventHandler<BitmapConversionRequestedEventArgs>? BitmapConversionRequested;
+
         /// <summary>
         /// Currently opened Symbol Art
         /// </summary>
@@ -73,6 +75,7 @@ namespace OpenSAE.Models
                     SaveAsCommand.NotifyCanExecuteChanged();
                     AddImageLayerCommand.NotifyCanExecuteChanged();
                     OpenViewCurrentItemCommand.NotifyCanExecuteChanged();
+                    SelectedItem = _currentSymbolArt;
 
                     if (previous != null)
                     {
@@ -359,6 +362,8 @@ namespace OpenSAE.Models
 
         public IRelayCommand CanvasModeCommand { get; }
 
+        public IRelayCommand ImportCommand { get; }
+
         public IDialogService DialogService => _dialogService;
 
         public AppModel(IDialogService dialogService)
@@ -377,6 +382,7 @@ namespace OpenSAE.Models
             SaveCommand = new RelayCommand(() => SaveCurrent(), () => CurrentSymbolArt != null);
             SaveAsCommand = new RelayCommand(() => SaveCurrentAs(), () => CurrentSymbolArt != null);
             AddImageLayerCommand = new RelayCommand<string>(AddImageLayer_Implementation, (arg) => CurrentSymbolArt != null);
+            ImportCommand = new RelayCommand(Import_Implementation);
 
             CurrentItemCommand = new RelayCommand<string>(CurrentItemActionCommand_Implementation, (arg) => SelectedItem != null);
             RotateCurrentItemCommand = new RelayCommand<string>(RotateCurrentItemCommand_Implementation, (_) => SelectedItem != null);
@@ -1045,6 +1051,21 @@ namespace OpenSAE.Models
             CurrentSymbolArt = new SymbolArtModel(Undo);
             Undo.ResetWith("Create new");
             SelectedItem = CurrentSymbolArt;
+        }
+
+        private void Import_Implementation()
+        {
+            string? filename = _dialogService.BrowseOpenFile("Import bitmap image", AppModel.BitmapFormatFilter);
+
+            if (filename == null)
+                return;
+
+            var model = new BitmapConverterModel(DialogService, OpenConvertedGroup)
+            {
+                BitmapFilename = filename
+            };
+
+            BitmapConversionRequested?.Invoke(this, new BitmapConversionRequestedEventArgs(model));
         }
 
         private bool ConfirmCloseOpenFile()

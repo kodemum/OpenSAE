@@ -22,9 +22,9 @@ namespace OpenSAE.Models
             set => SetProperty(ref _itemSize, value);
         }
 
-        public SymbolListModel()
+        public SymbolListModel(IEnumerable<Symbol>? symbols = null)
         {
-            Symbols = new ObservableCollection<Symbol>(SymbolUtil.List);
+            Symbols = new ObservableCollection<Symbol>(symbols ?? SymbolUtil.List);
         }
     }
 }

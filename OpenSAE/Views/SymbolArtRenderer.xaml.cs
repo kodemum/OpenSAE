@@ -682,7 +682,7 @@ namespace OpenSAE.Views
 
                     if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
                     {
-                        SelectedLayer.TemporaryRotate(Math.Round(angleNow / (Math.PI / 4)) * (Math.PI / 4));
+                        SelectedLayer.TemporaryRotate(Math.Round(angleNow));
                     }
                     else
                     {

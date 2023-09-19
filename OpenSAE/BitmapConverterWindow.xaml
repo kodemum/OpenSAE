@@ -3,14 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:models="clr-namespace:OpenSAE.Models" xmlns:views="clr-namespace:OpenSAE.Views"
+        xmlns:models="clr-namespace:OpenSAE.Models"
+        xmlns:views="clr-namespace:OpenSAE.Views"
+        xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:controls="clr-namespace:OpenSAE.Controls"
         d:DataContext="{d:DesignInstance Type=models:BitmapConverterModel}"
         mc:Ignorable="d"
         x:Name="bitmapConverterWindow"
         DragOver="OnDragOver"
+        WindowStartupLocation="CenterOwner"
         Drop="OnDrop"
         AllowDrop="True"
-        Title="Bitmap -> symbol art converter" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"
+        Title="Import bitmap image" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"
         MinWidth="700" MinHeight="400"
         >
     <Window.Resources>
@@ -36,100 +40,121 @@
             <Button Grid.Column="2" Style="{StaticResource standardButton}" Command="{Binding BrowseCommand}">Open file...</Button>
         </Grid>
 
-        <DockPanel Margin="5 5 10 5" Width="175" DockPanel.Dock="Right">
-            <GroupBox DockPanel.Dock="Top" Header="Symbol options">
-                <StackPanel>
-                    <TextBlock Text="Minimum size" Margin="0 0 0 3" />
-                    <TextBox Text="{Binding Options.SymbolSizeThreshold, StringFormat=0.00}" />
-                    <Slider Value="{Binding Options.SymbolSizeThreshold}" Minimum="1" Maximum="10" Margin="0 5" TickFrequency="0.25" IsSnapToTickEnabled="True" LargeChange="2" />
+        <Grid Margin="5 5 10 5" Width="250" DockPanel.Dock="Right">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock>Available symbols:</TextBlock>
+            <controls:ListBoxScroll Grid.Row="1" ItemsSource="{Binding AvailableSymbols}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="true" 
+                VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding SelectedPendingSymbol}" MouseDoubleClick="ListBoxScroll_MouseDoubleClick">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Fill="Black" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </controls:ListBoxScroll>
+            <StackPanel Grid.Row="2">
+                <UniformGrid Grid.Row="2" Columns="2" Margin="5">
+                    <Button Command="{Binding SymbolCommand}" CommandParameter="remove">Remove symbol -</Button>
+                    <Button Command="{Binding SymbolCommand}" CommandParameter="add">Use symbol +</Button>
+                </UniformGrid>
+                <TextBlock>Symbols in use:</TextBlock>
+            </StackPanel>
+            <controls:ListBoxScroll Grid.Row="3" ItemsSource="{Binding Options.ShapeSymbolsToUse}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="true" 
+    VirtualizingPanel.VirtualizationMode="Recycling" SelectedItem="{Binding SelectedSymbol}">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel IsItemsHost="True" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Fill="Black" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
+                            <Rectangle.OpacityMask>
+                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                            </Rectangle.OpacityMask>
+                        </Rectangle>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </controls:ListBoxScroll>
+        </Grid>
 
-                    <CheckBox IsChecked="{Binding Options.AutoChooseSymbols}" Content="Auto-choose (slow)" Margin="0 5 0 0" />
-                </StackPanel>
-            </GroupBox>
-            <views:SymbolSelector DataContext="{Binding SymbolsList}" SelectedSymbol="{Binding DataContext.Options.PixelSymbol, ElementName=bitmapConverterWindow, Mode=TwoWay}">
-                <views:SymbolSelector.Style>
-                    <Style TargetType="views:SymbolSelector">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.Options.AutoChooseSymbols, ElementName=bitmapConverterWindow}" Value="true">
-                                <Setter Property="Visibility" Value="Hidden" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </views:SymbolSelector.Style>
-            </views:SymbolSelector>
-        </DockPanel>
 
         <DockPanel DockPanel.Dock="Left">
             <Button DockPanel.Dock="Bottom" Content="Accept" Style="{StaticResource standardButton}" Command="{Binding AcceptCommand}" Margin="5" />
 
             <ScrollViewer DockPanel.Dock="Left" VerticalScrollBarVisibility="Auto">
                 <StackPanel Margin="5 5 10 5" Width="150">
-                    <GroupBox Header="Max colors">
-                        <StackPanel>
-                            <TextBox Text="{Binding Options.MaxColors}" />
-                            <Slider Value="{Binding Options.MaxColors}" Minimum="5" Maximum="60" Margin="0 5 0 0" />
-                        </StackPanel>
-                    </GroupBox>
-
-                    <GroupBox Header="Resolution (px)">
+                    <GroupBox Header="Resolution">
                         <StackPanel>
                             <TextBox Text="{Binding Options.ResizeImageHeight}" />
-                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="24" Maximum="96" TickFrequency="4" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
-                            <CheckBox IsChecked="{Binding Options.SmoothResizing}" Content="Anti-aliasing" Margin="0 5" />
-                            <CheckBox IsChecked="{Binding LockSymbolCount}" Content="Restrict symbol count" Margin="0 5" />
+                            <Slider Value="{Binding Options.ResizeImageHeight}" Minimum="96" Maximum="512" TickFrequency="16" IsSnapToTickEnabled="True" Margin="0 5 0 0" />
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="Misc">
+                    <GroupBox Header="Background">
                         <StackPanel>
-                            <TextBlock Text="Symbol spacing" Margin="0 0 0 3" />
-                            <TextBox Text="{Binding Options.SymbolSizeOffsetX, StringFormat=0.00}" />
-                            <Slider Value="{Binding Options.SymbolSizeOffsetX}" Minimum="0.1" Maximum="1" Margin="0 5" TickFrequency="0.05" IsSnapToTickEnabled="True" LargeChange="0.1" />
-                            <TextBox Text="{Binding Options.SymbolSizeOffsetY, StringFormat=0.00}" />
-                            <Slider Value="{Binding Options.SymbolSizeOffsetY}" Minimum="0.1" Maximum="1" Margin="0 5" TickFrequency="0.05" IsSnapToTickEnabled="True" LargeChange="0.1"/>
-
-                            <CheckBox IsChecked="{Binding Options.RemoveWhite}" Content="Remove white" Margin="0 5" />
-                            <CheckBox IsChecked="{Binding Options.DisableLayering}" Content="No layers" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.IncludeBackground}" Content="Enable background" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.RespectEdges}" Content="Fill entire background" Margin="0 5" />
+                            
+                            <TextBlock DockPanel.Dock="Left">Background color</TextBlock>
+                            <colorpicker:PortableColorPicker Height="25" Margin="0 5 0 0" SelectedColor="{Binding Options.BackgroundColor, Mode=TwoWay}" />
                         </StackPanel>
                     </GroupBox>
 
-                    <GroupBox Header="Advanced">
+                    <GroupBox Header="Segmentation">
                         <StackPanel>
-                            <TextBlock Text="X size exponent" Margin="0 0 0 3" />
-                            <TextBox Text="{Binding Options.OffsetSizeXExponent, StringFormat=0.00}" />
-                            <Slider Value="{Binding Options.OffsetSizeXExponent}" Minimum="0.1" Maximum="1.2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" LargeChange="0.1" />
-
-                            <TextBlock Text="X offset" Margin="0 10 0 3" />
-                            <TextBox Text="{Binding Options.CenterXOffset, StringFormat=0.00}" />
-                            <Slider Value="{Binding Options.CenterXOffset}" Minimum="-2" Maximum="2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" LargeChange="0.1" />
-
-                            <TextBlock Text="Y size exponent" Margin="0 10 0 3" />
-                            <TextBox Text="{Binding Options.OffsetSizeYExponent, StringFormat=0.00}" />
-                            <Slider Value="{Binding Options.OffsetSizeYExponent}" Minimum="0.1" Maximum="1.2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" LargeChange="0.1" />
-
-                            <TextBlock Text="Y offset" Margin="0 10 0 3" />
-                            <TextBox Text="{Binding Options.CenterYOffset, StringFormat=0.00}" />
-                            <Slider Value="{Binding Options.CenterYOffset}" Minimum="-2" Maximum="2" Margin="0 5 0 0" TickFrequency="0.05" IsSnapToTickEnabled="True" LargeChange="0.1" />
+                            <TextBlock Text="Symbol opacity" Margin="0 0 0 3" />
+                            <TextBox Text="{Binding Options.SymbolOpacity, StringFormat=0.00}" />
+                            <Slider Minimum="1" Maximum="7" Value="{Binding Options.SymbolOpacity, Converter={StaticResource alphaConverter}}" Margin="0 5" TickFrequency="1" TickPlacement="BottomRight" IsSnapToTickEnabled="True" />
+                            <TextBlock Text="Shapes per step" Margin="0 0 0 3" />
+                            <TextBox Text="{Binding Options.ShapesPerStep}" />
+                            <Slider Value="{Binding Options.ShapesPerStep}" Minimum="10" Maximum="4000" Margin="0 5" TickFrequency="5" IsSnapToTickEnabled="True" LargeChange="50" />
+                            <TextBlock Text="Mutations per step" Margin="0 0 0 3" />
+                            <TextBox Text="{Binding Options.MutationsPerStep}" />
+                            <Slider Value="{Binding Options.MutationsPerStep}" Minimum="10" Maximum="600" Margin="0 5" TickFrequency="5" IsSnapToTickEnabled="True" LargeChange="50" />
                         </StackPanel>
-                        <GroupBox.Style>
-                            <Style TargetType="GroupBox">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Options.DisableLayering}" Value="true">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </GroupBox.Style>
+                    </GroupBox>
+
+                    <GroupBox Header="Enabled symbol types">
+                        <StackPanel>
+                            <CheckBox IsChecked="{Binding Options.EnableCircleShape}" Content="Circles" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableEllipseShape}" Content="Ellipses" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableRectangleShape}" Content="Rectangles" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableRotatedEllipseShape}" Content="Rotated ellipses" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableRotatedRectangleShape}" Content="Rotated rectangles" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableSymbolShape}" Content="Symbols" Margin="0 5" />
+                            <CheckBox IsChecked="{Binding Options.EnableRotatedSymbolShape}" Content="Rotated symbols" Margin="0 5" />
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Debug">
+                        <StackPanel>
+                            <CheckBox IsChecked="{Binding Options.ShowViewPort}" Content="Show render viewport" Margin="0 5" />
+                            <TextBlock Text="Max symbol count" Margin="0 0 0 3" />
+                            <TextBox Text="{Binding Options.MaxSymbolCount}" />
+                        </StackPanel>
                     </GroupBox>
                 </StackPanel>
             </ScrollViewer>
         </DockPanel>
 
-
         <StackPanel DockPanel.Dock="Bottom">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5">
                 <TextBlock FontSize="24" FontWeight="Bold" TextAlignment="Center">
-                    <Run Text="{Binding LayerCount, Mode=OneWay}" /> / 225 symbols
+                    <Run Text="{Binding LayerCount, Mode=OneWay}" /> / 225 symbols (score: <Run Text="{Binding Score, Mode=OneWay, StringFormat={}{0:0.0000}}" />)
                 </TextBlock>
                 <TextBlock TextAlignment="Center" FontWeight="Bold" TextWrapping="Wrap">
                     <TextBlock.Style>
@@ -146,8 +171,8 @@
                 </TextBlock>
             </StackPanel>
             <DockPanel Margin="5">
-                <TextBlock DockPanel.Dock="Left" Margin="0 0 5 0">0%</TextBlock>
-                <TextBlock DockPanel.Dock="Right" Margin="5 0 0 0">100%</TextBlock>
+                <TextBlock DockPanel.Dock="Left" Margin="0 0 5 0">0</TextBlock>
+                <TextBlock DockPanel.Dock="Right" Margin="5 0 0 0">225</TextBlock>
                 <Slider Value="{Binding SymbolCountReduction}" Minimum="1" Maximum="100" SmallChange="5" />
             </DockPanel>
         </StackPanel>
@@ -171,6 +196,8 @@
                 ShowBoundingBox="True"
                 ShowGuides="False"
                 />
+
+            <Image Source="{Binding CurrentImage}" Width="256" Height="256" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
             <ProgressBar Width="250" Height="10"  VerticalAlignment="Bottom" Margin="10" Value="{Binding LoadProgress}" Visibility="{Binding IsLoading, Converter={StaticResource booleanToVisibilityConverter}}" />
         </Grid>

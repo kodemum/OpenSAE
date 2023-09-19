@@ -3,21 +3,27 @@ using CommunityToolkit.Mvvm.Input;
 using OpenSAE.Core;
 using OpenSAE.Core.BitmapConverter;
 using OpenSAE.Services;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 namespace OpenSAE.Models
 {
-    internal class BitmapConverterModel : ObservableObject
+    public class BitmapConverterModel : ObservableObject
     {
-        private readonly IDialogService _dialogService;
+        private IDialogService _dialogService;
         private readonly Action<SymbolArtGroup> _openAction;
         private SymbolArtModel? _currentSymbolArt;
         private SymbolArtGroupModel? _currentGroup;
@@ -28,6 +34,12 @@ namespace OpenSAE.Models
         private bool _lockSymbolCount;
         private bool _isLoading;
         private double _loadProgress = 0;
+        private double _score;
+        private byte[]? _currentImageData;
+        private BitmapImage? _currentImage;
+        private readonly Dispatcher _dispatcher;
+        private Symbol? _selectedSymbol;
+        private Symbol? _selectedPendingSymbol;
 
         public SymbolArtModel? CurrentSymbolArt
         {
@@ -44,7 +56,14 @@ namespace OpenSAE.Models
         public string? BitmapFilename
         {
             get => _bitmapFilename;
-            set => SetRefreshProperty(ref _bitmapFilename, value);
+            set
+            {
+                if (SetProperty(ref _bitmapFilename, value))
+                {
+                    LoadBitmapBackgroundColor();
+                    Reload();
+                }
+            }
         }
 
         public bool TooManyLayers => LayerCount > 225;
@@ -61,9 +80,29 @@ namespace OpenSAE.Models
             }
         }
 
+        public Symbol? SelectedSymbol
+        {
+            get => _selectedSymbol;
+            set
+            {
+                if (SetProperty(ref _selectedSymbol, value))
+                    SymbolCommand.NotifyCanExecuteChanged();
+            }
+        }
+
+        public Symbol? SelectedPendingSymbol
+        {
+            get => _selectedPendingSymbol;
+            set
+            {
+                if (SetProperty(ref _selectedPendingSymbol, value))
+                    SymbolCommand.NotifyCanExecuteChanged();
+            }
+        }
+
         public BitmapToSymbolArtConverterOptionsViewModel Options { get; }
 
-        public SymbolListModel SymbolsList { get; }
+        public ObservableCollection<Symbol> AvailableSymbols { get; }
 
         public string? ErrorMessage
         {
@@ -107,9 +146,50 @@ namespace OpenSAE.Models
             set => SetProperty(ref _loadProgress, value);
         }
 
+        public double Score
+        {
+            get => _score;
+            set => SetProperty(ref _score, value);
+        }
+
+        public BitmapImage? CurrentImage
+        {
+            get => _currentImage;
+            set => SetProperty(ref _currentImage, value);
+        }
+
+        public byte[]? ImageData
+        {
+            get => _currentImageData;
+            set
+            {
+                if (SetProperty(ref _currentImageData, value))
+                {
+                    if (value != null)
+                    {
+                        var ms = new MemoryStream(value);
+
+                        BitmapImage image = new();
+
+                        image.BeginInit();
+                        image.StreamSource = ms;
+                        image.EndInit();
+
+                        CurrentImage = image;
+                    }
+                    else
+                    {
+                        CurrentImage = null;
+                    }
+                }
+            }
+        }
+
         public IRelayCommand BrowseCommand { get; }
 
         public IRelayCommand AcceptCommand { get; }
+
+        public IRelayCommand SymbolCommand { get; }
 
         public BitmapConverterModel(IDialogService dialogService, Action<SymbolArtGroup> openAction)
         {
@@ -117,10 +197,51 @@ namespace OpenSAE.Models
             _openAction = openAction;
             BrowseCommand = new RelayCommand(BrowseCommand_Implementation);
             AcceptCommand = new RelayCommand(AcceptCommand_Implementation, () => CurrentSymbolArt != null);
+            SymbolCommand = new RelayCommand<string>(SymbolCommand_Implementation, SymbolCommand_CanRun);
 
             Options = new BitmapToSymbolArtConverterOptionsViewModel();
             Options.PropertyChanged += (_, __) => Reload();
-            SymbolsList = new();
+            AvailableSymbols = new(SymbolUtil.List);
+
+            _dispatcher = Dispatcher.CurrentDispatcher;
+        }
+
+        private bool SymbolCommand_CanRun(string? obj)
+        {
+            return obj == "add" ? _selectedPendingSymbol != null : _selectedSymbol != null;
+        }
+
+        private void SymbolCommand_Implementation(string? obj)
+        {
+            if (obj == "add")
+            {
+                if (_selectedPendingSymbol != null)
+                {
+                    if (!Options.ShapeSymbolsToUse.Contains(_selectedPendingSymbol))
+                    {
+                        Options.ShapeSymbolsToUse.Add(_selectedPendingSymbol);
+                    }
+                }
+            }
+            else
+            {
+                if (_selectedSymbol != null)
+                {
+                    var index = Options.ShapeSymbolsToUse.IndexOf(_selectedSymbol);
+
+                    Options.ShapeSymbolsToUse.Remove(_selectedSymbol);
+
+                    if (index != -1 && Options.ShapeSymbolsToUse.Count > 0)
+                    {
+                        SelectedSymbol = index < Options.ShapeSymbolsToUse.Count ? Options.ShapeSymbolsToUse[index] : Options.ShapeSymbolsToUse.Last();
+                    }
+                }
+            }
+        }
+
+        public void SetDialogService(IDialogService service)
+        {
+            _dialogService = service;
         }
 
         private void AcceptCommand_Implementation()
@@ -143,18 +264,6 @@ namespace OpenSAE.Models
                 return;
 
             BitmapFilename = filename;
-        }
-
-        private bool SetRefreshProperty<T>(ref T prop, T value, [CallerMemberName] string? propertyName = null)
-        {
-            bool different = SetProperty(ref prop, value, propertyName);
-
-            if (different)
-            {
-                Reload();
-            }
-
-            return different;
         }
 
         private void RefreshSymbolAmount()
@@ -183,7 +292,33 @@ namespace OpenSAE.Models
             LayerCount = symbols.Count(x => x.Visible);
         }
 
-        private CancellationTokenSource convertCancelTokenSource;
+        private void LoadBitmapBackgroundColor()
+        {
+            try
+            {
+                if (BitmapFilename is not null)
+                {
+                    using var image = Image.Load<Rgba32>(BitmapFilename);
+
+                    var mostCommon = image.FindMostCommonColor();
+                    if (mostCommon.A > 127)
+                    {
+                        Options.BackgroundColor = mostCommon.ToWindowsMediaColor();
+                    }
+                    else
+                    {
+                        // image is transparent, default to white background
+                        Options.BackgroundColor = Colors.White;
+                    }
+                }
+            }
+            catch
+            { 
+            }
+        }
+
+        private CancellationTokenSource? convertCancelTokenSource;
+        private Task? convertTask;
 
         private void Reload()
         {
@@ -193,31 +328,48 @@ namespace OpenSAE.Models
             }
             else
             {
-                var dispatcher = Dispatcher.CurrentDispatcher;
-
                 LoadProgress = 0;
                 IsLoading = true;
 
                 convertCancelTokenSource?.Cancel();
                 convertCancelTokenSource = new CancellationTokenSource();
 
-                Task.Run(() =>
+                var token = convertCancelTokenSource.Token;
+
+                void action()
                 {
                     try
                     {
-                        using var converter = new BitmapToSymbolArtConverter(BitmapFilename, Options.GetOptions());
-
-                        var group = converter.Convert(convertCancelTokenSource.Token, new Progress<double>(x => LoadProgress = x));
-
-                        var sa = new SymbolArtModel(new DummyUndoModel());
-                        _currentGroup = new SymbolArtGroupModel(sa.Undo, group, sa);
-
-                        sa.Children.Add(_currentGroup);
-
-                        dispatcher.Invoke(() =>
+                        _dispatcher.Invoke(() =>
                         {
-                            CurrentSymbolArt = sa;
-                            LayerCount = sa.LayerCount;
+                            CurrentSymbolArt = new SymbolArtModel(new DummyUndoModel());
+                            _currentGroup = new SymbolArtGroupModel(CurrentSymbolArt.Undo, new SymbolArtGroup() { Visible = true }, CurrentSymbolArt);
+
+                            CurrentSymbolArt.Children.Add(_currentGroup);
+                            ImageData = null;
+                        });
+
+                        token.ThrowIfCancellationRequested();
+
+                        Action<Image>? imageCallback = Options.ShowViewPort ? (image) =>
+                        {
+                            using var ms = new MemoryStream();
+                            image.SaveAsPng(ms);
+
+                            _dispatcher.Invoke(() => ImageData = ms.ToArray());
+                        } : null;
+
+                        using var converter = new GeometrizeBitmapConverter(BitmapFilename, Options.GetOptions());
+
+                        converter.Convert(AddLayer, token, new Progress<GeometrizeProgress>(x =>
+                        {
+                            LoadProgress = x.Percentage;
+                            Score = x.Score;
+                        }), imageCallback);
+
+                        _dispatcher.Invoke(() =>
+                        {
+                            LayerCount = CurrentSymbolArt?.LayerCount ?? 0;
 
                             RefreshSymbolAmount();
                             ErrorMessage = null;
@@ -233,8 +385,39 @@ namespace OpenSAE.Models
                         ErrorMessage = "Unable to convert bitmap: " + ex.Message;
                         IsLoading = false;
                     }
+                }
+
+                if (convertTask is null)
+                {
+                    convertTask = Task.Run(action);
+                }
+                else
+                {
+                    convertTask = convertTask.ContinueWith((t) => action());
+                }
+            }
+        }
+
+        private void AddLayer(SymbolArtLayer layer)
+        {
+            if (CurrentSymbolArt is null || _currentGroup is null)
+                return;
+
+            var layerModel = new SymbolArtLayerModel(CurrentSymbolArt.Undo, layer, _currentGroup);
+
+            try
+            {
+                _dispatcher.Invoke(() =>
+                {
+                    _currentGroup.Children.Insert(0, layerModel);
+
+                    LayerCount = CurrentSymbolArt.LayerCount;
+
+                    RefreshSymbolAmount();
+                    OnPropertyChanged(nameof(CurrentSymbolArt));
                 });
             }
+            catch (TaskCanceledException) { }
         }
     }
 }
