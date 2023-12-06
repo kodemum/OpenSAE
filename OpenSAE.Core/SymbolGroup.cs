@@ -15,6 +15,7 @@
         GradientSymbols = 10,
         Patterns = 11,
         GameSymbols = 12,
-        GamePortraits = 13
+        GamePortraits = 13,
+        ClassSymbols = 14,
     }
 }

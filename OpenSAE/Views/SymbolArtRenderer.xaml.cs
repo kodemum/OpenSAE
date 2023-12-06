@@ -888,7 +888,7 @@ namespace OpenSAE.Views
             }
         }
 
-        private BitmapImage? GetLayerImage(SymbolArtItemModel layer)
+        private BitmapSource? GetLayerImage(SymbolArtItemModel layer)
         {
             if (layer is SymbolArtLayerModel symbolLayer)
             {

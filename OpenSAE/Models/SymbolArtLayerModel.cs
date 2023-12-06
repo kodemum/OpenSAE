@@ -93,8 +93,6 @@ namespace OpenSAE.Models
 
         public override bool IsVisible => Parent!.IsVisible && Visible;
 
-        public string? SymbolPackUri => Symbol?.Uri;
-
         public override double Alpha
         {
             get => _alpha;

@@ -4,7 +4,7 @@
 		<TargetFramework>net6.0-windows</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Version>1.1</Version>
+		<Version>1.2</Version>
 		<ProductName>OpenSAE command-line interface</ProductName>
 		<PublisherName>Magus Magnus</PublisherName>
 	</PropertyGroup>
