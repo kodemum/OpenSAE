@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using FramePFX.Themes;
 using OpenSAE.Core;
 using OpenSAE.Helpers;
 using OpenSAE.Properties;
@@ -278,12 +279,6 @@ namespace OpenSAE.Models
             set => SetDisplayFlag(DisplaySettingFlags.NaturalSymbolSelection, value);
         }
 
-        public bool DarkBackgroundEnabled
-        {
-            get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.DarkBackground);
-            set => SetDisplayFlag(DisplaySettingFlags.DarkBackground, value);
-        }
-
         public bool RestrictToAffineManipulation
         {
             get => DisplaySettingFlags.HasFlag(DisplaySettingFlags.RestrictToAffineManipulation);
@@ -301,6 +296,18 @@ namespace OpenSAE.Models
             get => _displayFlags;
             set => SetProperty(ref _displayFlags, value);
         }
+
+        public List<ThemeModel> AvailableThemes { get; }
+            = new List<ThemeModel>()
+            {
+                new(ThemeType.SoftDark, "Soft dark"),
+                new(ThemeType.DeepDark, "Deep dark"),
+                new(ThemeType.GreyTheme, "Grey"),
+                new(ThemeType.DarkGreyTheme, "Dark grey"),
+                new(ThemeType.RedBlackTheme, "Red/black"),
+                new(ThemeType.LightGreyTheme, "Light grey"),
+                new(ThemeType.WhiteTheme, "White")
+            };
 
         public Controls.IsChildOfPredicate HierarchyPredicate { get; } = SymbolArtItemModel.IsChildOf;
 

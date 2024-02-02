@@ -30,16 +30,20 @@
         </MenuItem>
     </ControlTemplate>
 
+    <Style TargetType="controls:ListBoxScroll" BasedOn="{StaticResource {x:Type ListBox}}"></Style>
+
+    <Style TargetType="controls:MultiSelectTreeView" BasedOn="{StaticResource {x:Type TreeView}}"></Style>
+
     <Style TargetType="TextBlock" x:Key="iconText">
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
         <Setter Property="FontSize" Value="16" />
     </Style>
 
-    <Style TargetType="TextBlock" x:Key="titleText">
+    <Style TargetType="TextBlock" x:Key="titleText" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="FontSize" Value="28" />
     </Style>
 
-    <Style TargetType="TextBlock" x:Key="subtitleText">
+    <Style TargetType="TextBlock" x:Key="subtitleText" BasedOn="{StaticResource {x:Type TextBlock}}">
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontWeight" Value="Bold" />
         <Setter Property="Margin" Value="0 20 0 5" />
@@ -54,7 +58,7 @@
         <Setter Property="Focusable" Value="False" />
     </Style>
 
-    <Style TargetType="Button" x:Key="standardButton">
+    <Style TargetType="Button" x:Key="standardButton" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Padding" Value="15 3" />
     </Style>
 
@@ -76,15 +80,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Fill" Color="#FF595959"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Checked.Stroke" Color="#FF262626"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Stroke" Color="#FF1BBBFA"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Fill" Color="Transparent"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Stroke" Color="#FF262626"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.MouseOver.Checked.Fill" Color="#FF595959"/>
     <PathGeometry x:Key="TreeArrow" Figures="M0,0 L0,6 L6,0 z"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Fill" Color="Transparent"/>
-    <SolidColorBrush x:Key="TreeViewItem.TreeArrow.Static.Stroke" Color="#FF989898"/>
     <Style x:Key="ExpandCollapseToggleStyle" TargetType="{x:Type ToggleButton}">
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Width" Value="16"/>
@@ -93,7 +89,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                     <Border Background="Transparent" Height="16" Padding="5,5,5,5" Width="16">
-                        <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="{StaticResource TreeViewItem.TreeArrow.Static.Fill}" Stroke="{StaticResource TreeViewItem.TreeArrow.Static.Stroke}">
+                        <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="{DynamicResource ABrush.Foreground.Static}" Stroke="{DynamicResource ABrush.Foreground.Static}">
                             <Path.RenderTransform>
                                 <RotateTransform Angle="135" CenterY="3" CenterX="3" />
                             </Path.RenderTransform>
@@ -106,20 +102,20 @@
                                     <RotateTransform Angle="180" CenterY="3" CenterX="3" />
                                 </Setter.Value>
                             </Setter>
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.Static.Checked.Fill}" />
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.Static.Checked.Stroke}" />
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="{DynamicResource ABrush.Tone1.Background.Static}" />
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{DynamicResource ABrush.Foreground.Static}" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Stroke}" />
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Fill}" />
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{DynamicResource ABrush.Foreground.Static}" />
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="{DynamicResource ABrush.Tone4.Background.MouseOver}" />
                         </Trigger>
                         <MultiTrigger>
                             <MultiTrigger.Conditions>
                                 <Condition Property="IsMouseOver" Value="True" />
                                 <Condition Property="IsChecked" Value="True" />
                             </MultiTrigger.Conditions>
-                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Checked.Stroke}" />
-                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource TreeViewItem.TreeArrow.MouseOver.Checked.Fill}" />
+                            <Setter Property="Stroke" TargetName="ExpandPath" Value="{StaticResource ABrush.Foreground.Static}" />
+                            <Setter Property="Fill" TargetName="ExpandPath" Value="{StaticResource ABrush.Tone5.Background.MouseOver}" />
                         </MultiTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -131,7 +127,7 @@
         <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
         <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" />
         <Setter Property="Padding" Value="1,0,0,0" />
-        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+        <Setter Property="Foreground" Value="{DynamicResource ABrush.Tone4.Background.MouseOver}" />
         <Setter Property="FocusVisualStyle" Value="{StaticResource TreeViewItemFocusVisual}" />
         <Setter Property="Template">
             <Setter.Value>
@@ -181,8 +177,7 @@
                             <Setter Property="Visibility" TargetName="Expander" Value="Hidden"/>
                         </Trigger>
                         <Trigger Property="controls:MultiSelectTreeView.IsItemSelected" Value="true">
-                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                            <Setter Property="Background" TargetName="Bd" Value="{DynamicResource ABrush.AccentTone3.Background.Static}" />
                         </Trigger>
                         <!-- Removed to not dim selection when control is not active -->
                         <!--<MultiTrigger>
@@ -211,8 +206,7 @@
                 </Setter>
             </Trigger>
             <Trigger Property="local:TreeViewDropHighlighter.IsPossibleDropTarget" Value="True">
-                <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" />
-                <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}" />
+                <Setter Property="Background" Value="{DynamicResource ABrush.AccentTone3.Background.Static}" />
             </Trigger>
         </Style.Triggers>
     </Style>

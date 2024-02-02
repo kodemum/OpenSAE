@@ -6,46 +6,16 @@
              xmlns:models="clr-namespace:OpenSAE.Models"
              xmlns:local="clr-namespace:OpenSAE.Views"
              mc:Ignorable="d" 
-             d:DataContext="{d:DesignInstance Type=models:AppModel}"
              d:DesignHeight="450" d:DesignWidth="800">
-    <Border>
+    <Border Background="{DynamicResource ABrush.Tone2.Background.Static}">
         <Rectangle>
-            <Rectangle.Style>
-                <Style TargetType="Rectangle">
-                    <Setter Property="Fill">
-                        <Setter.Value>
-                            <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
-                                <DrawingBrush.Drawing>
-                                    <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#ddd"/>
-                                </DrawingBrush.Drawing>
-                            </DrawingBrush>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding DarkBackgroundEnabled}" Value="True">
-                            <Setter Property="Fill">
-                                <Setter.Value>
-                                    <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
-                                        <DrawingBrush.Drawing>
-                                            <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#2f3136"/>
-                                        </DrawingBrush.Drawing>
-                                    </DrawingBrush>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Rectangle.Style>
+            <Rectangle.Fill>
+                <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
+                    <DrawingBrush.Drawing>
+                        <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="{DynamicResource ABrush.Tone2.Border.Static}"/>
+                    </DrawingBrush.Drawing>
+                </DrawingBrush>
+            </Rectangle.Fill>
         </Rectangle>
-        <Border.Style>
-            <Style TargetType="Border">
-                <Setter Property="Background" Value="White" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding DarkBackgroundEnabled}" Value="True">
-                        <Setter Property="Background" Value="#36393f" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </Border.Style>
     </Border>
 </UserControl>

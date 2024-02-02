@@ -8,7 +8,7 @@
              d:DataContext="{d:DesignInstance Type=fb:FileBrowserModel}"
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <Style x:Key="itemstyle" TargetType="{x:Type ListViewItem}">
+        <Style x:Key="itemstyle" TargetType="{x:Type ListViewItem}" BasedOn="{StaticResource {x:Type ListViewItem}}">
             <EventSetter Event="MouseDoubleClick" Handler="ListView_MouseDoubleClick" />
         </Style>
     </UserControl.Resources>

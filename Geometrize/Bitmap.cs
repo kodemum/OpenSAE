@@ -83,7 +83,7 @@ namespace Geometrize
                     var leftPixel = left.data[pos];
                     var rightPixel = right.data[pos];
 
-                    left.data[pos] = blender.Blend(leftPixel, rightPixel, 1);
+                    result.data[pos] = blender.Blend(leftPixel, rightPixel, 1);
                 }
             }
 

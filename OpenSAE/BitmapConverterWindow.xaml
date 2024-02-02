@@ -14,15 +14,10 @@
         WindowStartupLocation="CenterOwner"
         Drop="OnDrop"
         AllowDrop="True"
+        Style="{StaticResource CustomWindowStyle}"
         Title="Import bitmap image" Height="650" Width="1000" ResizeMode="CanResizeWithGrip"
         MinWidth="700" MinHeight="400"
         >
-    <Window.Resources>
-        <Style TargetType="GroupBox">
-            <Setter Property="Margin" Value="0 0 0 5" />
-            <Setter Property="Padding" Value="0 5" />
-        </Style>
-    </Window.Resources>
     <DockPanel>
         <Grid Margin="5" DockPanel.Dock="Top">
             <Grid.ColumnDefinitions>
@@ -57,7 +52,7 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Fill="Black" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
+                        <Rectangle Fill="{DynamicResource ABrush.Foreground.Static}" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
                             <Rectangle.OpacityMask>
                                 <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
                             </Rectangle.OpacityMask>
@@ -81,7 +76,7 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Fill="Black" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
+                        <Rectangle Fill="{DynamicResource ABrush.Foreground.Static}" Width="64" Height="64" ToolTipService.ToolTip="{Binding Description}">
                             <Rectangle.OpacityMask>
                                 <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
                             </Rectangle.OpacityMask>
@@ -178,15 +173,7 @@
         </StackPanel>
 
         <Grid>
-            <Rectangle Grid.Row="1" Grid.Column="2" Panel.ZIndex="-2">
-                <Rectangle.Fill>
-                    <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute">
-                        <DrawingBrush.Drawing>
-                            <GeometryDrawing Geometry="M0,0 H1 V1 H2 V2 H1 V1 H0Z" Brush="#fcfcfc"/>
-                        </DrawingBrush.Drawing>
-                    </DrawingBrush>
-                </Rectangle.Fill>
-            </Rectangle>
+            <views:GridBackground Grid.Row="1" Grid.Column="2" Panel.ZIndex="-2" />
 
             <views:SymbolArtRenderer
                 ClipToBounds="True"

@@ -1,4 +1,5 @@
-﻿using OpenSAE.Models;
+﻿using FramePFX.Themes;
+using OpenSAE.Models;
 using OpenSAE.Properties;
 using OpenSAE.Services;
 using System;
@@ -84,6 +85,7 @@ namespace OpenSAE
 
             Settings.Default.WindowWidth = Width;
             Settings.Default.WindowHeight = Height;
+            Settings.Default.Theme = (int)ThemesController.CurrentTheme;
             Settings.Default.Save();
         }
 

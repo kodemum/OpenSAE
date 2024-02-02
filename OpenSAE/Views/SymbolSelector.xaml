@@ -35,17 +35,17 @@
                             <Style TargetType="Rectangle">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasColor}" Value="False">
-                                        <Setter Property="Fill" Value="Black" />
+                                        <Setter Property="Fill" Value="{DynamicResource ABrush.Foreground.Static}" />
                                         <Setter Property="OpacityMask">
                                             <Setter.Value>
-                                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                                                <ImageBrush ImageSource="{Binding Image}" />
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding HasColor}" Value="True">
                                         <Setter Property="Fill">
                                             <Setter.Value>
-                                                <ImageBrush ImageSource="{Binding Image, IsAsync=True}" />
+                                                <ImageBrush ImageSource="{Binding Image}" />
                                             </Setter.Value>
                                         </Setter>
                                     </DataTrigger>

@@ -14,6 +14,7 @@
         MinHeight="250"
         Closing="Window_Closing"
         ResizeMode="CanResizeWithGrip"
+        Style="{StaticResource CustomWindowStyle}"
         MinWidth="500">
     <Grid>
         <Grid.RowDefinitions>

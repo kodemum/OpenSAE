@@ -20,6 +20,7 @@
         DragOver="mainWindow_DragOver"
         AllowDrop="True"
         Drop="mainWindow_Drop"
+        Style="{StaticResource CustomWindowStyle}"
         x:Name="mainWindow">
     <Window.Resources>
         <DiffuseMaterial x:Key="borderMaterial">
@@ -238,7 +239,6 @@
                 <MenuItem Header="Show image _overlays" InputGestureText="Ctrl+Space" IsCheckable="True" IsChecked="{Binding ShowImageOverlays}" />
                 <MenuItem Header="Restrict non-_affine transformations" IsCheckable="True" IsChecked="{Binding RestrictToAffineManipulation}" />
                 <MenuItem Header="Use _natural symbol selection" IsCheckable="True" IsChecked="{Binding NaturalSymbolSelectionEnabled}" />
-                <MenuItem Header="Use _dark background" IsCheckable="True" IsChecked="{Binding DarkBackgroundEnabled}" />
                 <Separator />
                 <MenuItem Header="_Testing">
                     <MenuItem Header="Disable _grid rounding" IsCheckable="True" IsChecked="{Binding ElementName=renderer, Path=DisableGridPositioning}" />
@@ -246,13 +246,20 @@
                 <Separator />
                 <MenuItem Header="Show example of in-game appearance" Click="ToggleExampleWindow_MenuItem_Click" InputGestureText="F10" />
             </MenuItem>
+            <MenuItem Header="_Theme" ItemsSource="{Binding AvailableThemes}">
+                <MenuItem.ItemTemplate>
+                    <DataTemplate DataType="models:ThemeModel">
+                        <MenuItem Header="{Binding Name}" IsCheckable="True" IsChecked="{Binding IsCurrent}" />
+                    </DataTemplate>
+                </MenuItem.ItemTemplate>
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="Show _help..." InputGestureText="F1" Command="{Binding HelpCommand}" Template="{StaticResource iconMenuItem}" Icon="{StaticResource helpIcon}" />
             </MenuItem>
         </Menu>
 
 
-        <DockPanel Grid.Row="1" Background="{x:Static SystemColors.ControlBrush}">
+        <DockPanel Grid.Row="1">
             <!-- Info bar below tree view -->
             <StatusBar DockPanel.Dock="Bottom" Padding="3">
                 <TextBlock Style="{StaticResource iconText}" Text="{StaticResource layersIcon}" />
@@ -414,9 +421,9 @@
         <!-- Help -->
         <Border Grid.Row="1" Grid.ColumnSpan="5" Panel.ZIndex="3" Margin="50" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="1000"
                 Visibility="{Binding ShowHelpScreen, Converter={StaticResource booleanToVisibilityConverter}}"
-                BorderBrush="Blue" BorderThickness="1">
+                BorderBrush="{DynamicResource ABrush.Tone1.Border.Static}" BorderThickness="1">
             <Border.Background>
-                <SolidColorBrush Color="White" Opacity="0.95" />
+                <SolidColorBrush Color="{DynamicResource AColour.Tone1.Background.Static}" Opacity="0.95" />
             </Border.Background>
             <DockPanel>
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="5">
@@ -451,25 +458,25 @@
             <Grid>
                 <!-- Upper icon toolbar -->
                 <ToolBarTray Background="Transparent" Panel.ZIndex="2" VerticalAlignment="Top" HorizontalAlignment="Left">
-                    <ToolBar Padding="2" FontSize="24">
-                        <Button Content="{StaticResource drawingPlusIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
-                        <Button Content="{StaticResource drawingPlusFolderIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
+                    <ToolBar Padding="2" FontSize="24" Background="{DynamicResource ABrush.Tone3.Background.Static}">
+                        <Button Content="{DynamicResource drawingPlusIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new symbol to the current group (Ctrl+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addLayer" />
+                        <Button Content="{DynamicResource drawingPlusFolderIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Adds a new group (Ctrl+Shift+E)" Command="{Binding CurrentItemCommand}" CommandParameter="addGroup" />
                         <Separator />
-                        <Button Content="{StaticResource drawingEyeIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Toggle the visibility of the current selection (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
-                        <Button Content="{StaticResource drawingMirrorIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Horizontally flips the current selection (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
-                        <Button Content="{StaticResource drawingMirrorVerticalIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Vertically flips the current selection (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
-                        <Button Content="{StaticResource drawingRotateIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Rotate the current selection clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
-                        <Button Content="{StaticResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current selection (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
-                        <Button Content="{StaticResource drawingLayersIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Creates a new group and moves the current selection into it (Ctrl+G)" Command="{Binding CurrentItemCommand}" CommandParameter="groupSelection" />
-                        <ToggleButton IsChecked="{Binding ColorPickerEnabled}" Content="{StaticResource drawingEyeDropperIcon}" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
+                        <Button Content="{DynamicResource drawingEyeIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Toggle the visibility of the current selection (Ctrl+,)" Command="{Binding CurrentItemCommand}" CommandParameter="toggleVisibility" />
+                        <Button Content="{DynamicResource drawingMirrorIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Horizontally flips the current selection (Ctrl+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipX" />
+                        <Button Content="{DynamicResource drawingMirrorVerticalIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Vertically flips the current selection (Ctrl+Shift+F)" Command="{Binding CurrentItemCommand}" CommandParameter="flipY" />
+                        <Button Content="{DynamicResource drawingRotateIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Rotate the current selection clockwise by 90 degrees (Ctrl+R)" Command="{Binding RotateCurrentItemCommand}" CommandParameter="90" />
+                        <Button Content="{DynamicResource drawingCopyIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Duplicates the current selection (Ctrl+Shift+D)" Command="{Binding CurrentItemCommand}" CommandParameter="duplicate" />
+                        <Button Content="{DynamicResource drawingLayersIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Creates a new group and moves the current selection into it (Ctrl+G)" Command="{Binding CurrentItemCommand}" CommandParameter="groupSelection" />
+                        <ToggleButton Background="{DynamicResource ABrush.Tone3.Background.Static}" BorderThickness="0" IsChecked="{Binding ColorPickerEnabled}" Content="{DynamicResource drawingEyeDropperIcon}" ToolTip="Engages/disengages color picker mode" Command="{Binding CanvasModeCommand}" CommandParameter="colorPicker" />
                         <Separator />
-                        <Button Content="{StaticResource drawingIconUp}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
-                        <Button Content="{StaticResource drawingIconDown}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
+                        <Button Content="{DynamicResource drawingIconUp}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection up in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveUp" />
+                        <Button Content="{DynamicResource drawingIconDown}" Style="{StaticResource toolbarIconButton}" ToolTip="Moves the current selection down in the drawing order (Alt+Up)" Command="{Binding CurrentItemCommand}" CommandParameter="moveDown" />
                         <Separator />
-                        <Button Content="{StaticResource drawingUndoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
-                        <Button Content="{StaticResource drawingRedoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
+                        <Button Content="{DynamicResource drawingUndoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Undo the last action (Ctrl+Z / F3)" Command="{Binding Undo.UndoCommand}" />
+                        <Button Content="{DynamicResource drawingRedoIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Redo the last action (Ctrl+Y / F4)" Command="{Binding Undo.RedoCommand}" />
                         <Separator />
-                        <Button Content="{StaticResource drawingDeleteIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Delete the currently selected item(s) (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
+                        <Button Content="{DynamicResource drawingDeleteIcon}" Style="{StaticResource toolbarIconButton}" ToolTip="Delete the currently selected item(s) (Shift+Del)" Command="{Binding CurrentItemCommand}" CommandParameter="delete" />
                     </ToolBar>
                 </ToolBarTray>
 
@@ -477,10 +484,10 @@
                 <Expander
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
-                    Background="White"
+                    Background="{DynamicResource ABrush.Tone3.Background.Static}"
                     Panel.ZIndex="2"
                     BorderThickness="1"
-                    BorderBrush="{x:Static SystemColors.ActiveBorderBrush}"
+                    BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}"
                     MinWidth="150"
                     Margin="2">
                     <Expander.Header>
@@ -507,7 +514,16 @@
                     </StackPanel>
                 </Expander>
 
-                <Border Background="White" Panel.ZIndex="3" MinWidth="350" HorizontalAlignment="Center" MinHeight="200" VerticalAlignment="Top" Padding="10" BorderBrush="Black" BorderThickness="0.5 0 0.5 0.5">
+                <Border
+                    Background="{DynamicResource ABrush.Tone3.Background.Static}"
+                    BorderBrush="{DynamicResource ABrush.Tone3.Border.Static}"
+                    Panel.ZIndex="3"
+                    MinWidth="350"
+                    HorizontalAlignment="Center"
+                    MinHeight="200"
+                    VerticalAlignment="Top"
+                    Padding="10"
+                    BorderThickness="0.5 0 0.5 0.5">
                     <DockPanel>
                         <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentEditView.Title}" FontSize="18" TextAlignment="Center" Margin="5" />
                         <TextBlock DockPanel.Dock="Top" Text="{Binding CurrentEditView.Subtitle}" TextAlignment="Center" Margin="5" />
