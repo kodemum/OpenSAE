@@ -161,7 +161,7 @@ namespace OpenSAE.Core.BitmapConverter
 
                     if (inProgressImageCallback != null)
                     {
-                        inProgressImageCallback.Invoke(Image.LoadPixelData(geometrize.current.data, bitmap.width, bitmap.height));
+                        inProgressImageCallback.Invoke(Image.LoadPixelData<Rgba32>(geometrize.current.data, bitmap.width, bitmap.height));
                     }
                 }
 
