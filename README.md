@@ -2,6 +2,7 @@
 OpenSAE (Open Symbol Art Editor) is an editor and generator for the pseudo-vector symbol art graphics supported by the game Phantasy Star Online 2/PSO2 NGS.
 ![OpenSAE screenshot](https://github.com/kodemum/OpenSAE/assets/72192505/25475a1f-e24e-4ebd-bd5f-b22828aa0363)
 
+Download here: https://github.com/kodemum/OpenSAE/releases
 
 ## Features
 * Reading/writing game .SAR file format as well as the .SAML format used by the other available editors.
